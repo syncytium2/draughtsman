@@ -1,0 +1,98 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "CASCADE — spike inference from calcium imaging",
+  "subtitle": "{model.params} parameters · one {node:n0015.out_shape[2]}-frame ΔF/F window in, one spike rate out",
+  "stages": [
+    {
+      "id": "window",
+      "name": "ΔF/F window",
+      "kind": "input",
+      "nodes": ["in1"],
+      "detail": ["{node:n0015.out_shape[2]} frames", "{stage.out_shape}"],
+      "note": "One neuron, one sliding window, resampled to the model's frame rate. The spike rate predicted is the one at the window's centre, so the network sees equally far forward and back."
+    },
+    {
+      "id": "conv1",
+      "name": "long filter",
+      "kind": "conv",
+      "nodes": ["n0026", "n0027"],
+      "detail": [
+        "{stage.out_shape[1]} filters, kernel {node:n0026.weight_shape[2]}",
+        "unpadded → {stage.out_shape[2]} frames",
+        "{stage.params} params"
+      ],
+      "note": "Nearly half the window wide. This is the layer that sees the slow decay of a calcium transient."
+    },
+    {
+      "id": "conv2",
+      "name": "medium filter",
+      "kind": "conv",
+      "nodes": ["n0038", "n0039"],
+      "detail": [
+        "{stage.out_shape[1]} filters, kernel {node:n0038.weight_shape[2]}",
+        "→ {stage.out_shape[2]} frames",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "pool1",
+      "name": "max-pool",
+      "kind": "pool",
+      "nodes": ["n0048"],
+      "detail": ["stride {node:n0048.constants.stride}", "→ {stage.out_shape[2]} frames"]
+    },
+    {
+      "id": "conv3",
+      "name": "short filter",
+      "kind": "conv",
+      "nodes": ["n0059", "n0060"],
+      "detail": [
+        "{stage.out_shape[1]} filters, kernel {node:n0059.weight_shape[2]}",
+        "→ {stage.out_shape[2]} frames",
+        "{stage.params} params"
+      ],
+      "note": "Widest in channels and narrowest in time — the window has become a short code rather than a trace."
+    },
+    {
+      "id": "pool2",
+      "name": "max-pool",
+      "kind": "pool",
+      "nodes": ["n0069"],
+      "detail": ["stride {node:n0069.constants.stride}", "→ {stage.out_shape[2]} frames"]
+    },
+    {
+      "id": "dense1",
+      "name": "per-frame projection",
+      "kind": "stack",
+      "nodes": ["n0077", "n0078"],
+      "detail": ["to {stage.out_shape[2]} units", "{stage.params} params"],
+      "note": "Applied at each of the surviving frames independently, with weights shared between them — which is why the tensor is put back into frame-major order first."
+    },
+    {
+      "id": "readout",
+      "name": "spike rate",
+      "kind": "output",
+      "nodes": ["n0085", "n0088"],
+      "detail": ["flatten to {node:n0085.out_shape[1]}", "{stage.params} params", "{stage.out_shape}"],
+      "note": "The only layer that mixes the surviving frames. Its input width is computed in Python from the window and the kernel sizes, so it is fixed by the architecture rather than fitted."
+    }
+  ],
+  "edges": [
+    {"from": "window", "to": "conv1"},
+    {"from": "conv1", "to": "conv2"},
+    {"from": "conv2", "to": "pool1"},
+    {"from": "pool1", "to": "conv3"},
+    {"from": "conv3", "to": "pool2"},
+    {"from": "pool2", "to": "dense1"},
+    {"from": "dense1", "to": "readout"}
+  ],
+  "elided": [
+    {
+      "nodes": ["n0015", "n0074"],
+      "reason": "Axis order, not computation. The network is handed frame-major data and convolves channel-major, then goes back so the projection acts per frame; both permutes move no values."
+    }
+  ],
+  "layout": {"wrap": 700},
+  "caption": "Transcribed from CascadeTorch's define_model at the shipped defaults. Every pretrained CASCADE model — Global_EXC_10Hz_50ms among them — is this same network; they differ in training set, frame rate and target smoothing, not in layers."
+}
