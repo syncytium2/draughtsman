@@ -1,0 +1,817 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>draughtsman</title>
+<style>
+:root{
+  --bg:#f6f6f4; --panel:#fff; --ink:#1a1a1a; --muted:#6b6b66; --line:#dcdcd6;
+  --accent:#2f6f8f; --bad:#a4322c; --warn:#8a6a1f; --good:#3d7a4e;
+  --chip:#ececeb; --sel:#e2eef5;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#17181a; --panel:#1f2124; --ink:#e8e8e6; --muted:#9a9a95; --line:#33353a;
+  --accent:#6fb3d2; --bad:#e08a84; --warn:#d8b662; --good:#84c495;
+  --chip:#2a2c30; --sel:#2b3a44;
+}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font:13px/1.45 var(--sans);color:var(--ink);background:var(--bg);
+  display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+
+header{display:flex;align-items:center;gap:14px;padding:9px 14px;position:relative;
+  background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:14px;margin:0;font-weight:650;letter-spacing:.1px}
+header .path{font:11px/1 var(--mono);color:var(--muted)}
+header .sp{flex:1}
+.pill{font:11px/1 var(--mono);padding:4px 8px;border-radius:20px;
+  background:var(--chip);color:var(--muted);white-space:nowrap}
+.pill.ok{color:var(--good)} .pill.bad{background:var(--bad);color:#fff}
+.pill.dirty{background:var(--warn);color:#1a1a1a}
+button{font:12px var(--sans);color:var(--ink);background:var(--panel);
+  border:1px solid var(--line);border-radius:5px;padding:4px 9px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.icon{padding:2px 6px;font:11px var(--mono);line-height:1.3}
+button:disabled{opacity:.45;cursor:default}
+
+main{display:grid;grid-template-columns:250px minmax(0,1fr) 330px;
+  min-height:0;overflow:hidden}
+.col{min-height:0;overflow:auto;background:var(--panel)}
+.col+.col{border-left:1px solid var(--line)}
+#centre{background:var(--bg);display:grid;grid-template-rows:auto auto 1fr;
+  min-height:0;overflow:hidden}
+
+h2{font:10px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin:0;padding:11px 12px 7px}
+.row{display:flex;align-items:center;gap:7px;padding:5px 12px;cursor:pointer;
+  border-left:3px solid transparent}
+.row:hover{background:var(--chip)}
+.row.on{background:var(--sel);border-left-color:var(--accent)}
+.row .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.row .ct{font:10px var(--mono);color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;border:1.5px solid}
+.hint{padding:2px 12px 10px;color:var(--muted);font-size:11px}
+.bar{display:flex;gap:6px;padding:4px 12px 10px;flex-wrap:wrap}
+
+#figwrap{padding:14px;overflow:auto;background:var(--bg);
+  border-bottom:1px solid var(--line)}
+#fig{background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;
+  display:inline-block;min-width:100%}
+#fig svg{display:block;max-width:100%;height:auto}
+body.actual #fig{display:block;min-width:0;width:max-content}
+body.actual #fig svg{max-width:none}
+#fig .ds-stage{cursor:pointer}
+/* The one place a host stylesheet is *supposed* to win over the figure's inline
+   styles — and it needs !important to do it, which is exactly the mechanism
+   SPEC.md §4 records losing to. Used here deliberately, on purpose, out loud. */
+#fig .ds-stage.sel > rect{stroke:var(--accent)!important;stroke-width:2.6!important}
+#fig .ds-stage.hi > rect{stroke:var(--accent)!important;stroke-width:2!important}
+
+#msgs{padding:0 14px;max-height:22vh;overflow:auto}
+.msg{font:11px/1.5 var(--mono);padding:3px 0;display:flex;gap:8px}
+.msg b{flex:none;font-weight:600}
+.msg.e b{color:var(--bad)} .msg.w b{color:var(--warn)} .msg.n b{color:var(--muted)}
+.caveat{font-size:11px;color:var(--muted);padding:6px 0 10px;max-width:70ch}
+
+#nodes{min-height:0;overflow:auto;padding:0 14px 14px}
+table{border-collapse:collapse;width:100%;font:11px var(--mono)}
+th{position:sticky;top:0;background:var(--bg);text-align:left;font-weight:600;
+  color:var(--muted);padding:6px 6px;border-bottom:1px solid var(--line);z-index:1}
+td{padding:3px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--chip)}
+tbody tr.mine{background:var(--sel)}
+tbody tr.free td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+td.num{text-align:right;color:var(--muted)}
+td.owner{color:var(--muted)}
+td.where{color:var(--muted);cursor:pointer}
+td.where:hover{color:var(--accent);text-decoration:underline}
+
+label{display:block;font:10px var(--sans);letter-spacing:.08em;
+  text-transform:uppercase;color:var(--muted);margin:11px 12px 3px}
+input,select,textarea{width:calc(100% - 24px);margin:0 12px;font:12px var(--sans);
+  color:var(--ink);background:var(--bg);border:1px solid var(--line);
+  border-radius:5px;padding:5px 7px}
+textarea{font:11px/1.5 var(--mono);resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);
+  outline-offset:-1px;border-color:transparent}
+.ck{display:flex;align-items:center;gap:6px;margin:10px 12px;font-size:12px;
+  text-transform:none;letter-spacing:0;color:var(--ink)}
+.ck input{width:auto;margin:0}
+.empty{padding:14px 12px;color:var(--muted);font-size:12px}
+.menu{position:absolute;top:40px;right:12px;min-width:210px;z-index:20;
+  background:var(--panel);border:1px solid var(--line);border-radius:7px;
+  padding:5px;box-shadow:0 10px 28px #00000026;display:none}
+.menu.on{display:block}
+.menu button{display:block;width:100%;text-align:left;border:0;padding:6px 9px;
+  background:transparent;border-radius:5px}
+.menu button:hover{background:var(--chip);border-color:transparent}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+.menu .why{font-size:11px;line-height:1.45;color:var(--muted);padding:5px 9px}
+.menu .why.bad{color:var(--bad)}
+
+#gallery{display:none;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));
+  gap:14px;padding:14px;overflow:auto;align-content:start;background:var(--bg)}
+body.gallery #gallery{display:grid}
+body.gallery main{display:none}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:11px 12px;cursor:pointer;display:grid;gap:8px;align-content:start}
+.card:hover{border-color:var(--accent)}
+.card.now{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.card h3{margin:0;font-size:13px;font-weight:650;display:flex;gap:8px;
+  align-items:baseline}
+.card h3 .id{font:11px var(--mono);color:var(--muted);font-weight:400}
+.card .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card .art{background:#fff;border:1px solid var(--line);border-radius:5px;
+  padding:6px;overflow:hidden}
+.card .art svg{display:block;max-width:100%;height:auto}
+.card .err{font:11px/1.5 var(--mono);color:var(--bad)}
+.card .ratio{font:10px var(--mono);color:var(--muted)}
+
+#raw{position:fixed;inset:0;background:#0008;display:none;place-items:center;z-index:9}
+#raw.on{display:grid}
+#raw .box{background:var(--panel);border-radius:8px;padding:14px;width:min(820px,92vw);
+  height:min(70vh,760px);display:grid;grid-template-rows:auto 1fr auto;gap:10px}
+#raw textarea{width:100%;margin:0;height:100%}
+#raw .box h3{margin:0;font-size:13px}
+.mini{font-size:11px;color:var(--muted)}
+</style>
+
+<header>
+  <h1>draughtsman</h1>
+  <select id="model" title="model"
+    style="width:auto;margin:0;max-width:230px"></select>
+  <button id="gallerybtn">All models</button>
+  <span class="path" id="specpath"></span>
+  <span class="sp"></span>
+  <span class="pill" id="cov">…</span>
+  <label class="ck" style="margin:0"><input type="checkbox" id="actual">actual size</label>
+  <button id="rawbtn">spec.json</button>
+  <button id="exportbtn">Export ▾</button>
+  <button class="primary" id="save" disabled>Save</button>
+  <div class="menu" id="exportmenu">
+    <button id="x-copy">Copy SVG</button>
+    <button id="x-svg">Download SVG</button>
+    <hr>
+    <button id="x-png1">PNG — actual size</button>
+    <button id="x-png2">PNG — 2×</button>
+    <button id="x-png4">PNG — 4× (print)</button>
+    <hr>
+    <button id="x-spec">Copy spec.json</button>
+    <div class="why" id="x-why"></div>
+  </div>
+</header>
+
+<main>
+  <div class="col" id="left"></div>
+  <div id="centre">
+    <div id="figwrap"><div id="fig"></div></div>
+    <div id="msgs"></div>
+    <div id="nodes"></div>
+  </div>
+  <div class="col" id="right"></div>
+</main>
+
+<div id="gallery"></div>
+
+<div id="raw"><div class="box">
+  <h3>spec.json — the escape hatch</h3>
+  <textarea id="rawtext" spellcheck="false"></textarea>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span class="mini" id="rawmsg">Edits here replace the whole spec. Nothing is written until Save.</span>
+    <span style="flex:1"></span>
+    <button id="rawcancel">Cancel</button>
+    <button class="primary" id="rawapply">Apply</button>
+  </div>
+</div></div>
+
+<script>
+const KINDS = ["input","pool","reduce","kernel","conv","stack","concat","output","op"];
+// the figure's palette, so the list and the picture agree at a glance
+const SWATCH = {input:"#f2f2f0",output:"#f2f2f0",pool:"#e4eef5",reduce:"#e4eef5",
+  kernel:"#f6ecd9",conv:"#e2eee7",stack:"#e2eee7",concat:"#ece6f2",op:"#f0f0ef"};
+const STROKE = {input:"#8a8a86",output:"#8a8a86",pool:"#6f93a8",reduce:"#6f93a8",
+  kernel:"#b08e52",conv:"#6f9c85",stack:"#6f9c85",concat:"#8d7ba8",op:"#8a8a86"};
+
+let spec = null, graph = null, sel = null, saved = "", filter = "", freeOnly = false;
+// The exact string the server rendered. EXPORT SHIPS THIS, not a re-serialisation
+// of the DOM, so what you copy is byte-identical to what Save writes and to what
+// `draughtsman render` produces. One renderer, all the way to the clipboard.
+let lastSvg = null, lastOk = true;
+// One draft per model, so switching to look at another and coming back does not
+// throw away an edit. What the gallery shows is what is on disk; a model with an
+// unsaved draft is labelled, rather than quietly shown as something it is not.
+let models = [], current = null, drafts = {}, savedText = {};
+const $ = s => document.querySelector(s);
+const el = (t, a = {}, ...kids) => {
+  const n = document.createElement(t);
+  for (const [k, v] of Object.entries(a)) {
+    if (k === "cls") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else if (v !== null && v !== undefined) n.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k !== null && k !== undefined)
+    n.append(k.nodeType ? k : document.createTextNode(k));
+  return n;
+};
+const shape = s => !s ? "—" : (s.length ? s.join("×") : "scalar");
+const dirty = () => JSON.stringify(spec) !== saved;
+const draftOf = n => drafts[n] && JSON.stringify(drafts[n]) !== savedText[n];
+
+// ---- ownership: which stage or elision claims each node ------------------
+function owners() {
+  const o = {};
+  spec.stages.forEach(s => (s.nodes || []).forEach(n => (o[n] ??= []).push(s.id)));
+  (spec.elided || []).forEach((e, i) =>
+    (e.nodes || []).forEach(n => (o[n] ??= []).push("⌀" + i)));
+  return o;
+}
+
+// ---- server ---------------------------------------------------------------
+let timer = null;
+function preview() {
+  clearTimeout(timer);
+  timer = setTimeout(async () => {
+    const r = await fetch("/api/preview", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({spec, model: current})}).then(r => r.json());
+    paintFigure(r);
+    paintMsgs(r);
+    $("#save").disabled = !dirty();
+    paintPill(r.check);
+  }, 120);
+}
+
+// THE BADGE DOES NOT COUNT. It shows what `check` counted, because a second
+// implementation of §5 in the browser is how an indicator comes to disagree with
+// the check it indicates — and this indicator is the whole safety argument for
+// letting an agent into the pipeline. It also says what is wrong rather than a
+// bare ratio: "47/47" while a node sits in two stages would read as success.
+function paintPill(chk) {
+  const p = $("#cov");
+  p.textContent = chk ? chk.summary : "…";
+  p.className = "pill " + (chk && chk.ok ? "ok" : "bad");
+  p.title = chk ? JSON.stringify(chk.counts, null, 1) : "";
+}
+
+function paintFigure(r) {
+  const f = $("#fig");
+  if (r.svg) {
+    lastSvg = r.svg;
+    f.innerHTML = r.svg;
+    f.querySelectorAll("[data-stage]").forEach(g =>
+      g.addEventListener("click", () => select({k: "stage", id: g.dataset.stage})));
+    markSelection();
+  } else if (r.error) {
+    f.innerHTML = "";
+    f.append(el("div", {cls: "empty"}, "cannot render: " + r.error));
+  }
+}
+
+function markSelection() {
+  $("#fig").querySelectorAll(".ds-stage").forEach(g =>
+    g.classList.toggle("sel", sel && sel.k === "stage" && g.dataset.stage === sel.id));
+}
+
+function paintMsgs(r) {
+  const box = $("#msgs");
+  box.innerHTML = "";
+  if (!r.check) return;
+  const add = (cls, tag, t) => box.append(el("div", {cls: "msg " + cls},
+    el("b", {}, tag), el("span", {}, t)));
+  r.check.errors.forEach(t => add("e", "ERROR", t));
+  r.check.warnings.forEach(t => add("w", "warning", t));
+  r.check.notes.forEach(t => add("n", "·", t));
+  lastOk = r.check.ok;
+  box.append(el("div", {cls: "caveat"}, r.check.ok
+    ? "Coverage passing means no traced operation was silently dropped. It says nothing about whether the names are good, the grouping is natural, or the figure is legible. That is what you are here for."
+    : "Coverage is failing. The figure below is still drawn, because you cannot fix a grouping you cannot see."));
+}
+
+// ---- left column: stages and edges ---------------------------------------
+function paintLeft() {
+  const c = $("#left");
+  c.innerHTML = "";
+  c.append(el("h2", {}, "Stages"));
+  spec.stages.forEach(s => {
+    c.append(el("div", {cls: "row" + (sel?.k === "stage" && sel.id === s.id ? " on" : ""),
+        onclick: () => select({k: "stage", id: s.id}),
+        onmouseenter: () => hilite(s.id), onmouseleave: () => hilite(null)},
+      el("span", {cls: "dot", style: `background:${SWATCH[s.kind] || SWATCH.op};` +
+        `border-color:${STROKE[s.kind] || STROKE.op}`}),
+      el("span", {cls: "nm"}, s.name || s.id),
+      el("span", {cls: "ct"}, String((s.nodes || []).length))));
+  });
+  if (!spec.stages.length) c.append(el("div", {cls: "hint"}, "No stages yet."));
+  c.append(el("div", {cls: "bar"},
+    el("button", {onclick: addStage}, "+ stage"),
+    el("button", {onclick: addFromFilter, title:
+      "Make a stage from every uncovered node currently listed"}, "+ from filter")));
+
+  c.append(el("h2", {}, "Elided"));
+  (spec.elided || []).forEach((e, i) => {
+    c.append(el("div", {cls: "row" + (sel?.k === "elision" && sel.i === i ? " on" : ""),
+        onclick: () => select({k: "elision", i})},
+      el("span", {cls: "dot", style:
+        "background:transparent;border-style:dashed;border-color:var(--muted)"}),
+      el("span", {cls: "nm"}, e.reason || "(no reason — this fails)"),
+      el("span", {cls: "ct"}, String((e.nodes || []).length))));
+  });
+  c.append(el("div", {cls: "bar"}, el("button", {onclick: () => {
+    (spec.elided ??= []).push({nodes: [], reason: ""});
+    select({k: "elision", i: spec.elided.length - 1}); touch();
+  }}, "+ elision")));
+  c.append(el("div", {cls: "hint"},
+    "An elision is a decision in a diff, not a silent loss. It needs a reason."));
+
+  c.append(el("h2", {}, "Edges"));
+  c.append(el("div", {cls: "hint"},
+    "Declaration order sets lane order, top to bottom."));
+  spec.edges.forEach((e, i) => {
+    c.append(el("div", {cls: "row"},
+      el("span", {cls: "nm"}, `${e.from} → ${e.to}` + (e.label ? ` (${e.label})` : "")),
+      el("button", {cls: "icon", title: "up", disabled: i === 0 || null,
+        onclick: ev => {ev.stopPropagation(); swap(i, i - 1);}}, "↑"),
+      el("button", {cls: "icon", title: "down",
+        disabled: i === spec.edges.length - 1 || null,
+        onclick: ev => {ev.stopPropagation(); swap(i, i + 1);}}, "↓"),
+      el("button", {cls: "icon", title: "remove",
+        onclick: ev => {ev.stopPropagation(); spec.edges.splice(i, 1); touch();}}, "×")));
+  });
+  const narrow = "width:auto;flex:1;min-width:0;margin:0";
+  const from = el("select", {style: narrow}), to = el("select", {style: narrow});
+  for (const s of spec.stages) {
+    from.append(el("option", {value: s.id}, s.id));
+    to.append(el("option", {value: s.id}, s.id));
+  }
+  if (spec.stages.length > 1) to.selectedIndex = 1;
+  c.append(el("div", {cls: "bar"}, from, to, el("button", {onclick: () => {
+    if (!from.value || !to.value || from.value === to.value) return;
+    spec.edges.push({from: from.value, to: to.value}); touch();
+  }}, "+ edge")));
+}
+
+function swap(a, b) {
+  const e = spec.edges;
+  [e[a], e[b]] = [e[b], e[a]];
+  touch();
+}
+
+function hilite(id) {
+  $("#fig").querySelectorAll(".ds-stage").forEach(g =>
+    g.classList.toggle("hi", id !== null && g.dataset.stage === id));
+}
+
+function addStage() {
+  let n = spec.stages.length + 1, id = "stage" + n;
+  while (spec.stages.some(s => s.id === id)) id = "stage" + (++n);
+  spec.stages.push({id, name: id, kind: "op", nodes: [], detail: []});
+  select({k: "stage", id});
+  touch();
+}
+
+function addFromFilter() {
+  const own = owners();
+  const free = visibleNodes().filter(n => !own[n.id]).map(n => n.id);
+  if (!free.length) return;
+  addStage();
+  spec.stages.at(-1).nodes = free;
+  touch();
+}
+
+// ---- right column: the inspector -----------------------------------------
+function paintRight() {
+  const c = $("#right");
+  c.innerHTML = "";
+  if (!sel) {
+    c.append(el("div", {cls: "empty"},
+      "Select a stage to name it, colour it, and choose what it says. " +
+      "Then click nodes in the table to move them into it."));
+    return;
+  }
+  if (sel.k === "elision") {
+    const e = spec.elided[sel.i];
+    if (!e) {sel = null; return paintRight();}
+    c.append(el("h2", {}, "Elision"));
+    c.append(el("label", {}, "reason — required"));
+    c.append(el("textarea", {rows: 3, oninput: ev => {
+      e.reason = ev.target.value; touch(false);
+    }}, e.reason || ""));
+    c.append(el("div", {cls: "hint"}, `${(e.nodes || []).length} node(s). ` +
+      "Click rows in the table to move nodes in or out."));
+    c.append(el("div", {cls: "bar"}, el("button", {onclick: () => {
+      spec.elided.splice(sel.i, 1); sel = null; touch();
+    }}, "remove elision")));
+    return;
+  }
+
+  const s = spec.stages.find(x => x.id === sel.id);
+  if (!s) {sel = null; return paintRight();}
+  c.append(el("h2", {}, "Stage"));
+
+  c.append(el("label", {}, "id — edges refer to this"));
+  c.append(el("input", {value: s.id, onchange: ev => {
+    const old = s.id, id = ev.target.value.trim();
+    if (!id || spec.stages.some(x => x !== s && x.id === id)) {
+      ev.target.value = old; return;
+    }
+    s.id = id;
+    spec.edges.forEach(e => {
+      if (e.from === old) e.from = id;
+      if (e.to === old) e.to = id;
+    });
+    sel.id = id; touch();
+  }}));
+
+  c.append(el("label", {}, "name — what a reader calls it"));
+  c.append(el("input", {value: s.name || "", oninput: ev => {
+    s.name = ev.target.value; touch(false);
+  }}));
+
+  c.append(el("label", {}, "kind — picks the colour"));
+  const k = el("select", {onchange: ev => {s.kind = ev.target.value; touch();}});
+  KINDS.forEach(v => k.append(el("option", {value: v,
+    selected: v === (s.kind || "op") || null}, v)));
+  c.append(k);
+
+  c.append(el("label", {}, "detail — one line each, {references} only"));
+  c.append(el("textarea", {rows: 4, spellcheck: "false", oninput: ev => {
+    s.detail = ev.target.value.split("\n").filter(x => x.trim());
+    touch(false);
+  }}, (s.detail || []).join("\n")));
+  c.append(el("div", {cls: "hint"},
+    "{stage.out_shape} · {stage.params} · {stage.nodes} · {model.params} · " +
+    "{node:n0031.constants.kernel_size} · {node:n0149.weight_shape[2]}"));
+
+  const hasLanes = !!s.lanes;
+  const lane = el("input", {type: "checkbox", checked: hasLanes || null,
+    onchange: ev => {
+      s.lanes = ev.target.checked
+        ? {count_from: "{stage.out_shape[1]}", labels: []} : undefined;
+      if (!ev.target.checked) delete s.lanes;
+      touch();
+    }});
+  c.append(el("label", {cls: "ck"}, lane, "draw as parallel lanes"));
+  if (hasLanes) {
+    c.append(el("label", {}, "how many — a reference, never a number"));
+    c.append(el("input", {value: s.lanes.count_from, spellcheck: "false",
+      oninput: ev => {s.lanes.count_from = ev.target.value; touch(false);}}));
+    c.append(el("label", {}, "labels — comma separated, yours to name"));
+    c.append(el("input", {value: (s.lanes.labels || []).join(", "),
+      oninput: ev => {
+        s.lanes.labels = ev.target.value.split(",").map(x => x.trim())
+          .filter(Boolean);
+        touch(false);
+      }}));
+    c.append(el("div", {cls: "hint"},
+      "A bank of N filters is usually one convolution with N channels, not N " +
+      "edges. The count comes from the model; the names come from you; check " +
+      "fails if they disagree."));
+  }
+
+  c.append(el("label", {}, "note — not drawn, kept in the spec"));
+  c.append(el("textarea", {rows: 3, oninput: ev => {
+    s.note = ev.target.value || undefined; touch(false);
+  }}, s.note || ""));
+
+  c.append(el("div", {cls: "bar"},
+    el("button", {onclick: () => {
+      spec.stages = spec.stages.filter(x => x !== s);
+      spec.edges = spec.edges.filter(e => e.from !== s.id && e.to !== s.id);
+      sel = null; touch();
+    }}, "delete stage")));
+  c.append(el("div", {cls: "hint"},
+    `${(s.nodes || []).length} node(s). Deleting a stage frees its nodes, and ` +
+    "coverage will say so."));
+}
+
+// ---- centre: the node table ----------------------------------------------
+// graph.json keeps the model's own inputs apart from the traced nodes: they are
+// addressable but coverage does not range over them. They still have to appear
+// here, or the stage that names the raster is the one stage you cannot edit.
+function allNodes() {
+  return (graph.inputs || []).map(i => ({
+    id: i.id, kind: "input", out_shape: i.shape, params: 0,
+    tensor_inputs: [], module: "model input", source: null, untraced: true,
+  })).concat(graph.nodes);
+}
+
+function visibleNodes() {
+  const own = owners();
+  const f = filter.toLowerCase();
+  return allNodes().filter(n => {
+    if (freeOnly && (own[n.id] || n.untraced)) return false;
+    if (!f) return true;
+    return (n.id + " " + n.kind + " " + (n.module || "") + " " +
+      (n.source ? n.source.file + ":" + n.source.line : "")).toLowerCase()
+      .includes(f);
+  });
+}
+
+// The filter bar is built once and never rebuilt. Recreating it inside
+// paintNodes stole the caret out of the box on every keystroke.
+function paintNodeBar() {
+  const c = $("#nodes");
+  c.append(el("div", {cls: "bar", style: "padding-left:0"},
+    el("input", {placeholder: "filter by id, op, module or source line",
+      style: "width:auto;flex:1;margin:0",
+      oninput: ev => {filter = ev.target.value; paintNodes();}}),
+    el("label", {cls: "ck", style: "margin:0"},
+      el("input", {type: "checkbox",
+        onchange: ev => {freeOnly = ev.target.checked; paintNodes();}}),
+      "unplaced only")));
+  c.append(el("div", {id: "nodetable"}));
+}
+
+function paintNodes() {
+  const c = $("#nodetable");
+  const keep = c.scrollTop || $("#nodes").scrollTop;   // assigning many nodes
+  c.innerHTML = "";
+  const own = owners();
+  const rows = visibleNodes();
+  const table = el("table", {},
+    el("thead", {}, el("tr", {},
+      ["node", "op", "out", "params", "inputs", "where", "stage"].map(h =>
+        el("th", {}, h)))));
+  const body = el("tbody");
+  const mine = sel?.k === "stage"
+    ? new Set(spec.stages.find(s => s.id === sel.id)?.nodes || [])
+    : sel?.k === "elision"
+      ? new Set(spec.elided[sel.i]?.nodes || []) : new Set();
+
+  for (const n of rows) {
+    const holder = own[n.id];
+    const where = n.module || (n.source
+      ? `${n.source.file}:${n.source.line}` : "");
+    body.append(el("tr", {
+      cls: (mine.has(n.id) ? "mine " : "") +
+           (holder || n.untraced ? "" : "free"),
+      onclick: () => toggle(n.id),
+      onmouseenter: () => hilite(holder ? holder[0] : null),
+      onmouseleave: () => hilite(null)},
+      el("td", {}, n.id),
+      el("td", {}, n.kind.replace("aten::", "").replace("prim::", "")),
+      el("td", {}, shape(n.out_shape)),
+      el("td", {cls: "num"}, n.params ? String(n.params) : ""),
+      el("td", {cls: "owner"}, (n.tensor_inputs || []).join(" ") || "—"),
+      el("td", {cls: "where", onclick: ev => {
+        ev.stopPropagation(); filter = where; paintNodes();
+      }}, where),
+      el("td", {cls: "owner"}, holder ? holder.join(",") : "—")));
+  }
+  table.append(body);
+  c.append(table);
+  if (!rows.length) c.append(el("div", {cls: "empty"}, "nothing matches."));
+  $("#nodes").scrollTop = keep;
+}
+
+function toggle(id) {
+  if (!sel) return;
+  const bag = sel.k === "stage"
+    ? spec.stages.find(s => s.id === sel.id)
+    : spec.elided[sel.i];
+  if (!bag) return;
+  bag.nodes ??= [];
+  if (bag.nodes.includes(id)) {
+    bag.nodes = bag.nodes.filter(x => x !== id);
+  } else {
+    // A node lives in exactly one place, so taking it is also giving it up.
+    spec.stages.forEach(s => s.nodes &&
+      (s.nodes = s.nodes.filter(x => x !== id)));
+    (spec.elided || []).forEach(e => e.nodes &&
+      (e.nodes = e.nodes.filter(x => x !== id)));
+    bag.nodes.push(id);
+    bag.nodes.sort();
+  }
+  touch();
+}
+
+// ---- glue -----------------------------------------------------------------
+function select(s) {sel = s; paintLeft(); paintRight(); paintNodes(); markSelection();}
+function touch(full = true) {
+  if (full) {paintLeft(); paintRight(); paintNodes();} else {paintLeft();}
+  preview();
+}
+
+$("#actual").addEventListener("change", ev =>
+  document.body.classList.toggle("actual", ev.target.checked));
+$("#rawbtn").addEventListener("click", () => {
+  $("#rawtext").value = JSON.stringify(spec, null, 2);
+  $("#raw").classList.add("on");
+});
+$("#rawcancel").addEventListener("click", () => $("#raw").classList.remove("on"));
+$("#rawapply").addEventListener("click", () => {
+  try {
+    spec = JSON.parse($("#rawtext").value);
+    $("#raw").classList.remove("on");
+    sel = null; touch();
+  } catch (e) {$("#rawmsg").textContent = "not valid JSON: " + e.message;}
+});
+// ---- export ---------------------------------------------------------------
+const slug = () => (spec.title || "figure").toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "figure";
+
+function offer(blob, name) {
+  const a = el("a", {href: URL.createObjectURL(blob), download: name});
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+async function toClipboard(text, said) {
+  try {
+    await navigator.clipboard.writeText(text);
+    flash(said);
+  } catch (e) {
+    flash("clipboard refused — use Download instead");
+  }
+}
+
+function flash(msg) {
+  const p = $("#specpath");
+  p.textContent = msg;
+  setTimeout(() => p.textContent = p.dataset.path, 3000);
+}
+
+async function toPng(scale) {
+  if (!lastSvg) return;
+  const img = new Image();
+  const src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(lastSvg);
+  await new Promise((ok, no) => {
+    img.onload = ok;
+    img.onerror = () => no(new Error("the browser could not rasterise the SVG"));
+    img.src = src;
+  });
+  const box = lastSvg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  const w = box ? parseFloat(box[1]) : img.width;
+  const h = box ? parseFloat(box[2]) : img.height;
+  const c = el("canvas");
+  c.width = Math.round(w * scale);
+  c.height = Math.round(h * scale);
+  const ctx = c.getContext("2d");
+  // The figure ships no background of its own — it inherits the page it is
+  // embedded in. A PNG has no page, so give it the white one it expects.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  c.toBlob(b => {
+    offer(b, `${slug()}${scale === 1 ? "" : "@" + scale + "x"}.png`);
+    flash(`exported ${c.width}×${c.height} PNG`);
+  }, "image/png");
+}
+
+function openExport() {
+  const m = $("#exportmenu");
+  m.classList.toggle("on");
+  const why = $("#x-why");
+  if (!lastOk) {
+    why.className = "why bad";
+    why.textContent = "Coverage is failing. This figure is missing operations " +
+      "the model performs — the thing every tool in §2 shipped without saying so.";
+  } else {
+    why.className = "why";
+    why.textContent = "SVG is what Save writes, byte for byte. PNG is rasterised " +
+      "from it here; for print or LaTeX, prefer the SVG.";
+  }
+}
+
+$("#exportbtn").addEventListener("click", ev => {ev.stopPropagation(); openExport();});
+document.addEventListener("click", ev => {
+  if (!ev.target.closest || !ev.target.closest("#exportmenu, #exportbtn"))
+    $("#exportmenu").classList.remove("on");
+});
+$("#x-copy").addEventListener("click", () =>
+  toClipboard(lastSvg || "", "SVG copied — identical to figure.svg"));
+$("#x-svg").addEventListener("click", () => {
+  if (lastSvg) offer(new Blob([lastSvg], {type: "image/svg+xml"}), slug() + ".svg");
+});
+$("#x-png1").addEventListener("click", () => toPng(1));
+$("#x-png2").addEventListener("click", () => toPng(2));
+$("#x-png4").addEventListener("click", () => toPng(4));
+$("#x-spec").addEventListener("click", () =>
+  toClipboard(JSON.stringify(spec, null, 2), "spec.json copied"));
+
+// ---- models ---------------------------------------------------------------
+function paintPicker() {
+  const m = $("#model");
+  m.innerHTML = "";
+  for (const name of models)
+    m.append(el("option", {value: name, selected: name === current || null},
+      name + (draftOf(name) ? " •" : "")));
+}
+
+async function openModel(name) {
+  if (name === current) return;
+  if (current) drafts[current] = spec;             // keep the edit
+  const st = await fetch("/api/state?model=" + encodeURIComponent(name))
+    .then(r => r.json());
+  if (st.error) {flash(st.error); return;}
+  current = st.name;
+  models = st.models || models;
+  graph = st.graph;
+  savedText[current] = JSON.stringify(st.spec);
+  spec = drafts[current] || st.spec;
+  saved = savedText[current];
+  sel = null;
+  const p = $("#specpath");
+  p.dataset.path = st.paths.spec + (st.paths.existed ? "" : "  (new)");
+  p.textContent = p.dataset.path;
+  document.title = (spec.title || name) + " — draughtsman";
+  paintPicker();
+  paintLeft(); paintRight(); paintNodes();
+  paintFigure(st); paintMsgs(st); paintPill(st.check);
+  $("#save").disabled = !dirty();
+  if (dirty()) preview();
+}
+
+$("#model").addEventListener("change", ev => openModel(ev.target.value));
+
+// ---- gallery --------------------------------------------------------------
+// TEN FIGURES ON ONE SHEET IS A REGRESSION TEST YOU CAN SEE. A layout defect in
+// one model of nine does not announce itself in a passing check — coverage is
+// about what was dropped, not about what the picture looks like — and opening
+// nine tabs to find it is how it stays unfound.
+async function paintGallery() {
+  const g = $("#gallery");
+  g.innerHTML = "";
+  g.append(el("div", {cls: "empty"}, "rendering…"));
+  const r = await fetch("/api/gallery").then(r => r.json());
+  g.innerHTML = "";
+  for (const c of r.models) {
+    const card = el("div", {cls: "card" + (c.name === current ? " now" : ""),
+      onclick: () => {openModel(c.name); showEdit();}});
+    card.append(el("h3", {}, c.title || c.name, el("span", {cls: "id"}, c.name)));
+    const meta = el("div", {cls: "meta"},
+      el("span", {cls: "pill " + (c.ok ? "ok" : "bad")},
+        c.summary || (c.error ? "cannot render" : "—")),
+      el("span", {cls: "ratio"},
+        `${c.stages} stages · ${c.params.toLocaleString()} params`));
+    if (draftOf(c.name))
+      meta.append(el("span", {cls: "pill dirty"}, "unsaved edits"));
+    card.append(meta);
+    if (c.svg) {
+      const art = el("div", {cls: "art"});
+      art.innerHTML = c.svg;
+      const box = c.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+      card.append(art);
+      if (box) card.append(el("div", {cls: "ratio"},
+        `${Math.round(box[1])}×${Math.round(box[2])} · ` +
+        `${(box[1] / box[2]).toFixed(1)}:1`));
+    } else {
+      card.append(el("div", {cls: "err"}, c.error || "no figure"));
+    }
+    g.append(card);
+  }
+}
+
+const showEdit = () => document.body.classList.remove("gallery");
+$("#gallerybtn").addEventListener("click", () => {
+  const on = document.body.classList.toggle("gallery");
+  $("#gallerybtn").textContent = on ? "Back to editing" : "All models";
+  if (on) paintGallery();
+});
+
+$("#save").addEventListener("click", save);
+addEventListener("keydown", ev => {
+  if ((ev.metaKey || ev.ctrlKey) && ev.key === "s") {ev.preventDefault(); save();}
+  if (ev.key === "Escape") {
+    $("#raw").classList.remove("on");
+    $("#exportmenu").classList.remove("on");
+  }
+  if ((ev.metaKey || ev.ctrlKey) && ev.key === "e") {
+    ev.preventDefault(); openExport();
+  }
+});
+
+async function save() {
+  const r = await fetch("/api/save", {method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({spec, model: current})}).then(r => r.json());
+  if (r.error) {flash("save failed: " + r.error); return;}
+  saved = JSON.stringify(spec);
+  savedText[current] = saved;
+  $("#save").disabled = true;
+  flash(r.warning || "wrote " + r.wrote.join(" and "));
+}
+
+(async function boot() {
+  const s = await fetch("/api/state").then(r => r.json());
+  spec = s.spec; graph = s.graph; saved = JSON.stringify(spec);
+  models = s.models || [s.name];
+  current = s.name;
+  savedText[current] = saved;
+  paintPicker();
+  const p = $("#specpath");
+  p.dataset.path = s.paths.spec + (s.paths.existed ? "" : "  (new)");
+  p.textContent = p.dataset.path;
+  document.title = (spec.title || "draughtsman") + " — draughtsman";
+  paintNodeBar();
+  paintLeft(); paintRight(); paintNodes(); paintFigure(s); paintMsgs(s);
+  $("#save").disabled = true;
+  paintPill(s.check);
+})();
+</script>

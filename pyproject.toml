@@ -4,26 +4,34 @@ build-backend = "hatchling.build"
 
 [project]
 name = "draughtsman"
-version = "0.0.0"
+version = "0.1.0"
 description = "Readable architecture diagrams for PyTorch models: the tracer supplies the facts, an agent supplies the abstraction, and a coverage check proves nothing was silently dropped."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "BSD-3-Clause" }
 dependencies = []
 
-# torch is NOT a hard dependency. `render` and `check` operate on graph.json and
-# spec.json alone, so a machine that only draws a figure needs neither torch nor a
-# GPU wheel. Only `trace` needs it.
+# torch is NOT a hard dependency, and there is no system binary anywhere. `render`
+# and `check` operate on graph.json and spec.json alone -- layout is ours (see
+# draughtsman/layout.py) -- so a machine that only draws a figure needs neither
+# torch nor a GPU wheel nor graphviz. Only `trace` needs anything at all.
+#
+# This is what lets the staleness test of SPEC.md §6 be an unconditional assertion
+# instead of one that skips when a tool is absent.
 [project.optional-dependencies]
 trace = ["torch>=2.0"]
-render = ["graphviz>=0.20"]
-dev = ["pytest>=8", "torch>=2.0", "graphviz>=0.20"]
+dev = ["pytest>=8", "torch>=2.0"]
 
 [project.scripts]
 draughtsman = "draughtsman.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/draughtsman"]
+# ui.html is served verbatim by `draughtsman ui`; it is not a build artifact and
+# there is no bundler step, so it has to travel with the package.
+artifacts = ["src/draughtsman/ui.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+filterwarnings = ["ignore::DeprecationWarning:torch.*"]

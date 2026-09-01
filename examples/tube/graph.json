@@ -1,0 +1,2215 @@
+{
+  "draughtsman": "0",
+  "model": {
+    "target": "bugarach.learn.nets.tube:build_tube",
+    "input_shape": [
+      1,
+      30,
+      600
+    ],
+    "input_dtype": "float32",
+    "params": 1149,
+    "parameters": {
+      "gain": 4,
+      "head.0.bias": 8,
+      "head.0.weight": 120,
+      "head.10.bias": 8,
+      "head.10.weight": 192,
+      "head.12.bias": 1,
+      "head.12.weight": 8,
+      "head.2.bias": 8,
+      "head.2.weight": 192,
+      "head.4.bias": 8,
+      "head.4.weight": 192,
+      "head.6.bias": 8,
+      "head.6.weight": 192,
+      "head.8.bias": 8,
+      "head.8.weight": 192,
+      "log_center": 4,
+      "log_ratio": 4
+    },
+    "parameter_shapes": {
+      "gain": [
+        4
+      ],
+      "head.0.bias": [
+        8
+      ],
+      "head.0.weight": [
+        8,
+        5,
+        3
+      ],
+      "head.10.bias": [
+        8
+      ],
+      "head.10.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.12.bias": [
+        1
+      ],
+      "head.12.weight": [
+        1,
+        8,
+        1
+      ],
+      "head.2.bias": [
+        8
+      ],
+      "head.2.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.4.bias": [
+        8
+      ],
+      "head.4.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.6.bias": [
+        8
+      ],
+      "head.6.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.8.bias": [
+        8
+      ],
+      "head.8.weight": [
+        8,
+        8,
+        3
+      ],
+      "log_center": [
+        4
+      ],
+      "log_ratio": [
+        4
+      ]
+    }
+  },
+  "tracer": {
+    "backend": "torch.jit.trace",
+    "torch": "2.13.0"
+  },
+  "classification": {
+    "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
+    "structural_kinds": [
+      "prim::Constant",
+      "prim::ListConstruct",
+      "prim::TupleConstruct",
+      "prim::ListUnpack",
+      "prim::TupleUnpack",
+      "prim::GetAttr",
+      "prim::NumToTensor",
+      "aten::Int",
+      "aten::ScalarImplicit",
+      "aten::size",
+      "aten::detach",
+      "aten::contiguous"
+    ],
+    "nodes_total": 200,
+    "nodes_substantive": 47,
+    "nodes_structural": 153
+  },
+  "params_attributed": 1149,
+  "params_fully_attributed": true,
+  "inputs": [
+    {
+      "id": "in1",
+      "value": "x",
+      "shape": [
+        1,
+        30,
+        600
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "producer": "n0199",
+      "value": "124",
+      "shape": [
+        1,
+        600
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n0017",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 141,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0006",
+        "n0010"
+      ],
+      "tensor_inputs": [
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "19",
+          "shape": []
+        }
+      ],
+      "out_shape": [],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0021",
+      "kind": "aten::reshape",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 141,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "in1",
+        "n0020"
+      ],
+      "tensor_inputs": [
+        "in1",
+        "n0017"
+      ],
+      "outputs": [
+        {
+          "value": "input.1",
+          "shape": [
+            30,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0031",
+      "kind": "aten::max_pool1d",
+      "module": null,
+      "source": {
+        "file": "functional.py",
+        "line": 747,
+        "function": "_max_pool1d",
+        "internal": true
+      },
+      "inputs": [
+        "n0021",
+        "n0023",
+        "n0025",
+        "n0027",
+        "n0029",
+        "n0030"
+      ],
+      "tensor_inputs": [
+        "n0021"
+      ],
+      "outputs": [
+        {
+          "value": "33",
+          "shape": [
+            30,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "kernel_size": [
+          3
+        ],
+        "stride": [
+          1
+        ],
+        "padding": [
+          1
+        ],
+        "dilation": [
+          1
+        ],
+        "ceil_mode": false
+      }
+    },
+    {
+      "id": "n0033",
+      "kind": "aten::reshape",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 142,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0031",
+        "n0032"
+      ],
+      "tensor_inputs": [
+        "n0031",
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "pooled",
+          "shape": [
+            1,
+            30,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        30,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0038",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 143,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0033",
+        "n0035",
+        "n0036",
+        "n0037"
+      ],
+      "tensor_inputs": [
+        "n0033"
+      ],
+      "outputs": [
+        {
+          "value": "40",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0039",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 143,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0038",
+        "n0010"
+      ],
+      "tensor_inputs": [
+        "n0038",
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "bright",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0046",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 113,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0040",
+        "n0041",
+        "n0042",
+        "n0043",
+        "n0044",
+        "n0045"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "48",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0050",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 114,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0046",
+        "n0049"
+      ],
+      "tensor_inputs": [
+        "n0046"
+      ],
+      "outputs": [
+        {
+          "value": "t",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0051",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 115,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0003"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "53",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 4,
+      "param_names": [
+        "log_center"
+      ],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0054",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 115,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0051",
+        "n0052",
+        "n0053"
+      ],
+      "tensor_inputs": [
+        "n0051"
+      ],
+      "outputs": [
+        {
+          "value": "56",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0058",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 115,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0054",
+        "n0057"
+      ],
+      "tensor_inputs": [
+        "n0054"
+      ],
+      "outputs": [
+        {
+          "value": "c",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0059",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 116,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0002"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "61",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 4,
+      "param_names": [
+        "log_ratio"
+      ],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0062",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 116,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0059",
+        "n0060",
+        "n0061"
+      ],
+      "tensor_inputs": [
+        "n0059"
+      ],
+      "outputs": [
+        {
+          "value": "64",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 1.5,
+        "max": 40.0
+      }
+    },
+    {
+      "id": "n0066",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 116,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0062",
+        "n0065"
+      ],
+      "tensor_inputs": [
+        "n0062"
+      ],
+      "outputs": [
+        {
+          "value": "68",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0067",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 116,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0058",
+        "n0066"
+      ],
+      "tensor_inputs": [
+        "n0058",
+        "n0066"
+      ],
+      "outputs": [
+        {
+          "value": "s",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0068",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 117,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0050",
+        "n0058"
+      ],
+      "tensor_inputs": [
+        "n0050",
+        "n0058"
+      ],
+      "outputs": [
+        {
+          "value": "70",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0070",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0068",
+        "n0069"
+      ],
+      "tensor_inputs": [
+        "n0068"
+      ],
+      "outputs": [
+        {
+          "value": "72",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0072",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 117,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0070",
+        "n0071"
+      ],
+      "tensor_inputs": [
+        "n0070"
+      ],
+      "outputs": [
+        {
+          "value": "74",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0073",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 117,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0072"
+      ],
+      "tensor_inputs": [
+        "n0072"
+      ],
+      "outputs": [
+        {
+          "value": "centre.1",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0074",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 118,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0050",
+        "n0067"
+      ],
+      "tensor_inputs": [
+        "n0050",
+        "n0067"
+      ],
+      "outputs": [
+        {
+          "value": "76",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0076",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0074",
+        "n0075"
+      ],
+      "tensor_inputs": [
+        "n0074"
+      ],
+      "outputs": [
+        {
+          "value": "78",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0078",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 118,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0076",
+        "n0077"
+      ],
+      "tensor_inputs": [
+        "n0076"
+      ],
+      "outputs": [
+        {
+          "value": "80",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0079",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 118,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0078"
+      ],
+      "tensor_inputs": [
+        "n0078"
+      ],
+      "outputs": [
+        {
+          "value": "surround.1",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0084",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 119,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0073",
+        "n0081",
+        "n0082",
+        "n0083"
+      ],
+      "tensor_inputs": [
+        "n0073"
+      ],
+      "outputs": [
+        {
+          "value": "86",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0085",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 119,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0073",
+        "n0084"
+      ],
+      "tensor_inputs": [
+        "n0073",
+        "n0084"
+      ],
+      "outputs": [
+        {
+          "value": "centre",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0090",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 120,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0079",
+        "n0087",
+        "n0088",
+        "n0089"
+      ],
+      "tensor_inputs": [
+        "n0079"
+      ],
+      "outputs": [
+        {
+          "value": "92",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0091",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 120,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0079",
+        "n0090"
+      ],
+      "tensor_inputs": [
+        "n0079",
+        "n0090"
+      ],
+      "outputs": [
+        {
+          "value": "surround",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0093",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 121,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0085",
+        "n0091",
+        "n0092"
+      ],
+      "tensor_inputs": [
+        "n0085",
+        "n0091"
+      ],
+      "outputs": [
+        {
+          "value": "95",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0097",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 121,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0001",
+        "n0096"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "99",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 4,
+      "param_names": [
+        "gain"
+      ],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0098",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 121,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0093",
+        "n0097"
+      ],
+      "tensor_inputs": [
+        "n0093",
+        "n0097"
+      ],
+      "outputs": [
+        {
+          "value": "100",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0100",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 121,
+        "function": "_kernels",
+        "internal": false
+      },
+      "inputs": [
+        "n0098",
+        "n0099"
+      ],
+      "tensor_inputs": [
+        "n0098"
+      ],
+      "outputs": [
+        {
+          "value": "102",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0116",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 146,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0039",
+        "n0100",
+        "n0101",
+        "n0103",
+        "n0105",
+        "n0107",
+        "n0108",
+        "n0110",
+        "n0111",
+        "n0112",
+        "n0113",
+        "n0114",
+        "n0115"
+      ],
+      "tensor_inputs": [
+        "n0039",
+        "n0100"
+      ],
+      "outputs": [
+        {
+          "value": "resp",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0119",
+      "kind": "aten::cat",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 152,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0117",
+        "n0118"
+      ],
+      "tensor_inputs": [
+        "n0039",
+        "n0116"
+      ],
+      "outputs": [
+        {
+          "value": "input.3",
+          "shape": [
+            1,
+            5,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        5,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": 1
+      }
+    },
+    {
+      "id": "n0149",
+      "kind": "aten::_convolution",
+      "module": "head.0",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0119",
+        "n0144",
+        "n0143",
+        "n0145",
+        "n0146",
+        "n0147",
+        "n0127",
+        "n0148",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0119"
+      ],
+      "outputs": [
+        {
+          "value": "input.5",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 128,
+      "param_names": [
+        "head.0.bias",
+        "head.0.weight"
+      ],
+      "weight_shape": [
+        8,
+        5,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          1
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0150",
+      "kind": "aten::gelu",
+      "module": "head.1",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0149",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0149"
+      ],
+      "outputs": [
+        {
+          "value": "input.7",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0157",
+      "kind": "aten::_convolution",
+      "module": "head.2",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0150",
+        "n0152",
+        "n0151",
+        "n0153",
+        "n0154",
+        "n0155",
+        "n0127",
+        "n0156",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0150"
+      ],
+      "outputs": [
+        {
+          "value": "input.9",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.2.bias",
+        "head.2.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          2
+        ],
+        "dilation": [
+          2
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0158",
+      "kind": "aten::gelu",
+      "module": "head.3",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0157",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0157"
+      ],
+      "outputs": [
+        {
+          "value": "input.11",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0165",
+      "kind": "aten::_convolution",
+      "module": "head.4",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0158",
+        "n0160",
+        "n0159",
+        "n0161",
+        "n0162",
+        "n0163",
+        "n0127",
+        "n0164",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0158"
+      ],
+      "outputs": [
+        {
+          "value": "input.13",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.4.bias",
+        "head.4.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          4
+        ],
+        "dilation": [
+          4
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0166",
+      "kind": "aten::gelu",
+      "module": "head.5",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0165",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0165"
+      ],
+      "outputs": [
+        {
+          "value": "input.15",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0173",
+      "kind": "aten::_convolution",
+      "module": "head.6",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0166",
+        "n0168",
+        "n0167",
+        "n0169",
+        "n0170",
+        "n0171",
+        "n0127",
+        "n0172",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0166"
+      ],
+      "outputs": [
+        {
+          "value": "input.17",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.6.bias",
+        "head.6.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          8
+        ],
+        "dilation": [
+          8
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0174",
+      "kind": "aten::gelu",
+      "module": "head.7",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0173",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0173"
+      ],
+      "outputs": [
+        {
+          "value": "input.19",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0181",
+      "kind": "aten::_convolution",
+      "module": "head.8",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0174",
+        "n0176",
+        "n0175",
+        "n0177",
+        "n0178",
+        "n0179",
+        "n0127",
+        "n0180",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0174"
+      ],
+      "outputs": [
+        {
+          "value": "input.21",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.8.bias",
+        "head.8.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          16
+        ],
+        "dilation": [
+          16
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0182",
+      "kind": "aten::gelu",
+      "module": "head.9",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0181",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0181"
+      ],
+      "outputs": [
+        {
+          "value": "input.23",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0189",
+      "kind": "aten::_convolution",
+      "module": "head.10",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0182",
+        "n0184",
+        "n0183",
+        "n0185",
+        "n0186",
+        "n0187",
+        "n0127",
+        "n0188",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0182"
+      ],
+      "outputs": [
+        {
+          "value": "input.25",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.10.bias",
+        "head.10.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          32
+        ],
+        "dilation": [
+          32
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0190",
+      "kind": "aten::gelu",
+      "module": "head.11",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0189",
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0189"
+      ],
+      "outputs": [
+        {
+          "value": "input",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0197",
+      "kind": "aten::_convolution",
+      "module": "head.12",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0190",
+        "n0192",
+        "n0191",
+        "n0193",
+        "n0194",
+        "n0195",
+        "n0127",
+        "n0196",
+        "n0126",
+        "n0127",
+        "n0127",
+        "n0129",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0190"
+      ],
+      "outputs": [
+        {
+          "value": "202",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 9,
+      "param_names": [
+        "head.12.bias",
+        "head.12.weight"
+      ],
+      "weight_shape": [
+        1,
+        8,
+        1
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          0
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0199",
+      "kind": "aten::squeeze",
+      "module": null,
+      "source": {
+        "file": "tube.py",
+        "line": 152,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0197",
+        "n0198"
+      ],
+      "tensor_inputs": [
+        "n0197"
+      ],
+      "outputs": [
+        {
+          "value": "124",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    }
+  ]
+}

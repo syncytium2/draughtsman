@@ -5,6 +5,15 @@
 >
 > **Not murderboarded** — an internal spec, not a document for outside readers. If
 > any of it reaches one, review it first.
+>
+> **Built 2026-09-01. See [`DECISIONS.md`](DECISIONS.md) before trusting §2, §5,
+> §6 or §9 as written** — building answered §8's four open questions and found
+> three things here mistaken, the largest being that `tube`'s fan-out to four
+> kernels is *not a fork in the traced graph* and cannot be drawn from topology.
+> The model fans out; the trace records one `conv1d` with four output channels.
+> §2's description of the architecture stands — what does not is the assumption
+> that a tracer could hand you that structure. It also adds a fifth verb,
+> `draughtsman ui`, for the human step §5 names and leaves unserved.
 
 ---
 

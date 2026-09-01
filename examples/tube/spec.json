@@ -1,0 +1,90 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "tube — a coordinated-event detector",
+  "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0199.out_shape} out",
+  "stages": [
+    {
+      "id": "raster",
+      "name": "onset raster",
+      "kind": "input",
+      "nodes": ["in1"],
+      "detail": ["{stage.out_shape}", "cells × frames, binary"]
+    },
+    {
+      "id": "widen",
+      "name": "widen each onset",
+      "kind": "pool",
+      "nodes": ["n0017", "n0021", "n0031", "n0033"],
+      "detail": ["max-pool, width {node:n0031.constants.kernel_size}", "{stage.out_shape}"],
+      "note": "Per cell. The raster is already binary, so this widens rather than caps."
+    },
+    {
+      "id": "mean",
+      "name": "mean over cells",
+      "kind": "reduce",
+      "nodes": ["n0038", "n0039"],
+      "detail": ["{stage.out_shape}", "one brightness trace"],
+      "note": "Cells are summed, so the model never sees which cell is which."
+    },
+    {
+      "id": "dog",
+      "name": "difference-of-Gaussian bank",
+      "kind": "kernel",
+      "nodes": [
+        "n0046", "n0050", "n0051", "n0054", "n0058", "n0059", "n0062", "n0066",
+        "n0067", "n0068", "n0070", "n0072", "n0073", "n0074", "n0076", "n0078",
+        "n0079", "n0084", "n0085", "n0090", "n0091", "n0093", "n0097", "n0098",
+        "n0100", "n0116"
+      ],
+      "detail": [
+        "{stage.nodes} ops, {stage.params} learned params",
+        "kernel {node:n0100.out_shape[2]}, area-normalised",
+        "{stage.out_shape}"
+      ],
+      "lanes": {
+        "count_from": "{node:n0116.out_shape[1]}",
+        "labels": ["σ₁", "σ₂", "σ₃", "σ₄"]
+      },
+      "note": "Centre minus surround, integrating to zero, so a uniform rate change cancels. The widths are fitted, not set — the labels are indices, not measurements."
+    },
+    {
+      "id": "concat",
+      "name": "concatenate",
+      "kind": "concat",
+      "nodes": ["n0119"],
+      "detail": ["{stage.out_shape[1]} channels", "{stage.out_shape}"]
+    },
+    {
+      "id": "head",
+      "name": "dilated conv stack",
+      "kind": "stack",
+      "nodes": [
+        "n0149", "n0150", "n0157", "n0158", "n0165", "n0166",
+        "n0173", "n0174", "n0181", "n0182", "n0189", "n0190"
+      ],
+      "detail": [
+        "kernel {node:n0149.weight_shape[2]}, dilation {node:n0149.constants.dilation} → {node:n0189.constants.dilation}",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "score",
+      "name": "per-frame score",
+      "kind": "output",
+      "nodes": ["n0197", "n0199"],
+      "detail": ["kernel {node:n0197.weight_shape[2]}", "{stage.out_shape}"]
+    }
+  ],
+  "edges": [
+    {"from": "raster", "to": "widen"},
+    {"from": "widen", "to": "mean"},
+    {"from": "mean", "to": "concat", "label": "bypass", "style": "dashed"},
+    {"from": "mean", "to": "dog"},
+    {"from": "dog", "to": "concat"},
+    {"from": "concat", "to": "head"},
+    {"from": "head", "to": "score"}
+  ],
+  "caption": "Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses {stage:dog.nodes} traced operations."
+}

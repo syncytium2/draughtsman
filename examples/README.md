@@ -12,3 +12,13 @@ These are not decoration. They are what five existing tools produced for the sam
 
 **Acceptance test:** the figure shows the fan-out to four kernels, the bypass, and
 the concat. Every tool above except the first failed that.
+
+## What draughtsman draws for the same model
+
+[`tube/figure.svg`](tube/figure.svg), with the `graph.json` and `spec.json` it came
+from and a note on where every number in it originates — see
+[`tube/README.md`](tube/README.md). It clears the bar: the fan-out is four lanes,
+the bypass is a dashed arc around them, the concat is a stage of its own, and the
+twenty-six kernel-construction operations that made torchview a strip collapse
+into one named block. The topology is the hand-laid figure's; the coordinates are
+not placed by anyone.
