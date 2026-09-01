@@ -11,6 +11,7 @@ when it is being careful". There is nothing here to skip.
 """
 
 import json
+import re
 
 import pytest
 
@@ -73,3 +74,38 @@ def test_the_figure_says_what_the_reader_needs(example_dir):
     assert "ds-edge-dashed" in svg            # the bypass, distinguished
     assert ">bypass<" in svg
     assert "concatenate" in svg
+
+
+def test_ink_on_the_page_inherits_and_ink_on_a_box_does_not(example_dir):
+    """SPEC.md §4 says inherit from the embedding page. Half-implementing that —
+    pinning dark ink onto a ground the page owns — makes the title, the caption
+    and every edge invisible on a dark page, which is what a README rendered in
+    GitHub's dark theme is.
+
+    So the split is by what a thing sits on. On a box fill this file chose:
+    pinned. On the page: `currentColor`, still inline so a host rule cannot
+    repaint it, and still black when the file stands alone.
+    """
+    svg = (example_dir / "figure.svg").read_text()
+
+    def style_of(pattern):
+        m = re.search(pattern, svg)
+        assert m, f"no element matched {pattern}"
+        return m.group(0)
+
+    assert "currentColor" in style_of(r'<text class="ds-title"[^>]*>')
+    assert "currentColor" in style_of(r'<text class="ds-caption"[^>]*>')
+    assert "currentColor" in style_of(r'<path class="ds-edge[^>]*>')
+    assert "currentColor" in style_of(r'<marker[^>]*>.*?</marker>')
+
+    # a stage's own label sits on a fill this file chose, so it stays pinned
+    box_label = re.search(r'<g class="ds-stage[^>]*>.*?(<text[^>]*>)', svg)
+    assert box_label and "currentColor" not in box_label.group(1)
+
+
+def test_a_standalone_figure_still_has_ink(example_dir):
+    """`currentColor` with no host resolves to black, so a file opened directly
+    or rasterised for the PNG export looks exactly as it did before."""
+    svg = (example_dir / "figure.svg").read_text()
+    assert "<style" not in svg          # nothing is setting `color` for itself
+    assert 'style="color' not in svg    # ... including on the root

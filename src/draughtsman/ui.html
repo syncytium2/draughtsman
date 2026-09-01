@@ -58,8 +58,11 @@ h2{font:10px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;
 
 #figwrap{padding:14px;overflow:auto;background:var(--bg);
   border-bottom:1px solid var(--line)}
-#fig{background:#fff;border:1px solid var(--line);border-radius:6px;padding:8px;
-  display:inline-block;min-width:100%}
+/* The figure's page-ground ink is currentColor, so any surface that forces its
+   own background must state the ink that goes with it. This card is white in
+   both themes, so it is dark-on-light in both. */
+#fig{background:#fff;color:#1a1a1a;border:1px solid var(--line);border-radius:6px;
+  padding:8px;display:inline-block;min-width:100%}
 #fig svg{display:block;max-width:100%;height:auto}
 body.actual #fig{display:block;min-width:0;width:max-content}
 body.actual #fig svg{max-width:none}
@@ -125,8 +128,8 @@ body.gallery main{display:none}
   align-items:baseline}
 .card h3 .id{font:11px var(--mono);color:var(--muted);font-weight:400}
 .card .meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.card .art{background:#fff;border:1px solid var(--line);border-radius:5px;
-  padding:6px;overflow:hidden}
+.card .art{background:#fff;color:#1a1a1a;border:1px solid var(--line);
+  border-radius:5px;padding:6px;overflow:hidden}
 .card .art svg{display:block;max-width:100%;height:auto}
 .card .err{font:11px/1.5 var(--mono);color:var(--bad)}
 .card .ratio{font:10px var(--mono);color:var(--muted)}

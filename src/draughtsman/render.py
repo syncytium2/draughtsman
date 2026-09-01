@@ -33,9 +33,23 @@ PAD_X, PAD_Y = 12.0, 9.0
 TITLE_LINE, DETAIL_LINE, LANE_ROW = 15.0, 12.5, 15.0
 MIN_W = 76.0
 
-INK = "#1a1a1a"
-MUTED = "#5b5b5b"
-LINE = "#3d3d3d"
+# TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
+#
+# Anything drawn on a box sits on a fill this file chose, so it is pinned: a
+# stated colour on a stated ground. Anything drawn on the PAGE — the title, the
+# caption, every edge and arrowhead — sits on a ground the embedding page owns,
+# and pinning it there is only half of §4's "inherit from the embedding page".
+# Pinned dark ink is invisible on a dark page, which is what a README rendered in
+# GitHub's dark theme is.
+#
+# So page-ground ink is `currentColor`, still written as an inline style so a
+# host rule cannot repaint it. Standalone — a file opened directly, or the PNG
+# export — `currentColor` resolves to black, which is the old behaviour.
+INK = "#1a1a1a"            # on a box fill
+MUTED = "#5b5b5b"          # on a box fill, secondary
+PAGE_INK = "currentColor"  # on whatever the embedding page provides
+PAGE_MUTED = "currentColor;opacity:0.62"
+LINE = "currentColor"
 
 # Light fills, mid strokes: this has to survive a greyscale print, so the kinds
 # are separated by value as much as by hue.
@@ -129,13 +143,13 @@ def render(spec: Spec, graph: Graph) -> str:
     out.append(
         f'<text class="ds-title" x="12" y="15" '
         f'style="font-family:{FONT_STACK};font-size:14px;font-weight:600;'
-        f'fill:{INK}">{escape(title)}</text>'
+        f'fill:{PAGE_INK}">{escape(title)}</text>'
     )
     if subtitle:
         out.append(
             f'<text class="ds-subtitle" x="12" y="29" '
-            f'style="font-family:{FONT_STACK};font-size:10px;fill:{MUTED}">'
-            f"{escape(subtitle)}</text>"
+            f'style="font-family:{FONT_STACK};font-size:10px;'
+            f'fill:{PAGE_MUTED}">{escape(subtitle)}</text>'
         )
 
     # A vertical figure is often narrower than its own caption, which would leave
@@ -156,7 +170,7 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append(
             f'<text class="ds-caption" x="12" y="{_fmt(total_h - 6)}" '
             f'style="font-family:{FONT_STACK};font-size:{CAPTION_SIZE}px;'
-            f'fill:{MUTED}">{escape(caption)}</text>'
+            f'fill:{PAGE_MUTED}">{escape(caption)}</text>'
         )
     out.append("</svg>")
     return "\n".join(out) + "\n"
@@ -171,9 +185,9 @@ def _empty(spec: Spec, graph: Graph) -> str:
         f'width="{_fmt(w)}" height="46">\n'
         f"<title>{escape(spec.title)}</title>\n"
         f'<text x="12" y="18" style="font-family:{FONT_STACK};font-size:14px;'
-        f'font-weight:600;fill:{INK}">{escape(spec.title)}</text>\n'
+        f'font-weight:600;fill:{PAGE_INK}">{escape(spec.title)}</text>\n'
         f'<text x="12" y="34" style="font-family:{FONT_STACK};font-size:10px;'
-        f'fill:{MUTED}">{escape(note)}</text>\n</svg>\n'
+        f'fill:{PAGE_MUTED}">{escape(note)}</text>\n</svg>\n'
     )
 
 
@@ -241,8 +255,8 @@ def _edge(route, vertical: bool = False) -> str:
         parts.append(
             f'<text class="ds-edge-label" x="{_fmt(mid[0])}" '
             f'y="{_fmt(mid[1] - 5)}" text-anchor="middle" '
-            f'style="font-family:{FONT_STACK};font-size:9px;fill:{MUTED}">'
-            f"{escape(route.label)}</text>"
+            f'style="font-family:{FONT_STACK};font-size:9px;'
+            f'fill:{PAGE_MUTED}">{escape(route.label)}</text>'
         )
     return "".join(parts)
 
