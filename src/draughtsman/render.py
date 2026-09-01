@@ -96,6 +96,7 @@ def render(spec: Spec, graph: Graph) -> str:
     drawing = build(
         [(sid, m.w, m.h) for sid, m in measured.items()],
         [(e.src, e.dst, e.label, e.style) for e in spec.edges],
+        orientation=spec.layout.orientation, wrap=spec.layout.wrap,
     )
 
     title = resolve(spec.title, graph, stages=stages, where="title")
@@ -137,10 +138,14 @@ def render(spec: Spec, graph: Graph) -> str:
             f"{escape(subtitle)}</text>"
         )
 
-    out.append(f'<g class="ds-body" transform="translate(0 {_fmt(head_h)})">')
+    # A vertical figure is often narrower than its own caption, which would leave
+    # the column stranded against the left edge of a canvas sized by prose.
+    shift = max(0.0, (total_w - drawing.width) / 2.0)
+    out.append(f'<g class="ds-body" '
+               f'transform="translate({_fmt(shift)} {_fmt(head_h)})">')
 
     for route in drawing.routes:
-        out.append(_edge(route))
+        out.append(_edge(route, drawing.vertical))
 
     for sid, m in measured.items():
         out.append(_box(drawing.boxes[sid], m))
@@ -178,13 +183,51 @@ def _describe(spec: Spec, graph: Graph) -> str:
             f"{graph.model['params']} parameters.")
 
 
-def _edge(route) -> str:
-    pts = route.points
+def _ortho(pts, radius: float = 9.0) -> list[str]:
+    """An axis-aligned path with rounded corners, for a wrap connector.
+
+    A bezier here would bow through the gutter and read as another branch. The
+    return is not a branch; it is the same line, continued on the next row, and
+    it should look like a pipe rather than an edge."""
     d = [f"M{_fmt(pts[0][0])} {_fmt(pts[0][1])}"]
-    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-        cx = (x1 - x0) * 0.5
-        d.append(f"C{_fmt(x0 + cx)} {_fmt(y0)} {_fmt(x1 - cx)} {_fmt(y1)} "
-                 f"{_fmt(x1)} {_fmt(y1)}")
+    for i in range(1, len(pts) - 1):
+        (px, py), (cx, cy), (nx, ny) = pts[i - 1], pts[i], pts[i + 1]
+        r1 = min(radius, _dist((px, py), (cx, cy)) / 2)
+        r2 = min(radius, _dist((cx, cy), (nx, ny)) / 2)
+        a = _towards((cx, cy), (px, py), r1)
+        b = _towards((cx, cy), (nx, ny), r2)
+        d.append(f"L{_fmt(a[0])} {_fmt(a[1])}")
+        d.append(f"Q{_fmt(cx)} {_fmt(cy)} {_fmt(b[0])} {_fmt(b[1])}")
+    d.append(f"L{_fmt(pts[-1][0])} {_fmt(pts[-1][1])}")
+    return d
+
+
+def _dist(a, b) -> float:
+    return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** 0.5
+
+
+def _towards(frm, to, by):
+    length = _dist(frm, to) or 1.0
+    return (frm[0] + (to[0] - frm[0]) * by / length,
+            frm[1] + (to[1] - frm[1]) * by / length)
+
+
+def _edge(route, vertical: bool = False) -> str:
+    pts = route.points
+    if route.wrapped:
+        d = _ortho(pts)
+    else:
+        d = [f"M{_fmt(pts[0][0])} {_fmt(pts[0][1])}"]
+        for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
+            # handles run along the direction of flow, which the orientation sets
+            if vertical:
+                cy = (y1 - y0) * 0.5
+                d.append(f"C{_fmt(x0)} {_fmt(y0 + cy)} {_fmt(x1)} {_fmt(y1 - cy)} "
+                         f"{_fmt(x1)} {_fmt(y1)}")
+            else:
+                cx = (x1 - x0) * 0.5
+                d.append(f"C{_fmt(x0 + cx)} {_fmt(y0)} {_fmt(x1 - cx)} {_fmt(y1)} "
+                         f"{_fmt(x1)} {_fmt(y1)}")
     dash = ";stroke-dasharray:5 3" if route.style == "dashed" else ""
     parts = [
         f'<path class="ds-edge ds-edge-{route.style}" '

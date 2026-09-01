@@ -54,5 +54,6 @@
     {"from": "norm", "to": "pool"},
     {"from": "pool", "to": "logits"}
   ],
-  "caption": "Block one is opened to show both residual streams; blocks two to four are one box. Attention's heads are lanes because the trace fuses them into a single operation."
+  "caption": "Block one is opened to show both residual streams; blocks two to four are one box. Attention's heads are lanes because the trace fuses them into a single operation.",
+  "layout": {"wrap": 760}
 }

@@ -49,5 +49,6 @@
     {"from": "w3", "to": "pool"},
     {"from": "pool", "to": "logits"}
   ],
-  "caption": "Six identical blocks. Showing the residual at all costs one block's worth of width, and the other five are collapsed into three boxes that say 'and again' in prose."
+  "caption": "Six identical blocks. Showing the residual at all costs one block's worth of width, and the other five are collapsed into three boxes that say 'and again' in prose.",
+  "layout": {"wrap": 760}
 }

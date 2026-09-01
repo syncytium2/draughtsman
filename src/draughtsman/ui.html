@@ -148,6 +148,14 @@ body.gallery main{display:none}
   <span class="path" id="specpath"></span>
   <span class="sp"></span>
   <span class="pill" id="cov">…</span>
+  <select id="orient" title="orientation" style="width:auto;margin:0">
+    <option value="lr">&#8594; across</option>
+    <option value="tb">&#8595; down</option>
+  </select>
+  <input id="wrap" type="number" min="200" step="20" placeholder="no wrap"
+    title="wrap the spine into rows at this width"
+    style="width:96px;margin:0">
+  <span class="pill" id="dims">&#8212;</span>
   <label class="ck" style="margin:0"><input type="checkbox" id="actual">actual size</label>
   <button id="rawbtn">spec.json</button>
   <button id="exportbtn">Export ▾</button>
@@ -259,14 +267,23 @@ function paintPill(chk) {
 
 function paintFigure(r) {
   const f = $("#fig");
+  const d = $("#dims");
   if (r.svg) {
     lastSvg = r.svg;
+    const box = r.svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    // The aspect ratio is the number these controls exist to move: SPEC.md §2
+    // condemned torchview for a strip, and 8:1 is a strip arrived at slowly.
+    d.textContent = box
+      ? `${Math.round(box[1])}\u00d7${Math.round(box[2])} \u00b7 ` +
+        `${(box[1] / box[2]).toFixed(1)}:1`
+      : "\u2014";
     f.innerHTML = r.svg;
     f.querySelectorAll("[data-stage]").forEach(g =>
       g.addEventListener("click", () => select({k: "stage", id: g.dataset.stage})));
     markSelection();
   } else if (r.error) {
     f.innerHTML = "";
+    d.textContent = "\u2014";
     f.append(el("div", {cls: "empty"}, "cannot render: " + r.error));
   }
 }
@@ -695,6 +712,29 @@ $("#x-png4").addEventListener("click", () => toPng(4));
 $("#x-spec").addEventListener("click", () =>
   toClipboard(JSON.stringify(spec, null, 2), "spec.json copied"));
 
+// ---- layout ---------------------------------------------------------------
+// Orientation and wrap are SPEC fields, not view settings. A wrapped figure has
+// to come out of the committed spec the same way on any machine, or the
+// staleness test is asserting the shape of whoever last looked at it.
+function setLayout(patch) {
+  const lay = Object.assign({orientation: "lr", wrap: null},
+                            spec.layout || {}, patch);
+  if (lay.orientation === "lr" && !lay.wrap) delete spec.layout;
+  else spec.layout = lay.wrap ? lay : {orientation: lay.orientation};
+  touch(false);
+}
+
+function paintLayout() {
+  const lay = spec.layout || {};
+  $("#orient").value = lay.orientation || "lr";
+  $("#wrap").value = lay.wrap || "";
+}
+
+$("#orient").addEventListener("change", ev =>
+  setLayout({orientation: ev.target.value}));
+$("#wrap").addEventListener("change", ev =>
+  setLayout({wrap: parseFloat(ev.target.value) || null}));
+
 // ---- models ---------------------------------------------------------------
 function paintPicker() {
   const m = $("#model");
@@ -722,6 +762,7 @@ async function openModel(name) {
   p.textContent = p.dataset.path;
   document.title = (spec.title || name) + " — draughtsman";
   paintPicker();
+  paintLayout();
   paintLeft(); paintRight(); paintNodes();
   paintFigure(st); paintMsgs(st); paintPill(st.check);
   $("#save").disabled = !dirty();
@@ -810,6 +851,7 @@ async function save() {
   p.textContent = p.dataset.path;
   document.title = (spec.title || "draughtsman") + " — draughtsman";
   paintNodeBar();
+  paintLayout();
   paintLeft(); paintRight(); paintNodes(); paintFigure(s); paintMsgs(s);
   $("#save").disabled = true;
   paintPill(s.check);

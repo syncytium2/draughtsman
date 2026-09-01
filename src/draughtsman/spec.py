@@ -53,6 +53,18 @@ class Edge:
 
 
 @dataclass
+class Layout:
+    """How the figure is arranged. Judgement, so it lives in the spec.
+
+    Not a render-time flag: a wrapped figure must come out of the committed spec
+    the same way on any machine, or SPEC.md §6's staleness test is asserting the
+    shape of whoever last ran it.
+    """
+    orientation: str = "lr"        # "lr" left-to-right, "tb" top-to-bottom
+    wrap: float | None = None      # break the spine into rows at this width
+
+
+@dataclass
 class Elision:
     nodes: list[str]
     reason: str
@@ -67,6 +79,7 @@ class Spec:
     subtitle: str | None = None
     caption: str | None = None
     graph: str = "graph.json"
+    layout: Layout = field(default_factory=Layout)
 
     @property
     def by_id(self) -> dict[str, Stage]:
@@ -90,9 +103,12 @@ def load(doc: dict) -> Spec:
              for e in doc.get("edges", [])]
     elided = [Elision(nodes=list(e["nodes"]), reason=e["reason"])
               for e in doc.get("elided", [])]
+    lay = doc.get("layout") or {}
     return Spec(title=doc.get("title", "model"), stages=stages, edges=edges,
                 elided=elided, subtitle=doc.get("subtitle"),
-                caption=doc.get("caption"), graph=doc.get("graph", "graph.json"))
+                caption=doc.get("caption"), graph=doc.get("graph", "graph.json"),
+                layout=Layout(orientation=lay.get("orientation", "lr"),
+                              wrap=lay.get("wrap")))
 
 
 def dump(spec: Spec) -> dict:
@@ -120,6 +136,12 @@ def dump(spec: Spec) -> dict:
         out["elided"] = [{"nodes": e.nodes, "reason": e.reason} for e in spec.elided]
     if spec.caption:
         out["caption"] = spec.caption
+    # Omitted entirely when it is the default, so adding this field changes no
+    # existing spec and no existing figure.
+    if spec.layout.orientation != "lr" or spec.layout.wrap:
+        out["layout"] = {"orientation": spec.layout.orientation}
+        if spec.layout.wrap:
+            out["layout"]["wrap"] = spec.layout.wrap
     return out
 
 

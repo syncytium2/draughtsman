@@ -43,6 +43,7 @@ class Route:
     points: list[tuple[float, float]] = field(default_factory=list)
     label: str | None = None
     style: str = "solid"
+    wrapped: bool = False      # returns through the gutter to the next row
 
 
 @dataclass
@@ -51,9 +52,12 @@ class Drawing:
     routes: list[Route]
     width: float
     height: float
+    vertical: bool = False
+    rows: int = 1
 
 
 DUMMY_H = 12.0
+GUTTER = 34.0     # the lane a wrap connector returns through
 
 
 def rank_nodes(ids: list[str], edges: list[tuple[str, str]]) -> dict[str, int]:
@@ -145,16 +149,64 @@ def _barycentre(boxes, edges, sweeps: int = 6) -> None:
                 b.order = k
 
 
-def _place(boxes, edges, *, hgap: float, vgap: float, passes: int = 32) -> None:
-    ranks = _by_rank(boxes)
+def _rows(boxes, edges, rank, wrap, hgap) -> list[list[int]]:
+    """Group ranks into rows, breaking only where a break is legal.
 
-    x = 0.0
-    for r in sorted(ranks):
-        lane = ranks[r]
-        widest = max(b.w for b in lane)
-        for b in lane:
-            b.x = x + (widest - b.w) / 2.0
-        x += widest + hgap
+    A BREAK IS ILLEGAL WHERE A LONG EDGE IS IN FLIGHT. U-Net's three skips span
+    the entire depth, so no boundary is free and it does not wrap at all — which
+    is the honest answer, not a failure. Its own caption already says a ranked
+    layout cannot produce the U readers expect; cutting a skip across a row break
+    would not fix that, it would only hide where the edge went.
+    """
+    keys = sorted({b.rank for b in boxes.values()})
+    ext = {r: max(b.w for b in lane) for r, lane in _by_rank(boxes).items()}
+
+    illegal: set[int] = set()
+    for a, b in edges:
+        if rank[b] - rank[a] > 1:
+            illegal.update(range(rank[a], rank[b]))
+
+    def pack(budget: float | None) -> list[list[int]]:
+        rows: list[list[int]] = []
+        cur: list[int] = []
+        used = 0.0
+        for r in keys:
+            step = ext[r] + (hgap if cur else 0.0)
+            if cur and budget and used + step > budget and cur[-1] not in illegal:
+                rows.append(cur)
+                cur, used, step = [], 0.0, ext[r]
+            cur.append(r)
+            used += step
+        if cur:
+            rows.append(cur)
+        return rows
+
+    greedy = pack(wrap)
+    if len(greedy) < 2:
+        return greedy
+
+    # Greedy packing leaves a widow: fill each row to the brim and whatever is
+    # left over stands alone on the last one. Re-pack to an even share of the
+    # width instead, and keep it only if it costs no extra row.
+    total = sum(ext[r] for r in keys) + hgap * (len(keys) - 1)
+    even = pack(total / len(greedy))
+    return even if len(even) == len(greedy) else greedy
+
+
+def _place(boxes, edges, *, hgap: float, vgap: float, passes: int = 32,
+           rows: list[list[int]] | None = None, row_gap: float = 0.0) -> None:
+    ranks = _by_rank(boxes)
+    rows = rows or [sorted(ranks)]
+    row_of = {r: i for i, row in enumerate(rows) for r in row}
+
+    for row in rows:
+        x = 0.0
+        for r in row:
+            lane = ranks[r]
+            widest = max(b.w for b in lane)
+            for b in lane:
+                b.x = x + (widest - b.w) / 2.0
+            x += widest + hgap
 
     for lane in ranks.values():                     # initial stack, centred on 0
         total = sum(b.h for b in lane) + vgap * (len(lane) - 1)
@@ -214,12 +266,41 @@ def _place(boxes, edges, *, hgap: float, vgap: float, passes: int = 32) -> None:
                 b.order = k
             separate(lane)
 
+    if len(rows) > 1:
+        # Stack the rows. Each is laid out as if it were the whole figure, then
+        # dropped clear of the one above with a gutter for the return connector.
+        offset = 0.0
+        for i, row in enumerate(rows):
+            members = [b for b in boxes.values() if row_of.get(b.rank) == i]
+            if not members:
+                continue
+            top = min(b.y - b.h / 2 for b in members)
+            for b in members:
+                b.y += offset - top
+            height = max(b.y + b.h / 2 for b in members) - \
+                min(b.y - b.h / 2 for b in members)
+            offset += height + row_gap
+
 
 def build(nodes: list[tuple[str, float, float]],
           edges: list[tuple[str, str, str | None, str]],
-          *, hgap: float = 54.0, vgap: float = 26.0,
+          *, orientation: str = "lr", wrap: float | None = None,
+          hgap: float = 54.0, vgap: float = 26.0,
           pad: float = 16.0) -> Drawing:
-    """*nodes* are ``(id, width, height)``; *edges* ``(src, dst, label, style)``."""
+    """*nodes* are ``(id, width, height)``; *edges* ``(src, dst, label, style)``.
+
+    ORIENTATION IS A TRANSPOSE, NOT A SECOND LAYOUT. A top-to-bottom figure is
+    the same ranking with the axes swapped, so it is done by swapping each box's
+    width and height on the way in and swapping the coordinates on the way out.
+    One layout engine, two readings of it — the alternative is two engines that
+    drift, which is the mistake this project keeps declining to make.
+    """
+    if orientation not in ("lr", "tb"):
+        raise ValueError(f"orientation must be 'lr' or 'tb', not {orientation!r}")
+    flip = orientation == "tb"
+    if flip:
+        nodes = [(i, h, w) for i, w, h in nodes]
+
     ids = [n[0] for n in nodes]
     plain = [(a, b) for a, b, _, _ in edges]
     rank = rank_nodes(ids, plain)
@@ -250,18 +331,40 @@ def build(nodes: list[tuple[str, float, float]],
         chains[(a, b)] = chain
 
     _barycentre(boxes, dummy_edges)
-    _place(boxes, dummy_edges, hgap=hgap, vgap=vgap)
+    rows = _rows(boxes, plain, rank, wrap, hgap)
+    row_gap = vgap + GUTTER
+    _place(boxes, dummy_edges, hgap=hgap, vgap=vgap, rows=rows, row_gap=row_gap)
+
+    row_of = {r: i for i, row in enumerate(rows) for r in row}
+    real = [b for b in boxes.values() if not b.dummy]
+    right = max(b.x + b.w for b in real)
 
     routes = []
     for a, b, label, style in edges:
+        ra, rb = row_of.get(boxes[a].rank, 0), row_of.get(boxes[b].rank, 0)
+        if ra != rb:
+            # Out to the right margin, down through the gutter, back to the left
+            # margin and in — the way a line of text wraps. Reading direction
+            # stays left-to-right on every row, which a serpentine would not.
+            lane = (boxes[a].y + boxes[a].h / 2 + boxes[b].y
+                    - boxes[b].h / 2) / 2.0
+            pts = [(boxes[a].x + boxes[a].w, boxes[a].y),
+                   (right + hgap / 2, boxes[a].y),
+                   (right + hgap / 2, lane),
+                   (-hgap / 2, lane),
+                   (-hgap / 2, boxes[b].y),
+                   (boxes[b].x, boxes[b].y)]
+            routes.append(Route(src=a, dst=b, points=pts, label=label,
+                                style=style, wrapped=True))
+            continue
         pts = [(boxes[a].x + boxes[a].w, boxes[a].y)]
         pts += [(boxes[d].x, boxes[d].y) for d in chains[(a, b)]]
         pts.append((boxes[b].x, boxes[b].y))
         routes.append(Route(src=a, dst=b, points=pts, label=label, style=style))
 
-    real = [b for b in boxes.values() if not b.dummy]
-    minx = min(b.x for b in real)
-    maxx = max(b.x + b.w for b in real)
+    minx = min(min(b.x for b in real), min(p[0] for r in routes for p in r.points))
+    maxx = max(max(b.x + b.w for b in real),
+               max(p[0] for r in routes for p in r.points))
     miny = min(min(b.y - b.h / 2 for b in boxes.values()),
                min(p[1] for r in routes for p in r.points))
     maxy = max(max(b.y + b.h / 2 for b in boxes.values()),
@@ -274,6 +377,24 @@ def build(nodes: list[tuple[str, float, float]],
     for r in routes:
         r.points = [(x + dx, y + dy) for x, y in r.points]
 
-    return Drawing(boxes=boxes, routes=routes,
-                   width=round(maxx - minx + 2 * pad, 2),
-                   height=round(maxy - miny + 2 * pad, 2))
+    drawing = Drawing(boxes=boxes, routes=routes,
+                      width=round(maxx - minx + 2 * pad, 2),
+                      height=round(maxy - miny + 2 * pad, 2),
+                      rows=len(rows))
+    return _transpose(drawing) if flip else drawing
+
+
+def _transpose(d: Drawing) -> Drawing:
+    """Swap the axes. Boxes were laid out with their sizes already swapped, so
+    undoing that here gives each one its real width and height back."""
+    for b in d.boxes.values():
+        w, h = b.h, b.w              # back to the real size
+        cx, top = b.y, b.x           # order axis was y, rank axis was x
+        b.w, b.h = w, h
+        b.x = cx - w / 2.0
+        b.y = top + h / 2.0
+    for r in d.routes:
+        r.points = [(y, x) for x, y in r.points]
+    d.width, d.height = d.height, d.width
+    d.vertical = True
+    return d

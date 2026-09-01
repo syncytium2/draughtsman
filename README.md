@@ -131,6 +131,18 @@ If coverage is failing the menu says so before you export. Exporting anyway is
 allowed — you may want it mid-edit — but it is never silent, because shipping a
 figure that omits operations the model performs is the exact failure in §2.
 
+**Arrangement is part of the judgement, so it lives in the spec.** A `layout`
+field takes `orientation` (`lr` across, `tb` down) and `wrap` (break the spine
+into rows at this width); the header carries a control for each, with the figure's
+size and aspect ratio beside them. Depth otherwise converts directly into width —
+LeNet, ResNet and the transformer all rendered as 8:1 ribbons, which is the defect
+this README criticises torchview for, arrived at more slowly. Wrapped, they are
+2.7:1, 1.6:1 and 3.4:1.
+
+A row break is refused where a long edge is still in flight, so U-Net — three
+skips spanning its whole depth — barely wraps. That is the honest answer rather
+than a break drawn through a skip.
+
 Click a stage in the figure to select it; click nodes in the table to move them
 into it. Coverage updates as you go, so a regrouping that drops an operation says
 so before you save rather than after. The spec is a small readable document and

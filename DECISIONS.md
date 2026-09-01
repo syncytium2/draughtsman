@@ -157,6 +157,64 @@ half of the same limitation — *"a ranked left-to-right layout gets the topolog
 right and cannot produce the U readers expect."* **Wrapping the spine across rows
 is now the highest-value open item**, and it is a layout change, not a spec one.
 
+## The strip, answered
+
+Built after the gallery measured it, and the gallery README reached the same
+conclusion independently: *"Layout is rank-by-longest-path with no wrapping, so
+depth converts directly into width — the same defect the README criticises
+torchview for, arrived at more slowly."*
+
+Two fields, both on the spec rather than on the renderer:
+
+```json
+"layout": {"orientation": "lr" | "tb", "wrap": 760}
+```
+
+**They belong in the spec because arrangement is judgement.** A flag on `render`
+would mean the committed figure came out the shape of whoever last ran the
+command, and §6's staleness test would be asserting that accident. Both default
+to off and are omitted from `dump()` when defaulted, so adding them changed no
+existing spec and moved no existing figure — the ten staleness tests are how that
+was checked rather than claimed.
+
+| model | was | wrapped at 760 | top-to-bottom |
+|---|---|---|---|
+| lenet | 8.1:1 | **2.7:1** | 0.7:1 |
+| resnet | 8.1:1 | **1.6:1** | 0.7:1 |
+| transformer | 7.8:1 | **3.4:1** | 0.6:1 |
+| unet | 6.4:1 | 4.1:1 | 0.6:1 |
+
+Three decisions inside that are worth keeping:
+
+**Orientation is a transpose, not a second layout.** `tb` swaps each box's width
+and height on the way in and swaps the coordinates on the way out. One engine,
+two readings. A second engine would drift from the first, which is the mistake
+this project keeps declining to make — see also the renderer the UI shares and
+the coverage count the badge does not recompute.
+
+**A row break is illegal where a long edge is in flight.** U-Net's three skips
+span the whole depth, so no boundary is free and it barely wraps — 6.4:1 to
+4.1:1 and no further. That is the honest answer. Cutting a skip across a break
+would not fix the shape, it would hide where the edge went. U-Net's own caption
+already says a ranked layout cannot produce the U readers expect, and this does
+not pretend otherwise.
+
+**Rows are balanced, not greedy.** Greedy packing fills each row to the brim and
+leaves whatever is left standing alone on the last one; ResNet's first attempt
+put `class logits` on a row by itself. The packing runs twice — once to learn the
+row count, once at an even share of the width — and keeps the even one if it costs
+no extra row.
+
+The wrap connector returns through a gutter to the left margin, drawn as an
+orthogonal path with rounded corners rather than a curve: the return is not a
+branch, it is the same line continued on the next row, and it should read as a
+pipe. Reading direction stays left-to-right on every row, which a serpentine
+would not.
+
+`lenet`, `resnet` and `transformer` now carry `"layout": {"wrap": 760}` in their
+committed specs — a one-line diff each, and the figures are regenerated. The
+other seven are unchanged.
+
 ## Beyond §8: where the UI lives
 
 SPEC.md does not mention a UI. It should, because §5 ends by naming a job it

@@ -35,5 +35,6 @@
     {"from": "fc1", "to": "fc2"},
     {"from": "fc2", "to": "logits"}
   ],
-  "caption": "Every operation here is a registered module, so a module enumerator gets this one right. The interest is that the figure is no worse for being derived from the trace."
+  "caption": "Every operation here is a registered module, so a module enumerator gets this one right. The interest is that the figure is no worse for being derived from the trace.",
+  "layout": {"wrap": 760}
 }
