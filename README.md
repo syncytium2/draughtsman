@@ -23,6 +23,20 @@ graphviz, no system binary — because the layout is ours. See
 [`examples/tube/`](examples/tube/) for the result on the model below, and for
 where every number in it comes from.
 
+## What it produces
+
+![A draughtsman figure of a ResNet: nine named stages wrapped across three rows, with the residual identity drawn as a dashed arc around one opened-up block](examples/gallery/resnet/figure.svg)
+
+Nine stages over 52 traced operations. Every quantity — `464 params`, `kernel 3`,
+`1×16×32×32`, `10 classes` — is looked up from `graph.json` by node id at render
+time; none of it is typed into the spec. The residual identity is a dashed arc
+because it is a real fork in the traced graph. The other five blocks are
+collapsed into two boxes, and the caption says so rather than letting the figure
+imply the model is nine layers deep.
+
+That figure and nine others are in [`examples/`](examples/), each with the
+`graph.json` it was measured from and the `spec.json` that arranged it.
+
 ## Why this exists
 
 A 1,149-parameter model was drawn by five existing tools. Every one of them
