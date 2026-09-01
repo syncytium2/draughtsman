@@ -258,14 +258,14 @@ def render(spec: Spec, graph: Graph) -> str:
                 f'<text class="ds-legend-label" x="{_fmt(tx)}" '
                 f'y="{_fmt(y + LEGEND_SWATCH - 0.5)}" '
                 f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
-                f'font-weight:600;fill:{INK}">{escape(label)}</text>'
+                f'font-weight:600;fill:{PAGE_INK}">{escape(label)}</text>'
             )
             sx = tx + width(label, LEGEND_SIZE, bold=True) + 6
             out.append(
                 f'<text class="ds-legend-share" x="{_fmt(sx)}" '
                 f'y="{_fmt(y + LEGEND_SWATCH - 0.5)}" '
                 f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
-                f'fill:{MUTED}">{escape(share)}</text>'
+                f'fill:{PAGE_MUTED}">{escape(share)}</text>'
             )
         out.append("</g>")
 

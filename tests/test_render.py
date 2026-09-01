@@ -106,6 +106,16 @@ def test_ink_on_the_page_inherits_and_ink_on_a_box_does_not(example_dir):
     box_label = re.search(r'<g class="ds-stage[^>]*>.*?(<text[^>]*>)', svg)
     assert box_label and "currentColor" not in box_label.group(1)
 
+    # The legend sits below the body on the page's ground, so its text follows
+    # the page and its SWATCHES do not — a swatch is the stated colour it is
+    # there to identify, and inheriting would make the key illegible in the one
+    # place it must not be.
+    if "ds-legend" in svg:
+        assert "currentColor" in style_of(r'<text class="ds-legend-label"[^>]*>')
+        assert "currentColor" in style_of(r'<text class="ds-legend-share"[^>]*>')
+        swatch = style_of(r'<rect class="ds-legend-swatch[^>]*>')
+        assert "currentColor" not in swatch
+
 
 def test_a_standalone_figure_still_has_ink(example_dir):
     """`currentColor` with no host resolves to black, so a file opened directly
