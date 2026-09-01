@@ -1,0 +1,33 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "BiLSTM tagger — the floor from below",
+  "subtitle": "{model.params} parameters · {model.input_shape} tokens in, {node:n0047.out_shape} out",
+  "stages": [
+    {"id": "tokens", "name": "token ids", "kind": "input", "nodes": ["in1"],
+     "detail": ["{stage.out_shape}"]},
+    {"id": "embed", "name": "embedding", "kind": "op", "nodes": ["n0007"],
+     "detail": ["{stage.out_shape[2]}-dim", "{stage.params} params"]},
+    {"id": "state", "name": "zero initial state", "kind": "op",
+     "nodes": ["n0036", "n0038"],
+     "detail": ["{stage.out_shape}, h and c"],
+     "note": "Layers × directions on the leading axis. Traced because the model does not pass a state in, not because a reader needs it."},
+    {"id": "lstm", "name": "bidirectional LSTM", "kind": "stack", "nodes": ["n0041"],
+     "detail": ["{node:n0041.constants.num_layers} layers, bidirectional",
+                "{stage.params} params", "{stage.out_shape}"],
+     "note": "ONE traced node. The layers, the two directions and the four gates are all inside aten::lstm, so no grouping an agent could write would expose them — draughtsman cannot draw what the tracer fused."},
+    {"id": "drop", "name": "dropout", "kind": "op", "nodes": ["n0044"],
+     "detail": ["p = {node:n0044.constants.p}"]},
+    {"id": "tags", "name": "per-token tag scores", "kind": "output", "nodes": ["n0047"],
+     "detail": ["{stage.out_shape[2]} tags", "{stage.params} params"]}
+  ],
+  "edges": [
+    {"from": "tokens", "to": "embed"},
+    {"from": "embed", "to": "state", "style": "dashed"},
+    {"from": "embed", "to": "lstm"},
+    {"from": "state", "to": "lstm", "style": "dashed"},
+    {"from": "lstm", "to": "drop"},
+    {"from": "drop", "to": "tags"}
+  ],
+  "caption": "The opposite of tube's problem. Most of this model's parameters sit in a single fused operation, so there is almost nothing for stage 2 to judge."
+}

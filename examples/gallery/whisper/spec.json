@@ -1,0 +1,483 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "Whisper tiny — encoder–decoder, two inputs",
+  "subtitle": "{model.params} parameters · mel {model.input_shapes[0]} and tokens {model.input_shapes[1]} in, {node:n0834.out_shape} out",
+  "stages": [
+    {
+      "id": "mel",
+      "name": "log-mel spectrogram",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "mel bins × frames"
+      ],
+      "note": "Thirty seconds of audio at a fixed length. The model has no variable-length path; padding is the caller's job."
+    },
+    {
+      "id": "frontend",
+      "name": "conv frontend",
+      "kind": "conv",
+      "nodes": [
+        "n0033",
+        "n0034",
+        "n0041",
+        "n0042",
+        "n0044",
+        "n0045"
+      ],
+      "detail": [
+        "kernel {node:n0033.weight_shape[2]}, second stride {node:n0041.constants.stride}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "Two convolutions and a GELU each, halving the time axis, then sinusoidal positions added. The positions are a buffer, not a parameter, so they contribute nothing to the count."
+    },
+    {
+      "id": "enc",
+      "name": "audio encoder",
+      "kind": "stack",
+      "nodes": [
+        "n0053",
+        "n0060",
+        "n0062",
+        "n0065",
+        "n0070",
+        "n0073",
+        "n0075",
+        "n0077",
+        "n0080",
+        "n0082",
+        "n0084",
+        "n0087",
+        "n0089",
+        "n0090",
+        "n0092",
+        "n0094",
+        "n0097",
+        "n0098",
+        "n0102",
+        "n0108",
+        "n0109",
+        "n0112",
+        "n0113",
+        "n0121",
+        "n0128",
+        "n0130",
+        "n0133",
+        "n0138",
+        "n0141",
+        "n0143",
+        "n0145",
+        "n0148",
+        "n0150",
+        "n0152",
+        "n0155",
+        "n0157",
+        "n0158",
+        "n0160",
+        "n0162",
+        "n0165",
+        "n0166",
+        "n0170",
+        "n0176",
+        "n0177",
+        "n0180",
+        "n0181",
+        "n0189",
+        "n0196",
+        "n0198",
+        "n0201",
+        "n0206",
+        "n0209",
+        "n0211",
+        "n0213",
+        "n0216",
+        "n0218",
+        "n0220",
+        "n0223",
+        "n0225",
+        "n0226",
+        "n0228",
+        "n0230",
+        "n0233",
+        "n0234",
+        "n0238",
+        "n0244",
+        "n0245",
+        "n0248",
+        "n0249",
+        "n0257",
+        "n0264",
+        "n0266",
+        "n0269",
+        "n0274",
+        "n0277",
+        "n0279",
+        "n0281",
+        "n0284",
+        "n0286",
+        "n0288",
+        "n0291",
+        "n0293",
+        "n0294",
+        "n0296",
+        "n0298",
+        "n0301",
+        "n0302",
+        "n0306",
+        "n0312",
+        "n0313",
+        "n0316",
+        "n0317"
+      ],
+      "detail": [
+        "{stage.nodes} ops",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ],
+      "note": "Four identical pre-norm blocks, each a self-attention and an MLP with a residual around both. Drawn as one box because the spec format cannot say 'four of these'. It carries no head lanes: this box is four blocks in SEQUENCE, and lanes claim parallelism — the decoder's two attention stages below are single sublayers, so there the claim is true."
+    },
+    {
+      "id": "audio",
+      "name": "audio features",
+      "kind": "reduce",
+      "nodes": [
+        "n0321"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "one vector per frame"
+      ],
+      "note": "Computed once. Every decoder block reads these same features."
+    },
+    {
+      "id": "tokens",
+      "name": "token ids",
+      "kind": "input",
+      "nodes": [
+        "in2"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "text produced so far"
+      ],
+      "note": "The second input. Until trace learned to build more than one dummy tensor, this model could not be traced at all."
+    },
+    {
+      "id": "embed",
+      "name": "token embedding + learned positions",
+      "kind": "op",
+      "nodes": [
+        "n0352",
+        "n0353",
+        "n0354"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "The embedding table is over half the model. It is drawn here, at the reader's first encounter with it, and not again at the output — the two uses share one tensor."
+    },
+    {
+      "id": "dself",
+      "name": "masked self-attention",
+      "kind": "kernel",
+      "nodes": [
+        "n0355",
+        "n0356",
+        "n0366",
+        "n0373",
+        "n0375",
+        "n0378",
+        "n0383",
+        "n0386",
+        "n0388",
+        "n0390",
+        "n0393",
+        "n0395",
+        "n0397",
+        "n0400",
+        "n0402",
+        "n0403",
+        "n0405",
+        "n0407",
+        "n0410",
+        "n0411"
+      ],
+      "detail": [
+        "causal mask",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ],
+      "lanes": {
+        "count_from": "{node:n0386.out_shape[2]}",
+        "labels": [
+          "h₁",
+          "h₂",
+          "h₃",
+          "h₄",
+          "h₅",
+          "h₆"
+        ]
+      },
+      "note": "Text attends to text, backwards only. Includes the residual add."
+    },
+    {
+      "id": "dcross",
+      "name": "cross-attention",
+      "kind": "concat",
+      "nodes": [
+        "n0415",
+        "n0422",
+        "n0424",
+        "n0427",
+        "n0432",
+        "n0435",
+        "n0437",
+        "n0439",
+        "n0442",
+        "n0444",
+        "n0446",
+        "n0449",
+        "n0451",
+        "n0452",
+        "n0454",
+        "n0456",
+        "n0459",
+        "n0460"
+      ],
+      "detail": [
+        "queries {node:n0435.out_shape[1]} text, keys and values {node:n0442.out_shape[1]} audio",
+        "{stage.params} params"
+      ],
+      "lanes": {
+        "count_from": "{node:n0435.out_shape[2]}",
+        "labels": [
+          "h₁",
+          "h₂",
+          "h₃",
+          "h₄",
+          "h₅",
+          "h₆"
+        ]
+      },
+      "note": "THE JOIN. This is where audio enters the text stream, and it is the one edge that makes this an encoder–decoder rather than two models. Nothing else in this gallery has it."
+    },
+    {
+      "id": "dff",
+      "name": "feed-forward",
+      "kind": "stack",
+      "nodes": [
+        "n0464",
+        "n0469",
+        "n0470",
+        "n0473",
+        "n0474"
+      ],
+      "detail": [
+        "widen to {node:n0469.out_shape[2]}",
+        "{stage.params} params"
+      ],
+      "note": "Pre-norm, widen fourfold, GELU, project back. Includes the residual add."
+    },
+    {
+      "id": "drest",
+      "name": "three more decoder blocks",
+      "kind": "stack",
+      "nodes": [
+        "n0484",
+        "n0491",
+        "n0493",
+        "n0496",
+        "n0501",
+        "n0504",
+        "n0506",
+        "n0508",
+        "n0511",
+        "n0513",
+        "n0515",
+        "n0518",
+        "n0520",
+        "n0521",
+        "n0523",
+        "n0525",
+        "n0528",
+        "n0529",
+        "n0533",
+        "n0540",
+        "n0542",
+        "n0545",
+        "n0550",
+        "n0553",
+        "n0555",
+        "n0557",
+        "n0560",
+        "n0562",
+        "n0564",
+        "n0567",
+        "n0569",
+        "n0570",
+        "n0572",
+        "n0574",
+        "n0577",
+        "n0578",
+        "n0582",
+        "n0587",
+        "n0588",
+        "n0591",
+        "n0592",
+        "n0602",
+        "n0609",
+        "n0611",
+        "n0614",
+        "n0619",
+        "n0622",
+        "n0624",
+        "n0626",
+        "n0629",
+        "n0631",
+        "n0633",
+        "n0636",
+        "n0638",
+        "n0639",
+        "n0641",
+        "n0643",
+        "n0646",
+        "n0647",
+        "n0651",
+        "n0658",
+        "n0660",
+        "n0663",
+        "n0668",
+        "n0671",
+        "n0673",
+        "n0675",
+        "n0678",
+        "n0680",
+        "n0682",
+        "n0685",
+        "n0687",
+        "n0688",
+        "n0690",
+        "n0692",
+        "n0695",
+        "n0696",
+        "n0700",
+        "n0705",
+        "n0706",
+        "n0709",
+        "n0710",
+        "n0720",
+        "n0727",
+        "n0729",
+        "n0732",
+        "n0737",
+        "n0740",
+        "n0742",
+        "n0744",
+        "n0747",
+        "n0749",
+        "n0751",
+        "n0754",
+        "n0756",
+        "n0757",
+        "n0759",
+        "n0761",
+        "n0764",
+        "n0765",
+        "n0769",
+        "n0776",
+        "n0778",
+        "n0781",
+        "n0786",
+        "n0789",
+        "n0791",
+        "n0793",
+        "n0796",
+        "n0798",
+        "n0800",
+        "n0803",
+        "n0805",
+        "n0806",
+        "n0808",
+        "n0810",
+        "n0813",
+        "n0814",
+        "n0818",
+        "n0823",
+        "n0824",
+        "n0827",
+        "n0828"
+      ],
+      "detail": [
+        "{stage.nodes} ops",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ],
+      "note": "Structurally identical to the three stages before it, each with its own cross-attention reading the same audio features. Collapsed for the same reason the encoder is."
+    },
+    {
+      "id": "logits",
+      "name": "vocabulary logits",
+      "kind": "output",
+      "nodes": [
+        "n0832",
+        "n0833",
+        "n0834"
+      ],
+      "detail": [
+        "{stage.out_shape[2]} tokens",
+        "final norm, then tied projection"
+      ],
+      "note": "The output projection is the token embedding transposed. Its parameters are drawn at the embedding, so this stage shows none — the weights exist once."
+    }
+  ],
+  "edges": [
+    {
+      "from": "mel",
+      "to": "frontend"
+    },
+    {
+      "from": "frontend",
+      "to": "enc"
+    },
+    {
+      "from": "enc",
+      "to": "audio"
+    },
+    {
+      "from": "audio",
+      "to": "dcross",
+      "style": "dashed"
+    },
+    {
+      "from": "tokens",
+      "to": "embed"
+    },
+    {
+      "from": "embed",
+      "to": "dself"
+    },
+    {
+      "from": "dself",
+      "to": "dcross"
+    },
+    {
+      "from": "dcross",
+      "to": "dff"
+    },
+    {
+      "from": "dff",
+      "to": "drest"
+    },
+    {
+      "from": "drest",
+      "to": "logits"
+    }
+  ],
+  "caption": "Whisper tiny at its published dimensions, random weights. Decoder block one is opened to show the cross-attention; the encoder's four blocks and the decoder's remaining three are each one box."
+}

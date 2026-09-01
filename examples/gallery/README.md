@@ -1,0 +1,159 @@
+# The gallery — nine more models, and what they broke
+
+> **Run 2026-09-01.** Everything in [`SPEC.md`](../../SPEC.md) and
+> [`DECISIONS.md`](../../DECISIONS.md) was measured on one model: `tube`, 1,149
+> parameters, one architecture family. This is the generalisation run. Each model
+> below was chosen for a **specific way it could break the tool**, written down
+> before it was traced.
+>
+> Two of them broke it. Both are fixed, both are pinned by tests, and the
+> corrections are the most valuable thing here — read them first.
+
+Every model is written out in full in [`models.py`](models.py) and
+[`whisper_tiny.py`](whisper_tiny.py), so the gallery reproduces from this repo
+alone: no torchvision, no downloads, no pinned third-party version. Weights are
+random. These draw architectures, not trained models.
+
+## The ten
+
+| | model | family | verdict |
+|---|---|---|---|
+| 1 | [`mlp`](mlp/) | dense stack | held — and added nothing |
+| 2 | [`lenet`](lenet/) | 2-D image CNN | held |
+| 3 | [`dual`](dual/) | parallel branches, concat | held, best figure in the set |
+| 4 | [`vae`](vae/) | sibling heads, external source | held; exposed the edge blind spot |
+| 5 | [`resnet`](resnet/) | residual blocks ×6 | gap: repetition |
+| 6 | [`unet`](unet/) | encoder–decoder, long skips | held topologically |
+| 7 | [`transformer`](transformer/) | fused attention, ×4 blocks | gap: repetition |
+| 8 | [`lstm`](lstm/) | fused recurrent op | gap: nothing to abstract |
+| 9 | [`whisper`](whisper/) | encoder–decoder, cross-attention | **broke two things** |
+| — | [`../tube/`](../tube/) | filter bank, bypass, dilated stack | the control |
+
+Totals: 2,078 traced nodes, 506 substantive, ten specs, ten green coverage
+checks, zero trace failures.
+
+## What broke, and what it cost
+
+### 1. A tied weight was counted twice
+
+The most serious finding, and Whisper produced it in one line:
+
+```
+warning: only 57100800 of 37184640 parameters could be attributed
+```
+
+Whisper's output projection **is** its token embedding. One tensor, two
+`prim::GetAttr` nodes, both charged — so the model was reported as having 54%
+more parameters than it has. **Coverage was green throughout**: every node was in
+exactly one stage, and the figure would still have printed a total the model does
+not have. That is precisely the confident-and-wrong number SPEC.md §4 exists to
+prevent, arriving through a door the check does not watch.
+
+Fixed in [`tracing.py`](../../src/draughtsman/tracing.py) by collecting every
+substantive consumer of a parameter and charging the **earliest in trace order**.
+That also decides *where* it is drawn: the 19.9M-entry table now appears at the
+embedding, where a reader meets it, rather than at the matmul four hundred nodes
+later. Pinned by `test_a_tied_weight_is_counted_once`.
+
+### 2. One input, one shape
+
+`trace` built a single dummy tensor, so every encoder–decoder, two-tower and
+masked model was excluded — not by difficulty, by signature. `--input-shape` is
+now repeatable with an optional `--dtype` per input:
+
+```
+draughtsman trace whisper_tiny:build_whisper_tiny \
+    --input-shape 1,80,3000 --dtype float32 \
+    --input-shape 1,12      --dtype int64 \
+    -o whisper/graph.json
+```
+
+One shape still produces byte-identical output, so nothing written before this
+means anything different. A model with several inputs has **no** singular
+`{model.input_shape}` fact: asking for it raises rather than quietly describing
+half the input.
+
+## Gaps still open
+
+**No `repeat` primitive — the largest.** ResNet has six identical blocks, the
+transformer four, Whisper four and four. Every one of those figures spends its
+width opening block one and collapses the rest into a box whose label says "three
+more identical blocks" in prose. Every deep modern architecture is a repeated
+block. A `repeat` field whose count resolves from `graph.json` — exactly like
+`lanes.count_from` — is the shape of the fix.
+
+**Everything is a horizontal strip.** The transformer renders 1937×247, an 8:1
+ribbon; LeNet is 8:1 with nine stages. Layout is rank-by-longest-path with no
+wrapping, so depth converts directly into width — the same defect the README
+criticises torchview for, arrived at more slowly. Whisper escapes it only because
+its two input rails give the figure a second row for free.
+
+**Coverage checks placement, not edges.** The VAE proves it: `randn_like` reads
+the mean's *shape*, so `graph.json` records the mean as its ancestor. The figure
+draws an edge the trace does not contain and the check reports 18/18 green. The
+safety argument covers "no operation was silently dropped"; it does not cover
+"the topology drawn is the topology traced". An assertion against
+`tensor_inputs` would close most of it.
+
+**`lanes` can claim a parallelism that is not there.** Found by the Whisper figure
+looking wrong. The first draft put six head lanes on the collapsed four-block
+encoder — but that box is four blocks in *sequence*, and lanes assert parallelism.
+The count resolved from a real fact and `check` passed, because nothing verifies
+that a lane count is attached to a single sublayer. The committed spec carries
+lanes only on the decoder's two real attention stages.
+
+## What held
+
+**`lanes` generalised across three families, which is the headline.** The
+kernel-bank finding in DECISIONS.md was written about one model and read like a
+quirk of it. It is not:
+
+| model | the same idea | what the tracer hands you |
+|---|---|---|
+| `tube` | four DoG kernels | one `conv1d`, four output channels |
+| `transformer` | four attention heads | one `_native_multi_head_attention` |
+| `whisper` | six attention heads | written out — heads visible as a shape |
+
+Three architectures, three different answers for the same idea, and `lanes` spans
+all of them unmodified. The two transformer plates bracket that range on purpose:
+`nn.MultiheadAttention` fuses, and Whisper's hand-written attention does not.
+
+**The trace layer did not flinch.** Ten models, five families, 2,078 nodes, every
+one traced on the first attempt with every parameter attributed. Whisper's 835
+nodes and 37M parameters traced in under a second. Given that SPEC.md §3 reached
+`torch.jit.trace` by eliminating two alternatives on a single model, that
+generalisation was not guaranteed.
+
+## Two smaller notes, left standing rather than worked around
+
+**An edge label collided with a stage box.** Whisper's audio-features edge crosses
+a rank boundary and its label was drawn under the cross-attention box that starts
+there. Worked around by dropping a label the stage name already carried, but edge
+labels have no collision handling at all.
+
+**The bare-number heuristic has false positives.** The VAE's noise stage is named
+`ε ~ N(0, I)`, and `check` warns that `0` is "a fact in the figure that did not
+come from graph.json". It is a warning rather than an error, which is the right
+severity, and it is **left in the committed spec** — a reader should see what the
+heuristic costs.
+
+## Reproducing
+
+```
+PYTHONPATH=src:examples/gallery
+draughtsman trace    models:build_resnet --input-shape 1,3,32,32 -o examples/gallery/resnet/graph.json
+draughtsman abstract examples/gallery/resnet/graph.json          # prints the prompt
+draughtsman check    examples/gallery/resnet/spec.json examples/gallery/resnet/graph.json
+draughtsman render   examples/gallery/resnet/spec.json -o examples/gallery/resnet/figure.svg
+draughtsman ui       examples/                                    # all ten, in a browser
+```
+
+Stage 2 was answered by a coding-agent session, which is the primary intended use:
+`abstract` prints a payload and makes no network call. The specs are committed and
+hand-editable, so every grouping and every name is reviewable in a diff.
+
+`../tube/graph.json` is **not** regenerated by this run — it comes from bugarach's
+model, which is not in this repo, and `torch.jit.trace`'s value names are not
+stable across torch releases (DECISIONS.md, corrections §3). It therefore predates
+`input_shapes` and carries only the singular `input_shape`, which is what its spec
+references.

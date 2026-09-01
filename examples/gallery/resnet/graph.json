@@ -1,0 +1,3230 @@
+{
+  "draughtsman": "0",
+  "model": {
+    "target": "models:build_resnet",
+    "input_shape": [
+      1,
+      3,
+      32,
+      32
+    ],
+    "input_dtype": "float32",
+    "input_shapes": [
+      [
+        1,
+        3,
+        32,
+        32
+      ]
+    ],
+    "input_dtypes": [
+      "float32"
+    ],
+    "params": 175258,
+    "parameters": {
+      "blocks.0.bn1.bias": 16,
+      "blocks.0.bn1.weight": 16,
+      "blocks.0.bn2.bias": 16,
+      "blocks.0.bn2.weight": 16,
+      "blocks.0.conv1.weight": 2304,
+      "blocks.0.conv2.weight": 2304,
+      "blocks.1.bn1.bias": 16,
+      "blocks.1.bn1.weight": 16,
+      "blocks.1.bn2.bias": 16,
+      "blocks.1.bn2.weight": 16,
+      "blocks.1.conv1.weight": 2304,
+      "blocks.1.conv2.weight": 2304,
+      "blocks.2.bn1.bias": 32,
+      "blocks.2.bn1.weight": 32,
+      "blocks.2.bn2.bias": 32,
+      "blocks.2.bn2.weight": 32,
+      "blocks.2.conv1.weight": 4608,
+      "blocks.2.conv2.weight": 9216,
+      "blocks.2.down.0.weight": 512,
+      "blocks.2.down.1.bias": 32,
+      "blocks.2.down.1.weight": 32,
+      "blocks.3.bn1.bias": 32,
+      "blocks.3.bn1.weight": 32,
+      "blocks.3.bn2.bias": 32,
+      "blocks.3.bn2.weight": 32,
+      "blocks.3.conv1.weight": 9216,
+      "blocks.3.conv2.weight": 9216,
+      "blocks.4.bn1.bias": 64,
+      "blocks.4.bn1.weight": 64,
+      "blocks.4.bn2.bias": 64,
+      "blocks.4.bn2.weight": 64,
+      "blocks.4.conv1.weight": 18432,
+      "blocks.4.conv2.weight": 36864,
+      "blocks.4.down.0.weight": 2048,
+      "blocks.4.down.1.bias": 64,
+      "blocks.4.down.1.weight": 64,
+      "blocks.5.bn1.bias": 64,
+      "blocks.5.bn1.weight": 64,
+      "blocks.5.bn2.bias": 64,
+      "blocks.5.bn2.weight": 64,
+      "blocks.5.conv1.weight": 36864,
+      "blocks.5.conv2.weight": 36864,
+      "bn.bias": 16,
+      "bn.weight": 16,
+      "head.bias": 10,
+      "head.weight": 640,
+      "stem.weight": 432
+    },
+    "parameter_shapes": {
+      "blocks.0.bn1.bias": [
+        16
+      ],
+      "blocks.0.bn1.weight": [
+        16
+      ],
+      "blocks.0.bn2.bias": [
+        16
+      ],
+      "blocks.0.bn2.weight": [
+        16
+      ],
+      "blocks.0.conv1.weight": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "blocks.0.conv2.weight": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "blocks.1.bn1.bias": [
+        16
+      ],
+      "blocks.1.bn1.weight": [
+        16
+      ],
+      "blocks.1.bn2.bias": [
+        16
+      ],
+      "blocks.1.bn2.weight": [
+        16
+      ],
+      "blocks.1.conv1.weight": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "blocks.1.conv2.weight": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "blocks.2.bn1.bias": [
+        32
+      ],
+      "blocks.2.bn1.weight": [
+        32
+      ],
+      "blocks.2.bn2.bias": [
+        32
+      ],
+      "blocks.2.bn2.weight": [
+        32
+      ],
+      "blocks.2.conv1.weight": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "blocks.2.conv2.weight": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "blocks.2.down.0.weight": [
+        32,
+        16,
+        1,
+        1
+      ],
+      "blocks.2.down.1.bias": [
+        32
+      ],
+      "blocks.2.down.1.weight": [
+        32
+      ],
+      "blocks.3.bn1.bias": [
+        32
+      ],
+      "blocks.3.bn1.weight": [
+        32
+      ],
+      "blocks.3.bn2.bias": [
+        32
+      ],
+      "blocks.3.bn2.weight": [
+        32
+      ],
+      "blocks.3.conv1.weight": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "blocks.3.conv2.weight": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "blocks.4.bn1.bias": [
+        64
+      ],
+      "blocks.4.bn1.weight": [
+        64
+      ],
+      "blocks.4.bn2.bias": [
+        64
+      ],
+      "blocks.4.bn2.weight": [
+        64
+      ],
+      "blocks.4.conv1.weight": [
+        64,
+        32,
+        3,
+        3
+      ],
+      "blocks.4.conv2.weight": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "blocks.4.down.0.weight": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "blocks.4.down.1.bias": [
+        64
+      ],
+      "blocks.4.down.1.weight": [
+        64
+      ],
+      "blocks.5.bn1.bias": [
+        64
+      ],
+      "blocks.5.bn1.weight": [
+        64
+      ],
+      "blocks.5.bn2.bias": [
+        64
+      ],
+      "blocks.5.bn2.weight": [
+        64
+      ],
+      "blocks.5.conv1.weight": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "blocks.5.conv2.weight": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "bn.bias": [
+        16
+      ],
+      "bn.weight": [
+        16
+      ],
+      "head.bias": [
+        10
+      ],
+      "head.weight": [
+        10,
+        64
+      ],
+      "stem.weight": [
+        16,
+        3,
+        3,
+        3
+      ]
+    }
+  },
+  "tracer": {
+    "backend": "torch.jit.trace",
+    "torch": "2.13.0"
+  },
+  "classification": {
+    "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
+    "structural_kinds": [
+      "prim::Constant",
+      "prim::ListConstruct",
+      "prim::TupleConstruct",
+      "prim::ListUnpack",
+      "prim::TupleUnpack",
+      "prim::GetAttr",
+      "prim::NumToTensor",
+      "aten::Int",
+      "aten::ScalarImplicit",
+      "aten::size",
+      "aten::detach",
+      "aten::contiguous"
+    ],
+    "nodes_total": 251,
+    "nodes_substantive": 52,
+    "nodes_structural": 199
+  },
+  "params_attributed": 175258,
+  "params_fully_attributed": true,
+  "inputs": [
+    {
+      "id": "in1",
+      "value": "x",
+      "shape": [
+        1,
+        3,
+        32,
+        32
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "producer": "n0250",
+      "value": "256",
+      "shape": [
+        1,
+        10
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n0014",
+      "kind": "aten::_convolution",
+      "module": "stem",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "in1",
+        "n0009",
+        "n0008",
+        "n0010",
+        "n0011",
+        "n0012",
+        "n0006",
+        "n0013",
+        "n0007",
+        "n0006",
+        "n0006",
+        "n0004",
+        "n0004"
+      ],
+      "tensor_inputs": [
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "input.1",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 432,
+      "param_names": [
+        "stem.weight"
+      ],
+      "weight_shape": [
+        16,
+        3,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0023",
+      "kind": "aten::batch_norm",
+      "module": "bn",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0014",
+        "n0022",
+        "n0021",
+        "n0020",
+        "n0019",
+        "n0018",
+        "n0017",
+        "n0016",
+        "n0015"
+      ],
+      "tensor_inputs": [
+        "n0014"
+      ],
+      "outputs": [
+        {
+          "value": "input.3",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 32,
+      "param_names": [
+        "bn.bias",
+        "bn.weight"
+      ],
+      "weight_shape": [
+        16
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0024",
+      "kind": "aten::relu",
+      "module": null,
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0023"
+      ],
+      "tensor_inputs": [
+        "n0023"
+      ],
+      "outputs": [
+        {
+          "value": "input.5",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0048",
+      "kind": "aten::_convolution",
+      "module": "blocks.0.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0024",
+        "n0043",
+        "n0030",
+        "n0044",
+        "n0045",
+        "n0046",
+        "n0028",
+        "n0047",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0024"
+      ],
+      "outputs": [
+        {
+          "value": "input.7",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 2304,
+      "param_names": [
+        "blocks.0.conv1.weight"
+      ],
+      "weight_shape": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0053",
+      "kind": "aten::batch_norm",
+      "module": "blocks.0.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0048",
+        "n0052",
+        "n0051",
+        "n0050",
+        "n0049",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0048"
+      ],
+      "outputs": [
+        {
+          "value": "input.9",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 32,
+      "param_names": [
+        "blocks.0.bn1.bias",
+        "blocks.0.bn1.weight"
+      ],
+      "weight_shape": [
+        16
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0054",
+      "kind": "aten::relu",
+      "module": "blocks.0",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0053"
+      ],
+      "tensor_inputs": [
+        "n0053"
+      ],
+      "outputs": [
+        {
+          "value": "input.11",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0060",
+      "kind": "aten::_convolution",
+      "module": "blocks.0.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0054",
+        "n0055",
+        "n0030",
+        "n0056",
+        "n0057",
+        "n0058",
+        "n0028",
+        "n0059",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0054"
+      ],
+      "outputs": [
+        {
+          "value": "input.13",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 2304,
+      "param_names": [
+        "blocks.0.conv2.weight"
+      ],
+      "weight_shape": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0065",
+      "kind": "aten::batch_norm",
+      "module": "blocks.0.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0060",
+        "n0064",
+        "n0063",
+        "n0062",
+        "n0061",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0060"
+      ],
+      "outputs": [
+        {
+          "value": "y.1",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 32,
+      "param_names": [
+        "blocks.0.bn2.bias",
+        "blocks.0.bn2.weight"
+      ],
+      "weight_shape": [
+        16
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0066",
+      "kind": "aten::add",
+      "module": "blocks.0",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0065",
+        "n0024",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0065",
+        "n0024"
+      ],
+      "outputs": [
+        {
+          "value": "input.15",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0067",
+      "kind": "aten::relu",
+      "module": "blocks.0",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0066"
+      ],
+      "tensor_inputs": [
+        "n0066"
+      ],
+      "outputs": [
+        {
+          "value": "input.17",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0077",
+      "kind": "aten::_convolution",
+      "module": "blocks.1.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0067",
+        "n0072",
+        "n0030",
+        "n0073",
+        "n0074",
+        "n0075",
+        "n0028",
+        "n0076",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0067"
+      ],
+      "outputs": [
+        {
+          "value": "input.19",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 2304,
+      "param_names": [
+        "blocks.1.conv1.weight"
+      ],
+      "weight_shape": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0082",
+      "kind": "aten::batch_norm",
+      "module": "blocks.1.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0077",
+        "n0081",
+        "n0080",
+        "n0079",
+        "n0078",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0077"
+      ],
+      "outputs": [
+        {
+          "value": "input.21",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 32,
+      "param_names": [
+        "blocks.1.bn1.bias",
+        "blocks.1.bn1.weight"
+      ],
+      "weight_shape": [
+        16
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0083",
+      "kind": "aten::relu",
+      "module": "blocks.1",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0082"
+      ],
+      "tensor_inputs": [
+        "n0082"
+      ],
+      "outputs": [
+        {
+          "value": "input.23",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0089",
+      "kind": "aten::_convolution",
+      "module": "blocks.1.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0083",
+        "n0084",
+        "n0030",
+        "n0085",
+        "n0086",
+        "n0087",
+        "n0028",
+        "n0088",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0083"
+      ],
+      "outputs": [
+        {
+          "value": "input.25",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 2304,
+      "param_names": [
+        "blocks.1.conv2.weight"
+      ],
+      "weight_shape": [
+        16,
+        16,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0094",
+      "kind": "aten::batch_norm",
+      "module": "blocks.1.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0089",
+        "n0093",
+        "n0092",
+        "n0091",
+        "n0090",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0089"
+      ],
+      "outputs": [
+        {
+          "value": "y.3",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 32,
+      "param_names": [
+        "blocks.1.bn2.bias",
+        "blocks.1.bn2.weight"
+      ],
+      "weight_shape": [
+        16
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0095",
+      "kind": "aten::add",
+      "module": "blocks.1",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0094",
+        "n0067",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0094",
+        "n0067"
+      ],
+      "outputs": [
+        {
+          "value": "input.27",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0096",
+      "kind": "aten::relu",
+      "module": "blocks.1",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0095"
+      ],
+      "tensor_inputs": [
+        "n0095"
+      ],
+      "outputs": [
+        {
+          "value": "input.29",
+          "shape": [
+            1,
+            16,
+            32,
+            32
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        16,
+        32,
+        32
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0109",
+      "kind": "aten::_convolution",
+      "module": "blocks.2.down.0",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0096",
+        "n0104",
+        "n0030",
+        "n0105",
+        "n0106",
+        "n0107",
+        "n0028",
+        "n0108",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0096"
+      ],
+      "outputs": [
+        {
+          "value": "input.31",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 512,
+      "param_names": [
+        "blocks.2.down.0.weight"
+      ],
+      "weight_shape": [
+        32,
+        16,
+        1,
+        1
+      ],
+      "constants": {
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0114",
+      "kind": "aten::batch_norm",
+      "module": "blocks.2.down.1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0109",
+        "n0113",
+        "n0112",
+        "n0111",
+        "n0110",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0109"
+      ],
+      "outputs": [
+        {
+          "value": "idt.1",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 64,
+      "param_names": [
+        "blocks.2.down.1.bias",
+        "blocks.2.down.1.weight"
+      ],
+      "weight_shape": [
+        32
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0120",
+      "kind": "aten::_convolution",
+      "module": "blocks.2.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0096",
+        "n0115",
+        "n0030",
+        "n0116",
+        "n0117",
+        "n0118",
+        "n0028",
+        "n0119",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0096"
+      ],
+      "outputs": [
+        {
+          "value": "input.33",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 4608,
+      "param_names": [
+        "blocks.2.conv1.weight"
+      ],
+      "weight_shape": [
+        32,
+        16,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0125",
+      "kind": "aten::batch_norm",
+      "module": "blocks.2.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0120",
+        "n0124",
+        "n0123",
+        "n0122",
+        "n0121",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0120"
+      ],
+      "outputs": [
+        {
+          "value": "input.35",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 64,
+      "param_names": [
+        "blocks.2.bn1.bias",
+        "blocks.2.bn1.weight"
+      ],
+      "weight_shape": [
+        32
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0126",
+      "kind": "aten::relu",
+      "module": "blocks.2",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0125"
+      ],
+      "tensor_inputs": [
+        "n0125"
+      ],
+      "outputs": [
+        {
+          "value": "input.37",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0132",
+      "kind": "aten::_convolution",
+      "module": "blocks.2.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0126",
+        "n0127",
+        "n0030",
+        "n0128",
+        "n0129",
+        "n0130",
+        "n0028",
+        "n0131",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0126"
+      ],
+      "outputs": [
+        {
+          "value": "input.39",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 9216,
+      "param_names": [
+        "blocks.2.conv2.weight"
+      ],
+      "weight_shape": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0137",
+      "kind": "aten::batch_norm",
+      "module": "blocks.2.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0132",
+        "n0136",
+        "n0135",
+        "n0134",
+        "n0133",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0132"
+      ],
+      "outputs": [
+        {
+          "value": "y.5",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 64,
+      "param_names": [
+        "blocks.2.bn2.bias",
+        "blocks.2.bn2.weight"
+      ],
+      "weight_shape": [
+        32
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0138",
+      "kind": "aten::add",
+      "module": "blocks.2",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0137",
+        "n0114",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0137",
+        "n0114"
+      ],
+      "outputs": [
+        {
+          "value": "input.41",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0139",
+      "kind": "aten::relu",
+      "module": "blocks.2",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0138"
+      ],
+      "tensor_inputs": [
+        "n0138"
+      ],
+      "outputs": [
+        {
+          "value": "input.43",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0149",
+      "kind": "aten::_convolution",
+      "module": "blocks.3.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0139",
+        "n0144",
+        "n0030",
+        "n0145",
+        "n0146",
+        "n0147",
+        "n0028",
+        "n0148",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0139"
+      ],
+      "outputs": [
+        {
+          "value": "input.45",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 9216,
+      "param_names": [
+        "blocks.3.conv1.weight"
+      ],
+      "weight_shape": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0154",
+      "kind": "aten::batch_norm",
+      "module": "blocks.3.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0149",
+        "n0153",
+        "n0152",
+        "n0151",
+        "n0150",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0149"
+      ],
+      "outputs": [
+        {
+          "value": "input.47",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 64,
+      "param_names": [
+        "blocks.3.bn1.bias",
+        "blocks.3.bn1.weight"
+      ],
+      "weight_shape": [
+        32
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0155",
+      "kind": "aten::relu",
+      "module": "blocks.3",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0154"
+      ],
+      "tensor_inputs": [
+        "n0154"
+      ],
+      "outputs": [
+        {
+          "value": "input.49",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0161",
+      "kind": "aten::_convolution",
+      "module": "blocks.3.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0155",
+        "n0156",
+        "n0030",
+        "n0157",
+        "n0158",
+        "n0159",
+        "n0028",
+        "n0160",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0155"
+      ],
+      "outputs": [
+        {
+          "value": "input.51",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 9216,
+      "param_names": [
+        "blocks.3.conv2.weight"
+      ],
+      "weight_shape": [
+        32,
+        32,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0166",
+      "kind": "aten::batch_norm",
+      "module": "blocks.3.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0161",
+        "n0165",
+        "n0164",
+        "n0163",
+        "n0162",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0161"
+      ],
+      "outputs": [
+        {
+          "value": "y.7",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 64,
+      "param_names": [
+        "blocks.3.bn2.bias",
+        "blocks.3.bn2.weight"
+      ],
+      "weight_shape": [
+        32
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0167",
+      "kind": "aten::add",
+      "module": "blocks.3",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0166",
+        "n0139",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0166",
+        "n0139"
+      ],
+      "outputs": [
+        {
+          "value": "input.53",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0168",
+      "kind": "aten::relu",
+      "module": "blocks.3",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0167"
+      ],
+      "tensor_inputs": [
+        "n0167"
+      ],
+      "outputs": [
+        {
+          "value": "input.55",
+          "shape": [
+            1,
+            32,
+            16,
+            16
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        16,
+        16
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0181",
+      "kind": "aten::_convolution",
+      "module": "blocks.4.down.0",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0168",
+        "n0176",
+        "n0030",
+        "n0177",
+        "n0178",
+        "n0179",
+        "n0028",
+        "n0180",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0168"
+      ],
+      "outputs": [
+        {
+          "value": "input.57",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 2048,
+      "param_names": [
+        "blocks.4.down.0.weight"
+      ],
+      "weight_shape": [
+        64,
+        32,
+        1,
+        1
+      ],
+      "constants": {
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          0,
+          0
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0186",
+      "kind": "aten::batch_norm",
+      "module": "blocks.4.down.1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0181",
+        "n0185",
+        "n0184",
+        "n0183",
+        "n0182",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0181"
+      ],
+      "outputs": [
+        {
+          "value": "idt",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.4.down.1.bias",
+        "blocks.4.down.1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0192",
+      "kind": "aten::_convolution",
+      "module": "blocks.4.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0168",
+        "n0187",
+        "n0030",
+        "n0188",
+        "n0189",
+        "n0190",
+        "n0028",
+        "n0191",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0168"
+      ],
+      "outputs": [
+        {
+          "value": "input.59",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 18432,
+      "param_names": [
+        "blocks.4.conv1.weight"
+      ],
+      "weight_shape": [
+        64,
+        32,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          2,
+          2
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0197",
+      "kind": "aten::batch_norm",
+      "module": "blocks.4.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0192",
+        "n0196",
+        "n0195",
+        "n0194",
+        "n0193",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0192"
+      ],
+      "outputs": [
+        {
+          "value": "input.61",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.4.bn1.bias",
+        "blocks.4.bn1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0198",
+      "kind": "aten::relu",
+      "module": "blocks.4",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0197"
+      ],
+      "tensor_inputs": [
+        "n0197"
+      ],
+      "outputs": [
+        {
+          "value": "input.63",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0204",
+      "kind": "aten::_convolution",
+      "module": "blocks.4.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0198",
+        "n0199",
+        "n0030",
+        "n0200",
+        "n0201",
+        "n0202",
+        "n0028",
+        "n0203",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0198"
+      ],
+      "outputs": [
+        {
+          "value": "input.65",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 36864,
+      "param_names": [
+        "blocks.4.conv2.weight"
+      ],
+      "weight_shape": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0209",
+      "kind": "aten::batch_norm",
+      "module": "blocks.4.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0204",
+        "n0208",
+        "n0207",
+        "n0206",
+        "n0205",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0204"
+      ],
+      "outputs": [
+        {
+          "value": "y.9",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.4.bn2.bias",
+        "blocks.4.bn2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0210",
+      "kind": "aten::add",
+      "module": "blocks.4",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0209",
+        "n0186",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0209",
+        "n0186"
+      ],
+      "outputs": [
+        {
+          "value": "input.67",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0211",
+      "kind": "aten::relu",
+      "module": "blocks.4",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0210"
+      ],
+      "tensor_inputs": [
+        "n0210"
+      ],
+      "outputs": [
+        {
+          "value": "input.69",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0221",
+      "kind": "aten::_convolution",
+      "module": "blocks.5.conv1",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0211",
+        "n0216",
+        "n0030",
+        "n0217",
+        "n0218",
+        "n0219",
+        "n0028",
+        "n0220",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0211"
+      ],
+      "outputs": [
+        {
+          "value": "input.71",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 36864,
+      "param_names": [
+        "blocks.5.conv1.weight"
+      ],
+      "weight_shape": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0226",
+      "kind": "aten::batch_norm",
+      "module": "blocks.5.bn1",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0221",
+        "n0225",
+        "n0224",
+        "n0223",
+        "n0222",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0221"
+      ],
+      "outputs": [
+        {
+          "value": "input.73",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.5.bn1.bias",
+        "blocks.5.bn1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0227",
+      "kind": "aten::relu",
+      "module": "blocks.5",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0226"
+      ],
+      "tensor_inputs": [
+        "n0226"
+      ],
+      "outputs": [
+        {
+          "value": "input.75",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0233",
+      "kind": "aten::_convolution",
+      "module": "blocks.5.conv2",
+      "source": {
+        "file": "conv.py",
+        "line": 560,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0227",
+        "n0228",
+        "n0030",
+        "n0229",
+        "n0230",
+        "n0231",
+        "n0028",
+        "n0232",
+        "n0029",
+        "n0028",
+        "n0028",
+        "n0026",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0227"
+      ],
+      "outputs": [
+        {
+          "value": "input.77",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 36864,
+      "param_names": [
+        "blocks.5.conv2.weight"
+      ],
+      "weight_shape": [
+        64,
+        64,
+        3,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1,
+          1
+        ],
+        "padding": [
+          1,
+          1
+        ],
+        "dilation": [
+          1,
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0,
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0238",
+      "kind": "aten::batch_norm",
+      "module": "blocks.5.bn2",
+      "source": {
+        "file": "functional.py",
+        "line": 2898,
+        "function": "batch_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0233",
+        "n0237",
+        "n0236",
+        "n0235",
+        "n0234",
+        "n0028",
+        "n0032",
+        "n0031",
+        "n0026"
+      ],
+      "tensor_inputs": [
+        "n0233"
+      ],
+      "outputs": [
+        {
+          "value": "y",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.5.bn2.bias",
+        "blocks.5.bn2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "training": false,
+        "momentum": 0.1,
+        "eps": 1e-05,
+        "cudnn_enabled": true
+      }
+    },
+    {
+      "id": "n0239",
+      "kind": "aten::add",
+      "module": "blocks.5",
+      "source": {
+        "file": "models.py",
+        "line": 93,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0238",
+        "n0211",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0238",
+        "n0211"
+      ],
+      "outputs": [
+        {
+          "value": "input.79",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0240",
+      "kind": "aten::relu",
+      "module": "blocks.5",
+      "source": {
+        "file": "functional.py",
+        "line": 1771,
+        "function": "relu",
+        "internal": true
+      },
+      "inputs": [
+        "n0239"
+      ],
+      "tensor_inputs": [
+        "n0239"
+      ],
+      "outputs": [
+        {
+          "value": "input.81",
+          "shape": [
+            1,
+            64,
+            8,
+            8
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        8,
+        8
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0244",
+      "kind": "aten::adaptive_avg_pool2d",
+      "module": null,
+      "source": {
+        "file": "functional.py",
+        "line": 1447,
+        "function": "adaptive_avg_pool2d",
+        "internal": true
+      },
+      "inputs": [
+        "n0240",
+        "n0243"
+      ],
+      "tensor_inputs": [
+        "n0240"
+      ],
+      "outputs": [
+        {
+          "value": "13",
+          "shape": [
+            1,
+            64,
+            1,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64,
+        1,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "output_size": [
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0247",
+      "kind": "aten::flatten",
+      "module": null,
+      "source": {
+        "file": "models.py",
+        "line": 118,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0244",
+        "n0245",
+        "n0246"
+      ],
+      "tensor_inputs": [
+        "n0244"
+      ],
+      "outputs": [
+        {
+          "value": "input",
+          "shape": [
+            1,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": -1
+      }
+    },
+    {
+      "id": "n0250",
+      "kind": "aten::linear",
+      "module": "head",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0247",
+        "n0249",
+        "n0248"
+      ],
+      "tensor_inputs": [
+        "n0247"
+      ],
+      "outputs": [
+        {
+          "value": "256",
+          "shape": [
+            1,
+            10
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        10
+      ],
+      "params": 650,
+      "param_names": [
+        "head.bias",
+        "head.weight"
+      ],
+      "weight_shape": [
+        10,
+        64
+      ],
+      "constants": {}
+    }
+  ]
+}

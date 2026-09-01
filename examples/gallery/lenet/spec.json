@@ -1,0 +1,39 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "LeNet — the canonical image CNN",
+  "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0067.out_shape} out",
+  "stages": [
+    {"id": "image", "name": "image", "kind": "input", "nodes": ["in1"],
+     "detail": ["{stage.out_shape}"]},
+    {"id": "conv1", "name": "conv + ReLU", "kind": "conv", "nodes": ["n0016", "n0017"],
+     "detail": ["kernel {node:n0016.weight_shape[2]}, pad {node:n0016.constants.padding[0]}",
+                "{stage.out_shape}", "{stage.params} params"]},
+    {"id": "pool1", "name": "max-pool", "kind": "pool", "nodes": ["n0029"],
+     "detail": ["{node:n0029.constants.kernel_size}", "{stage.out_shape}"]},
+    {"id": "conv2", "name": "conv + ReLU", "kind": "conv", "nodes": ["n0040", "n0041"],
+     "detail": ["kernel {node:n0040.weight_shape[2]}", "{stage.out_shape}",
+                "{stage.params} params"]},
+    {"id": "pool2", "name": "max-pool", "kind": "pool", "nodes": ["n0053"],
+     "detail": ["{node:n0053.constants.kernel_size}", "{stage.out_shape}"]},
+    {"id": "flatten", "name": "flatten", "kind": "op", "nodes": ["n0056"],
+     "detail": ["{stage.out_shape}"]},
+    {"id": "fc1", "name": "dense + ReLU", "kind": "stack", "nodes": ["n0059", "n0060"],
+     "detail": ["{stage.out_shape[1]} units", "{stage.params} params"]},
+    {"id": "fc2", "name": "dense + ReLU", "kind": "stack", "nodes": ["n0063", "n0064"],
+     "detail": ["{stage.out_shape[1]} units", "{stage.params} params"]},
+    {"id": "logits", "name": "class logits", "kind": "output", "nodes": ["n0067"],
+     "detail": ["{stage.out_shape[1]} classes"]}
+  ],
+  "edges": [
+    {"from": "image", "to": "conv1"},
+    {"from": "conv1", "to": "pool1"},
+    {"from": "pool1", "to": "conv2"},
+    {"from": "conv2", "to": "pool2"},
+    {"from": "pool2", "to": "flatten"},
+    {"from": "flatten", "to": "fc1"},
+    {"from": "fc1", "to": "fc2"},
+    {"from": "fc2", "to": "logits"}
+  ],
+  "caption": "Every operation here is a registered module, so a module enumerator gets this one right. The interest is that the figure is no worse for being derived from the trace."
+}

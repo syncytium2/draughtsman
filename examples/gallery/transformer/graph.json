@@ -1,0 +1,2137 @@
+{
+  "draughtsman": "0",
+  "model": {
+    "target": "models:build_transformer",
+    "input_shape": [
+      1,
+      32
+    ],
+    "input_dtype": "int64",
+    "input_shapes": [
+      [
+        1,
+        32
+      ]
+    ],
+    "input_dtypes": [
+      "int64"
+    ],
+    "params": 200324,
+    "parameters": {
+      "blocks.0.attn.in_proj_bias": 192,
+      "blocks.0.attn.in_proj_weight": 12288,
+      "blocks.0.attn.out_proj.bias": 64,
+      "blocks.0.attn.out_proj.weight": 4096,
+      "blocks.0.ff.0.bias": 128,
+      "blocks.0.ff.0.weight": 8192,
+      "blocks.0.ff.2.bias": 64,
+      "blocks.0.ff.2.weight": 8192,
+      "blocks.0.n1.bias": 64,
+      "blocks.0.n1.weight": 64,
+      "blocks.0.n2.bias": 64,
+      "blocks.0.n2.weight": 64,
+      "blocks.1.attn.in_proj_bias": 192,
+      "blocks.1.attn.in_proj_weight": 12288,
+      "blocks.1.attn.out_proj.bias": 64,
+      "blocks.1.attn.out_proj.weight": 4096,
+      "blocks.1.ff.0.bias": 128,
+      "blocks.1.ff.0.weight": 8192,
+      "blocks.1.ff.2.bias": 64,
+      "blocks.1.ff.2.weight": 8192,
+      "blocks.1.n1.bias": 64,
+      "blocks.1.n1.weight": 64,
+      "blocks.1.n2.bias": 64,
+      "blocks.1.n2.weight": 64,
+      "blocks.2.attn.in_proj_bias": 192,
+      "blocks.2.attn.in_proj_weight": 12288,
+      "blocks.2.attn.out_proj.bias": 64,
+      "blocks.2.attn.out_proj.weight": 4096,
+      "blocks.2.ff.0.bias": 128,
+      "blocks.2.ff.0.weight": 8192,
+      "blocks.2.ff.2.bias": 64,
+      "blocks.2.ff.2.weight": 8192,
+      "blocks.2.n1.bias": 64,
+      "blocks.2.n1.weight": 64,
+      "blocks.2.n2.bias": 64,
+      "blocks.2.n2.weight": 64,
+      "blocks.3.attn.in_proj_bias": 192,
+      "blocks.3.attn.in_proj_weight": 12288,
+      "blocks.3.attn.out_proj.bias": 64,
+      "blocks.3.attn.out_proj.weight": 4096,
+      "blocks.3.ff.0.bias": 128,
+      "blocks.3.ff.0.weight": 8192,
+      "blocks.3.ff.2.bias": 64,
+      "blocks.3.ff.2.weight": 8192,
+      "blocks.3.n1.bias": 64,
+      "blocks.3.n1.weight": 64,
+      "blocks.3.n2.bias": 64,
+      "blocks.3.n2.weight": 64,
+      "embed.weight": 64000,
+      "head.bias": 4,
+      "head.weight": 256,
+      "norm.bias": 64,
+      "norm.weight": 64,
+      "pos": 2048
+    },
+    "parameter_shapes": {
+      "blocks.0.attn.in_proj_bias": [
+        192
+      ],
+      "blocks.0.attn.in_proj_weight": [
+        192,
+        64
+      ],
+      "blocks.0.attn.out_proj.bias": [
+        64
+      ],
+      "blocks.0.attn.out_proj.weight": [
+        64,
+        64
+      ],
+      "blocks.0.ff.0.bias": [
+        128
+      ],
+      "blocks.0.ff.0.weight": [
+        128,
+        64
+      ],
+      "blocks.0.ff.2.bias": [
+        64
+      ],
+      "blocks.0.ff.2.weight": [
+        64,
+        128
+      ],
+      "blocks.0.n1.bias": [
+        64
+      ],
+      "blocks.0.n1.weight": [
+        64
+      ],
+      "blocks.0.n2.bias": [
+        64
+      ],
+      "blocks.0.n2.weight": [
+        64
+      ],
+      "blocks.1.attn.in_proj_bias": [
+        192
+      ],
+      "blocks.1.attn.in_proj_weight": [
+        192,
+        64
+      ],
+      "blocks.1.attn.out_proj.bias": [
+        64
+      ],
+      "blocks.1.attn.out_proj.weight": [
+        64,
+        64
+      ],
+      "blocks.1.ff.0.bias": [
+        128
+      ],
+      "blocks.1.ff.0.weight": [
+        128,
+        64
+      ],
+      "blocks.1.ff.2.bias": [
+        64
+      ],
+      "blocks.1.ff.2.weight": [
+        64,
+        128
+      ],
+      "blocks.1.n1.bias": [
+        64
+      ],
+      "blocks.1.n1.weight": [
+        64
+      ],
+      "blocks.1.n2.bias": [
+        64
+      ],
+      "blocks.1.n2.weight": [
+        64
+      ],
+      "blocks.2.attn.in_proj_bias": [
+        192
+      ],
+      "blocks.2.attn.in_proj_weight": [
+        192,
+        64
+      ],
+      "blocks.2.attn.out_proj.bias": [
+        64
+      ],
+      "blocks.2.attn.out_proj.weight": [
+        64,
+        64
+      ],
+      "blocks.2.ff.0.bias": [
+        128
+      ],
+      "blocks.2.ff.0.weight": [
+        128,
+        64
+      ],
+      "blocks.2.ff.2.bias": [
+        64
+      ],
+      "blocks.2.ff.2.weight": [
+        64,
+        128
+      ],
+      "blocks.2.n1.bias": [
+        64
+      ],
+      "blocks.2.n1.weight": [
+        64
+      ],
+      "blocks.2.n2.bias": [
+        64
+      ],
+      "blocks.2.n2.weight": [
+        64
+      ],
+      "blocks.3.attn.in_proj_bias": [
+        192
+      ],
+      "blocks.3.attn.in_proj_weight": [
+        192,
+        64
+      ],
+      "blocks.3.attn.out_proj.bias": [
+        64
+      ],
+      "blocks.3.attn.out_proj.weight": [
+        64,
+        64
+      ],
+      "blocks.3.ff.0.bias": [
+        128
+      ],
+      "blocks.3.ff.0.weight": [
+        128,
+        64
+      ],
+      "blocks.3.ff.2.bias": [
+        64
+      ],
+      "blocks.3.ff.2.weight": [
+        64,
+        128
+      ],
+      "blocks.3.n1.bias": [
+        64
+      ],
+      "blocks.3.n1.weight": [
+        64
+      ],
+      "blocks.3.n2.bias": [
+        64
+      ],
+      "blocks.3.n2.weight": [
+        64
+      ],
+      "embed.weight": [
+        1000,
+        64
+      ],
+      "head.bias": [
+        4
+      ],
+      "head.weight": [
+        4,
+        64
+      ],
+      "norm.bias": [
+        64
+      ],
+      "norm.weight": [
+        64
+      ],
+      "pos": [
+        1,
+        32,
+        64
+      ]
+    }
+  },
+  "tracer": {
+    "backend": "torch.jit.trace",
+    "torch": "2.13.0"
+  },
+  "classification": {
+    "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
+    "structural_kinds": [
+      "prim::Constant",
+      "prim::ListConstruct",
+      "prim::TupleConstruct",
+      "prim::ListUnpack",
+      "prim::TupleUnpack",
+      "prim::GetAttr",
+      "prim::NumToTensor",
+      "aten::Int",
+      "aten::ScalarImplicit",
+      "aten::size",
+      "aten::detach",
+      "aten::contiguous"
+    ],
+    "nodes_total": 202,
+    "nodes_substantive": 39,
+    "nodes_structural": 163
+  },
+  "params_attributed": 200324,
+  "params_fully_attributed": true,
+  "inputs": [
+    {
+      "id": "in1",
+      "value": "tok",
+      "shape": [
+        1,
+        32
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "producer": "n0201",
+      "value": "214",
+      "shape": [
+        1,
+        4
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n0015",
+      "kind": "aten::embedding",
+      "module": "embed",
+      "source": {
+        "file": "functional.py",
+        "line": 2615,
+        "function": "embedding",
+        "internal": true
+      },
+      "inputs": [
+        "n0014",
+        "in1",
+        "n0013",
+        "n0012",
+        "n0012"
+      ],
+      "tensor_inputs": [
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "44",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 64000,
+      "param_names": [
+        "embed.weight"
+      ],
+      "weight_shape": [
+        1000,
+        64
+      ],
+      "constants": {
+        "padding_idx": -1,
+        "scale_grad_by_freq": false,
+        "sparse": false
+      }
+    },
+    {
+      "id": "n0024",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "models.py",
+        "line": 205,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0010",
+        "n0020",
+        "n0021",
+        "n0022",
+        "n0023"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "23",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 2048,
+      "param_names": [
+        "pos"
+      ],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0028",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "models.py",
+        "line": 205,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0024",
+        "n0025",
+        "n0026",
+        "n0019",
+        "n0027"
+      ],
+      "tensor_inputs": [
+        "n0024",
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "27",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0030",
+      "kind": "aten::add",
+      "module": null,
+      "source": {
+        "file": "models.py",
+        "line": 205,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0015",
+        "n0028",
+        "n0029"
+      ],
+      "tensor_inputs": [
+        "n0015",
+        "n0028"
+      ],
+      "outputs": [
+        {
+          "value": "input.1",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0046",
+      "kind": "aten::layer_norm",
+      "module": "blocks.0.n1",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0030",
+        "n0045",
+        "n0044",
+        "n0043",
+        "n0037",
+        "n0038"
+      ],
+      "tensor_inputs": [
+        "n0030"
+      ],
+      "outputs": [
+        {
+          "value": "query.1",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.0.n1.bias",
+        "blocks.0.n1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0053",
+      "kind": "aten::_native_multi_head_attention",
+      "module": "blocks.0.attn",
+      "source": {
+        "file": "activation.py",
+        "line": 1433,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0046",
+        "n0046",
+        "n0046",
+        "n0036",
+        "n0033",
+        "n0052",
+        "n0051",
+        "n0050",
+        "n0048",
+        "n0034",
+        "n0035",
+        "n0038",
+        "n0034"
+      ],
+      "tensor_inputs": [
+        "n0046"
+      ],
+      "outputs": [
+        {
+          "value": "a.1",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        },
+        {
+          "value": "68",
+          "shape": null
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 16640,
+      "param_names": [
+        "blocks.0.attn.in_proj_bias",
+        "blocks.0.attn.in_proj_weight",
+        "blocks.0.attn.out_proj.bias",
+        "blocks.0.attn.out_proj.weight"
+      ],
+      "weight_shape": [
+        64,
+        64
+      ],
+      "constants": {
+        "embed_dim": 64,
+        "num_head": 4,
+        "need_weights": false,
+        "average_attn_weights": true
+      }
+    },
+    {
+      "id": "n0054",
+      "kind": "aten::add",
+      "module": "blocks.0",
+      "source": {
+        "file": "models.py",
+        "line": 182,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0030",
+        "n0053",
+        "n0032"
+      ],
+      "tensor_inputs": [
+        "n0030",
+        "n0053"
+      ],
+      "outputs": [
+        {
+          "value": "input.3",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0058",
+      "kind": "aten::layer_norm",
+      "module": "blocks.0.n2",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0054",
+        "n0057",
+        "n0056",
+        "n0055",
+        "n0037",
+        "n0038"
+      ],
+      "tensor_inputs": [
+        "n0054"
+      ],
+      "outputs": [
+        {
+          "value": "input.5",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.0.n2.bias",
+        "blocks.0.n2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0064",
+      "kind": "aten::linear",
+      "module": "blocks.0.ff.0",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0058",
+        "n0063",
+        "n0062"
+      ],
+      "tensor_inputs": [
+        "n0058"
+      ],
+      "outputs": [
+        {
+          "value": "input.7",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 8320,
+      "param_names": [
+        "blocks.0.ff.0.bias",
+        "blocks.0.ff.0.weight"
+      ],
+      "weight_shape": [
+        128,
+        64
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0065",
+      "kind": "aten::gelu",
+      "module": "blocks.0.ff.1",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0064",
+        "n0031"
+      ],
+      "tensor_inputs": [
+        "n0064"
+      ],
+      "outputs": [
+        {
+          "value": "input.9",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0068",
+      "kind": "aten::linear",
+      "module": "blocks.0.ff.2",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0065",
+        "n0067",
+        "n0066"
+      ],
+      "tensor_inputs": [
+        "n0065"
+      ],
+      "outputs": [
+        {
+          "value": "83",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 8256,
+      "param_names": [
+        "blocks.0.ff.2.bias",
+        "blocks.0.ff.2.weight"
+      ],
+      "weight_shape": [
+        64,
+        128
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0069",
+      "kind": "aten::add",
+      "module": "blocks.0",
+      "source": {
+        "file": "models.py",
+        "line": 183,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0054",
+        "n0068",
+        "n0032"
+      ],
+      "tensor_inputs": [
+        "n0054",
+        "n0068"
+      ],
+      "outputs": [
+        {
+          "value": "input.11",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0085",
+      "kind": "aten::layer_norm",
+      "module": "blocks.1.n1",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0069",
+        "n0084",
+        "n0083",
+        "n0082",
+        "n0076",
+        "n0077"
+      ],
+      "tensor_inputs": [
+        "n0069"
+      ],
+      "outputs": [
+        {
+          "value": "query.3",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.1.n1.bias",
+        "blocks.1.n1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0092",
+      "kind": "aten::_native_multi_head_attention",
+      "module": "blocks.1.attn",
+      "source": {
+        "file": "activation.py",
+        "line": 1433,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0085",
+        "n0085",
+        "n0085",
+        "n0075",
+        "n0072",
+        "n0091",
+        "n0090",
+        "n0089",
+        "n0087",
+        "n0073",
+        "n0074",
+        "n0077",
+        "n0073"
+      ],
+      "tensor_inputs": [
+        "n0085"
+      ],
+      "outputs": [
+        {
+          "value": "a.3",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        },
+        {
+          "value": "108",
+          "shape": null
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 16640,
+      "param_names": [
+        "blocks.1.attn.in_proj_bias",
+        "blocks.1.attn.in_proj_weight",
+        "blocks.1.attn.out_proj.bias",
+        "blocks.1.attn.out_proj.weight"
+      ],
+      "weight_shape": [
+        64,
+        64
+      ],
+      "constants": {
+        "embed_dim": 64,
+        "num_head": 4,
+        "need_weights": false,
+        "average_attn_weights": true
+      }
+    },
+    {
+      "id": "n0093",
+      "kind": "aten::add",
+      "module": "blocks.1",
+      "source": {
+        "file": "models.py",
+        "line": 182,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0069",
+        "n0092",
+        "n0071"
+      ],
+      "tensor_inputs": [
+        "n0069",
+        "n0092"
+      ],
+      "outputs": [
+        {
+          "value": "input.13",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0097",
+      "kind": "aten::layer_norm",
+      "module": "blocks.1.n2",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0093",
+        "n0096",
+        "n0095",
+        "n0094",
+        "n0076",
+        "n0077"
+      ],
+      "tensor_inputs": [
+        "n0093"
+      ],
+      "outputs": [
+        {
+          "value": "input.15",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.1.n2.bias",
+        "blocks.1.n2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0103",
+      "kind": "aten::linear",
+      "module": "blocks.1.ff.0",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0097",
+        "n0102",
+        "n0101"
+      ],
+      "tensor_inputs": [
+        "n0097"
+      ],
+      "outputs": [
+        {
+          "value": "input.17",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 8320,
+      "param_names": [
+        "blocks.1.ff.0.bias",
+        "blocks.1.ff.0.weight"
+      ],
+      "weight_shape": [
+        128,
+        64
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0104",
+      "kind": "aten::gelu",
+      "module": "blocks.1.ff.1",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0103",
+        "n0070"
+      ],
+      "tensor_inputs": [
+        "n0103"
+      ],
+      "outputs": [
+        {
+          "value": "input.19",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0107",
+      "kind": "aten::linear",
+      "module": "blocks.1.ff.2",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0104",
+        "n0106",
+        "n0105"
+      ],
+      "tensor_inputs": [
+        "n0104"
+      ],
+      "outputs": [
+        {
+          "value": "123",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 8256,
+      "param_names": [
+        "blocks.1.ff.2.bias",
+        "blocks.1.ff.2.weight"
+      ],
+      "weight_shape": [
+        64,
+        128
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0108",
+      "kind": "aten::add",
+      "module": "blocks.1",
+      "source": {
+        "file": "models.py",
+        "line": 183,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0093",
+        "n0107",
+        "n0071"
+      ],
+      "tensor_inputs": [
+        "n0093",
+        "n0107"
+      ],
+      "outputs": [
+        {
+          "value": "input.21",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0124",
+      "kind": "aten::layer_norm",
+      "module": "blocks.2.n1",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0108",
+        "n0123",
+        "n0122",
+        "n0121",
+        "n0115",
+        "n0116"
+      ],
+      "tensor_inputs": [
+        "n0108"
+      ],
+      "outputs": [
+        {
+          "value": "query.5",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.2.n1.bias",
+        "blocks.2.n1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0131",
+      "kind": "aten::_native_multi_head_attention",
+      "module": "blocks.2.attn",
+      "source": {
+        "file": "activation.py",
+        "line": 1433,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0124",
+        "n0124",
+        "n0124",
+        "n0114",
+        "n0111",
+        "n0130",
+        "n0129",
+        "n0128",
+        "n0126",
+        "n0112",
+        "n0113",
+        "n0116",
+        "n0112"
+      ],
+      "tensor_inputs": [
+        "n0124"
+      ],
+      "outputs": [
+        {
+          "value": "a.5",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        },
+        {
+          "value": "148",
+          "shape": null
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 16640,
+      "param_names": [
+        "blocks.2.attn.in_proj_bias",
+        "blocks.2.attn.in_proj_weight",
+        "blocks.2.attn.out_proj.bias",
+        "blocks.2.attn.out_proj.weight"
+      ],
+      "weight_shape": [
+        64,
+        64
+      ],
+      "constants": {
+        "embed_dim": 64,
+        "num_head": 4,
+        "need_weights": false,
+        "average_attn_weights": true
+      }
+    },
+    {
+      "id": "n0132",
+      "kind": "aten::add",
+      "module": "blocks.2",
+      "source": {
+        "file": "models.py",
+        "line": 182,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0108",
+        "n0131",
+        "n0110"
+      ],
+      "tensor_inputs": [
+        "n0108",
+        "n0131"
+      ],
+      "outputs": [
+        {
+          "value": "input.23",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0136",
+      "kind": "aten::layer_norm",
+      "module": "blocks.2.n2",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0132",
+        "n0135",
+        "n0134",
+        "n0133",
+        "n0115",
+        "n0116"
+      ],
+      "tensor_inputs": [
+        "n0132"
+      ],
+      "outputs": [
+        {
+          "value": "input.25",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.2.n2.bias",
+        "blocks.2.n2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0142",
+      "kind": "aten::linear",
+      "module": "blocks.2.ff.0",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0136",
+        "n0141",
+        "n0140"
+      ],
+      "tensor_inputs": [
+        "n0136"
+      ],
+      "outputs": [
+        {
+          "value": "input.27",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 8320,
+      "param_names": [
+        "blocks.2.ff.0.bias",
+        "blocks.2.ff.0.weight"
+      ],
+      "weight_shape": [
+        128,
+        64
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0143",
+      "kind": "aten::gelu",
+      "module": "blocks.2.ff.1",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0142",
+        "n0109"
+      ],
+      "tensor_inputs": [
+        "n0142"
+      ],
+      "outputs": [
+        {
+          "value": "input.29",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0146",
+      "kind": "aten::linear",
+      "module": "blocks.2.ff.2",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0143",
+        "n0145",
+        "n0144"
+      ],
+      "tensor_inputs": [
+        "n0143"
+      ],
+      "outputs": [
+        {
+          "value": "163",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 8256,
+      "param_names": [
+        "blocks.2.ff.2.bias",
+        "blocks.2.ff.2.weight"
+      ],
+      "weight_shape": [
+        64,
+        128
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0147",
+      "kind": "aten::add",
+      "module": "blocks.2",
+      "source": {
+        "file": "models.py",
+        "line": 183,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0132",
+        "n0146",
+        "n0110"
+      ],
+      "tensor_inputs": [
+        "n0132",
+        "n0146"
+      ],
+      "outputs": [
+        {
+          "value": "input.31",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0163",
+      "kind": "aten::layer_norm",
+      "module": "blocks.3.n1",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0147",
+        "n0162",
+        "n0161",
+        "n0160",
+        "n0154",
+        "n0155"
+      ],
+      "tensor_inputs": [
+        "n0147"
+      ],
+      "outputs": [
+        {
+          "value": "query",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.3.n1.bias",
+        "blocks.3.n1.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0170",
+      "kind": "aten::_native_multi_head_attention",
+      "module": "blocks.3.attn",
+      "source": {
+        "file": "activation.py",
+        "line": 1433,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0163",
+        "n0163",
+        "n0163",
+        "n0153",
+        "n0150",
+        "n0169",
+        "n0168",
+        "n0167",
+        "n0165",
+        "n0151",
+        "n0152",
+        "n0155",
+        "n0151"
+      ],
+      "tensor_inputs": [
+        "n0163"
+      ],
+      "outputs": [
+        {
+          "value": "a",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        },
+        {
+          "value": "188",
+          "shape": null
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 16640,
+      "param_names": [
+        "blocks.3.attn.in_proj_bias",
+        "blocks.3.attn.in_proj_weight",
+        "blocks.3.attn.out_proj.bias",
+        "blocks.3.attn.out_proj.weight"
+      ],
+      "weight_shape": [
+        64,
+        64
+      ],
+      "constants": {
+        "embed_dim": 64,
+        "num_head": 4,
+        "need_weights": false,
+        "average_attn_weights": true
+      }
+    },
+    {
+      "id": "n0171",
+      "kind": "aten::add",
+      "module": "blocks.3",
+      "source": {
+        "file": "models.py",
+        "line": 182,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0147",
+        "n0170",
+        "n0149"
+      ],
+      "tensor_inputs": [
+        "n0147",
+        "n0170"
+      ],
+      "outputs": [
+        {
+          "value": "input.33",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0175",
+      "kind": "aten::layer_norm",
+      "module": "blocks.3.n2",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0171",
+        "n0174",
+        "n0173",
+        "n0172",
+        "n0154",
+        "n0155"
+      ],
+      "tensor_inputs": [
+        "n0171"
+      ],
+      "outputs": [
+        {
+          "value": "input.35",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "blocks.3.n2.bias",
+        "blocks.3.n2.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0181",
+      "kind": "aten::linear",
+      "module": "blocks.3.ff.0",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0175",
+        "n0180",
+        "n0179"
+      ],
+      "tensor_inputs": [
+        "n0175"
+      ],
+      "outputs": [
+        {
+          "value": "input.37",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 8320,
+      "param_names": [
+        "blocks.3.ff.0.bias",
+        "blocks.3.ff.0.weight"
+      ],
+      "weight_shape": [
+        128,
+        64
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0182",
+      "kind": "aten::gelu",
+      "module": "blocks.3.ff.1",
+      "source": {
+        "file": "activation.py",
+        "line": 816,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0181",
+        "n0148"
+      ],
+      "tensor_inputs": [
+        "n0181"
+      ],
+      "outputs": [
+        {
+          "value": "input.39",
+          "shape": [
+            1,
+            32,
+            128
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        128
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0185",
+      "kind": "aten::linear",
+      "module": "blocks.3.ff.2",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0182",
+        "n0184",
+        "n0183"
+      ],
+      "tensor_inputs": [
+        "n0182"
+      ],
+      "outputs": [
+        {
+          "value": "203",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 8256,
+      "param_names": [
+        "blocks.3.ff.2.bias",
+        "blocks.3.ff.2.weight"
+      ],
+      "weight_shape": [
+        64,
+        128
+      ],
+      "constants": {}
+    },
+    {
+      "id": "n0186",
+      "kind": "aten::add",
+      "module": "blocks.3",
+      "source": {
+        "file": "models.py",
+        "line": 183,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0171",
+        "n0185",
+        "n0149"
+      ],
+      "tensor_inputs": [
+        "n0171",
+        "n0185"
+      ],
+      "outputs": [
+        {
+          "value": "input.41",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0193",
+      "kind": "aten::layer_norm",
+      "module": "norm",
+      "source": {
+        "file": "functional.py",
+        "line": 2987,
+        "function": "layer_norm",
+        "internal": true
+      },
+      "inputs": [
+        "n0186",
+        "n0192",
+        "n0191",
+        "n0190",
+        "n0188",
+        "n0187"
+      ],
+      "tensor_inputs": [
+        "n0186"
+      ],
+      "outputs": [
+        {
+          "value": "211",
+          "shape": [
+            1,
+            32,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        32,
+        64
+      ],
+      "params": 128,
+      "param_names": [
+        "norm.bias",
+        "norm.weight"
+      ],
+      "weight_shape": [
+        64
+      ],
+      "constants": {
+        "normalized_shape": [
+          64
+        ],
+        "eps": 1e-05,
+        "cudnn_enable": true
+      }
+    },
+    {
+      "id": "n0198",
+      "kind": "aten::mean",
+      "module": null,
+      "source": {
+        "file": "models.py",
+        "line": 208,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0193",
+        "n0195",
+        "n0196",
+        "n0197"
+      ],
+      "tensor_inputs": [
+        "n0193"
+      ],
+      "outputs": [
+        {
+          "value": "input",
+          "shape": [
+            1,
+            64
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        64
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": false
+      }
+    },
+    {
+      "id": "n0201",
+      "kind": "aten::linear",
+      "module": "head",
+      "source": {
+        "file": "linear.py",
+        "line": 134,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0198",
+        "n0200",
+        "n0199"
+      ],
+      "tensor_inputs": [
+        "n0198"
+      ],
+      "outputs": [
+        {
+          "value": "214",
+          "shape": [
+            1,
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4
+      ],
+      "params": 260,
+      "param_names": [
+        "head.bias",
+        "head.weight"
+      ],
+      "weight_shape": [
+        4,
+        64
+      ],
+      "constants": {}
+    }
+  ]
+}
