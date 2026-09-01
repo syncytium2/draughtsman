@@ -50,6 +50,11 @@ class Edge:
     dst: str
     label: str | None = None
     style: str = "solid"
+    # An arrow the trace does not contain, drawn anyway and SAID SO. The VAE's
+    # noise is the case: a reader wants the sample to depend on mu and sigma, and
+    # the trace only records the shape read. A reason here is a decision in a
+    # diff, exactly as `elided` is for a dropped node.
+    untraced: str | None = None
 
 
 @dataclass
@@ -107,7 +112,7 @@ def load(doc: dict) -> Spec:
             note=raw.get("note"), lanes=lanes,
         ))
     edges = [Edge(src=e["from"], dst=e["to"], label=e.get("label"),
-                  style=e.get("style", "solid"))
+                  style=e.get("style", "solid"), untraced=e.get("untraced"))
              for e in doc.get("edges", [])]
     elided = [Elision(nodes=list(e["nodes"]), reason=e["reason"])
               for e in doc.get("elided", [])]
@@ -138,7 +143,8 @@ def dump(spec: Spec) -> dict:
         out["stages"].append(rec)
     out["edges"] = [
         {k: v for k, v in (("from", e.src), ("to", e.dst), ("label", e.label),
-                           ("style", e.style if e.style != "solid" else None))
+                           ("style", e.style if e.style != "solid" else None),
+                           ("untraced", e.untraced))
          if v is not None}
         for e in spec.edges
     ]

@@ -111,6 +111,46 @@ def check(spec: Spec, graph: Graph) -> Result:
         if cyc:
             errors.append("stage graph has a cycle: " + " -> ".join(cyc))
 
+    # -- the arrows, against the trace ----------------------------------------
+    #
+    # COVERAGE CHECKS PLACEMENT, NOT TOPOLOGY, AND THAT IS A HOLE. Every node
+    # being in exactly one stage says nothing about the arrows between the
+    # stages, and the arrows are most of what a reader takes from the figure.
+    # `tensor_inputs` already records each node's nearest substantive ancestors,
+    # so the traced stage-to-stage topology is derivable here with no help from
+    # the tracer: an edge T -> S exists iff some node of S consumes some node of T.
+    if not errors:
+        traced_edges = _traced_edges(spec, graph)
+        drawn = {(e.src, e.dst) for e in spec.edges}
+
+        # An arrow with nothing under it is the figure asserting a data path the
+        # model does not have -- a claim, not an omission, so it is an error. It
+        # can be declared instead, the way a dropped node can be elided.
+        for e in spec.edges:
+            if (e.src, e.dst) in traced_edges:
+                continue
+            if e.untraced:
+                notes.append(f"edge {e.src} -> {e.dst} is drawn but not traced, "
+                             f"declared: {e.untraced}")
+            else:
+                errors.append(
+                    f"edge {e.src} -> {e.dst} is drawn but no node of {e.dst!r} "
+                    f"consumes any node of {e.src!r}. Either it is wrong, or it "
+                    "is a path the model has and the trace does not — say which "
+                    'with "untraced": "<reason>" on the edge.')
+
+        # The other direction cannot be an error. Many real dependencies are
+        # SHAPE dependencies a reader does not want drawn -- `randn_like` reading
+        # a mean's shape, a slice reading a sequence length -- and collapsing a
+        # repeated block into one stage legitimately buries fan-out inside it.
+        # But some are the architecture: whisper's every decoder block reads the
+        # audio, and a figure showing only the first understates the model.
+        for src, dst in sorted(traced_edges - drawn):
+            warnings.append(
+                f"{src} -> {dst} is in the trace and not in the figure. If that "
+                "is a shape dependency a reader does not need, leave it; if it "
+                "is a data path, the figure is understating the model.")
+
     # -- every reference resolves, and lane counts agree with the model -------
     for s in spec.stages:
         for text in [s.name, *(s.detail or []), s.note or ""]:
@@ -320,3 +360,27 @@ def report(result: Result) -> str:
     else:
         lines.append(f"coverage FAILED — {len(result.errors)} error(s).")
     return "\n".join(lines)
+
+
+def _traced_edges(spec: Spec, graph: Graph) -> set[tuple[str, str]]:
+    """Stage-to-stage dependencies as the TRACE has them.
+
+    Derived from `tensor_inputs`, which graph.json already carries, so this needs
+    nothing from the tracer. Stages that name a model input participate: the
+    input is addressable and a stage may own it.
+    """
+    owner: dict[str, str] = {}
+    for s in spec.stages:
+        for nid in s.nodes:
+            owner[nid] = s.id
+    edges: set[tuple[str, str]] = set()
+    for s in spec.stages:
+        for nid in s.nodes:
+            node = graph.nodes.get(nid)
+            if not node:
+                continue
+            for anc in node.get("tensor_inputs") or []:
+                src = owner.get(anc)
+                if src is not None and src != s.id:
+                    edges.add((src, s.id))
+    return edges

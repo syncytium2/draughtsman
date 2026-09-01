@@ -91,9 +91,15 @@ def test_elision_needs_a_reason(spec_doc, tube_graph):
 
 
 def test_elision_with_a_reason_passes(spec_doc, tube_graph):
+    # An INTERIOR node of the kernel bank. This used to pop the last node of
+    # `widen`, which is the one `mean` consumes -- so eliding it severed the
+    # widen -> mean arrow, and once the edge assertion existed this test failed
+    # for a reason that had nothing to do with elision. Naming the node keeps the
+    # test about the thing it is named after.
     def drop(d):
-        nid = d["stages"][1]["nodes"].pop()
-        d["elided"] = [{"nodes": [nid], "reason": "shape bookkeeping"}]
+        dog = next(s for s in d["stages"] if s["id"] == "dog")
+        dog["nodes"].remove("n0050")
+        d["elided"] = [{"nodes": ["n0050"], "reason": "shape bookkeeping"}]
     assert check(_mutate(spec_doc, drop), tube_graph).ok
 
 
@@ -333,3 +339,52 @@ def test_the_committed_lstm_hazard_is_torch_s_and_not_the_model_s():
     assert g.hazards, "nn.LSTM bakes a bool; the trace should record it"
     assert all(h["file"] == "rnn.py" for h in g.hazards)
     assert g.model_hazards == []
+# -- the arrows, against the trace ---------------------------------------------
+# SPEC.md §5 asserts placement and stops. Every node can sit in exactly one stage
+# while the arrows between those stages say something the model does not do, and
+# the arrows are most of what a reader takes from a figure.
+
+
+def test_an_arrow_the_trace_does_not_have_is_an_error(spec_doc, tube_graph):
+    """`raster -> dog` skips the pool and the mean. Nothing in `dog` consumes
+    anything in `raster`, and the figure would be asserting a path the model
+    does not have."""
+    def add(d):
+        d["edges"].append({"from": "raster", "to": "dog"})
+    result = check(_mutate(spec_doc, add), tube_graph)
+    assert not result.ok
+    assert any("raster -> dog is drawn but no node" in e for e in result.errors)
+
+
+def test_an_untraced_arrow_may_be_declared_with_a_reason(spec_doc, tube_graph):
+    """The VAE's noise is the real case: a reader wants the sample to depend on
+    the mean and the deviation, and the trace records only a shape being read.
+    That is a decision, so it is declarable -- and it lands in the report rather
+    than passing silently."""
+    def add(d):
+        d["edges"].append({"from": "raster", "to": "dog",
+                           "untraced": "the model does this; the trace does not"})
+    result = check(_mutate(spec_doc, add), tube_graph)
+    assert result.ok
+    assert any("drawn but not traced" in n for n in result.notes)
+
+
+def test_a_declaration_without_a_reason_does_not_silence_it(spec_doc, tube_graph):
+    """An empty reason is not a decision, and must not buy the same pass that a
+    stated one does."""
+    def add(d):
+        d["edges"].append({"from": "raster", "to": "dog", "untraced": ""})
+    assert not check(_mutate(spec_doc, add), tube_graph).ok
+
+
+def test_a_traced_path_the_figure_omits_warns_but_does_not_fail(spec_doc,
+                                                                tube_graph):
+    """The other direction CANNOT be an error. `raster -> mean` is real -- the
+    mean divides by the raster's channel count -- and it is a shape dependency no
+    reader wants drawn. Collapsing a repeated block buries fan-out the same way.
+    So it is reported and it does not fail, because a check that cried wolf here
+    would be turned off."""
+    result = check(_mutate(spec_doc, lambda d: None), tube_graph)
+    assert result.ok
+    assert any("raster -> mean is in the trace and not in the figure" in w
+               for w in result.warnings)
