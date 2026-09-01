@@ -113,3 +113,64 @@ def test_a_standalone_figure_still_has_ink(example_dir):
     svg = (example_dir / "figure.svg").read_text()
     assert "<style" not in svg          # nothing is setting `color` for itself
     assert 'style="color' not in svg    # ... including on the root
+# ---------------------------------------------------------------------------------
+# HUE IS THE FAMILY. Tony's stated reason for wanting an Inception-style figure was
+# "how much of the model is convolution, at a glance", and the first palette could
+# not answer it: the DoG bank was gold and the dilated stack green, so the two
+# convolutional stages of a 99%-convolution model read as unrelated.
+# ---------------------------------------------------------------------------------
+
+def test_the_convolutional_kinds_share_a_hue():
+    from draughtsman.render import FAMILIES, PALETTE
+    conv = [k for k, (fam, _) in FAMILIES.items() if fam == "conv"]
+    assert {"kernel", "conv", "stack"} <= set(conv)
+    # same hue, different value — so they group by colour and still separate in
+    # a greyscale print, which is SPEC.md §4's constraint on this palette
+    fills = {k: PALETTE[k][0] for k in conv}
+    assert len(set(fills.values())) == len(conv), "values must differ"
+    for hexcode in fills.values():
+        r, g, b = (int(hexcode[i:i + 2], 16) for i in (1, 3, 5))
+        assert g > r and g > b, f"{hexcode} is not in the green family"
+
+
+def test_the_legend_is_generated_from_what_was_drawn(tube_spec, tube_graph):
+    """A kind cannot appear in the drawing without appearing in the key —
+    bugarach's own generator states that rule about its KINDS dict, and it is
+    the right rule."""
+    from draughtsman.render import _legend
+    rows = _legend(tube_spec, tube_graph)
+    drawn = {r[1] for r in rows}
+    from draughtsman.render import FAMILIES
+    expected = {FAMILIES.get(s.kind, FAMILIES["op"])[1] for s in tube_spec.stages}
+    assert drawn == expected
+
+
+def test_the_legend_share_is_counted_off_the_graph(tube_spec, tube_graph):
+    """The number beside a swatch answers 'how much', so it has to be a fact.
+    Every op and every parameter lands in exactly one legend row."""
+    from draughtsman.render import _legend
+    rows = _legend(tube_spec, tube_graph)
+    ops = sum(int(r[2].split()[0]) for r in rows)
+    params = sum(int(r[2].split(",")[1].strip().split()[0])
+                 for r in rows if "params" in r[2])
+    assert ops == len(tube_graph.traced)
+    assert params == tube_graph.model["params"]
+
+
+def test_convolution_is_most_of_the_tube(tube_spec, tube_graph):
+    """The question the legend exists to answer, asserted on the model that
+    prompted it."""
+    from draughtsman.render import _legend
+    conv = [r for r in _legend(tube_spec, tube_graph) if r[1] == "Convolution"]
+    assert len(conv) == 1
+    assert "1140 params" in conv[0][2]
+
+
+def test_the_legend_is_off_unless_the_spec_asks(tube_spec, tube_graph):
+    """Adding this field changed no committed figure but tube's."""
+    import copy
+    from draughtsman.render import render
+    off = copy.deepcopy(tube_spec)
+    off.layout.legend = False
+    assert "ds-legend" not in render(off, tube_graph)
+    assert "ds-legend" in render(tube_spec, tube_graph)

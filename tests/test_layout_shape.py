@@ -6,6 +6,7 @@ slowly, and no coverage check catches them because nothing is wrong with them
 except the shape.
 """
 
+import copy
 import json
 
 import pytest
@@ -126,16 +127,36 @@ def test_nothing_is_placed_off_canvas_when_wrapped():
 # -- the spec side ----------------------------------------------------------
 
 def test_layout_defaults_are_omitted_from_the_spec(tube_spec):
-    """Adding this field must change no existing spec and no existing figure."""
-    assert tube_spec.layout == Layout()
-    assert "layout" not in dump(tube_spec)
+    """Adding this field must change no existing spec and no existing figure.
+
+    Asserted against a COPY with the layout reset, not against whatever
+    `examples/tube` currently declares: this is an invariant of `dump`, and
+    pinning it to one example's arrangement makes an unrelated spec edit look
+    like a regression in the spec format. (It did — the legend landed and this
+    went red.)
+    """
+    plain = copy.deepcopy(tube_spec)
+    plain.layout = Layout()
+    assert "layout" not in dump(plain)
 
 
 def test_layout_round_trips(tube_spec):
-    tube_spec.layout = Layout(orientation="tb", wrap=760)
-    again = load(dump(tube_spec))
+    # A COPY. `tube_spec` is session-scoped, so assigning to it here leaked a
+    # top-to-bottom wrapped layout into every test that ran afterwards and
+    # asserted something about the committed figure.
+    spec = copy.deepcopy(tube_spec)
+    spec.layout = Layout(orientation="tb", wrap=760)
+    again = load(dump(spec))
     assert again.layout.orientation == "tb"
     assert again.layout.wrap == 760
+
+
+def test_the_legend_flag_round_trips(tube_spec):
+    spec = copy.deepcopy(tube_spec)
+    spec.layout = Layout(legend=True)
+    assert load(dump(spec)).layout.legend is True
+    spec.layout = Layout()
+    assert load(dump(spec)).layout.legend is False
 
 
 @pytest.mark.parametrize("d", EXAMPLES, ids=IDS)

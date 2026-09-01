@@ -62,6 +62,11 @@ class Layout:
     """
     orientation: str = "lr"        # "lr" left-to-right, "tb" top-to-bottom
     wrap: float | None = None      # break the spine into rows at this width
+    # A key under the figure, one row per colour family present, each carrying its
+    # share of the traced ops and parameters. Off by default: a figure that is one
+    # colour family does not need one, and turning it on for every committed spec
+    # would change every committed figure.
+    legend: bool = False
 
 
 @dataclass
@@ -111,7 +116,8 @@ def load(doc: dict) -> Spec:
                 elided=elided, subtitle=doc.get("subtitle"),
                 caption=doc.get("caption"), graph=doc.get("graph", "graph.json"),
                 layout=Layout(orientation=lay.get("orientation", "lr"),
-                              wrap=lay.get("wrap")),
+                              wrap=lay.get("wrap"),
+                              legend=bool(lay.get("legend", False))),
                 constants=dict(doc.get("constants") or {}))
 
 
@@ -144,10 +150,13 @@ def dump(spec: Spec) -> dict:
         out["caption"] = spec.caption
     # Omitted entirely when it is the default, so adding this field changes no
     # existing spec and no existing figure.
-    if spec.layout.orientation != "lr" or spec.layout.wrap:
+    if (spec.layout.orientation != "lr" or spec.layout.wrap
+            or spec.layout.legend):
         out["layout"] = {"orientation": spec.layout.orientation}
         if spec.layout.wrap:
             out["layout"]["wrap"] = spec.layout.wrap
+        if spec.layout.legend:
+            out["layout"]["legend"] = True
     return out
 
 

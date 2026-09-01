@@ -51,19 +51,86 @@ PAGE_INK = "currentColor"  # on whatever the embedding page provides
 PAGE_MUTED = "currentColor;opacity:0.62"
 LINE = "currentColor"
 
+# HUE IS THE FAMILY, VALUE IS THE KIND.
+#
+# Tony asked for an Inception-style figure for a stated reason -- *"how much of
+# the model is convolution, at a glance"* -- and the first cut of this palette
+# could not answer it: the difference-of-Gaussian bank was gold and the dilated
+# stack was green, so the two convolutional stages of a model that is 99% convolution
+# by parameter read as unrelated. They are now both green and differ in value, which
+# also keeps them apart in a greyscale print (SPEC.md §4's constraint, unchanged).
+#
+# NOTE WHAT THIS IS NOT. The Inception figure colours LAYERS, and counting its
+# boxes counts them. draughtsman collapses 26 traced ops into one stage, so a box
+# here is not a layer and no colouring of boxes can be read as a proportion. That
+# is what the legend is for: the swatch names the family and the number beside it
+# is counted off graph.json, so "how much is convolution" is answered by a fact
+# rather than by eyeballing box area.
+FAMILIES = {
+    "input":   ("flow", "Input / output"),
+    "output":  ("flow", "Input / output"),
+    "pool":    ("pool", "Pool / reduce"),
+    "reduce":  ("pool", "Pool / reduce"),
+    "kernel":  ("conv", "Convolution"),
+    "conv":    ("conv", "Convolution"),
+    "stack":   ("conv", "Convolution"),
+    "concat":  ("join", "Concat / join"),
+    "op":      ("other", "Other"),
+}
+
 # Light fills, mid strokes: this has to survive a greyscale print, so the kinds
 # are separated by value as much as by hue.
 PALETTE = {
     "input":   ("#f2f2f0", "#8a8a86"),
     "output":  ("#f2f2f0", "#8a8a86"),
     "pool":    ("#e4eef5", "#6f93a8"),
-    "reduce":  ("#e4eef5", "#6f93a8"),
-    "kernel":  ("#f6ecd9", "#b08e52"),
+    "reduce":  ("#d5e5ef", "#5b829a"),
+    "kernel":  ("#eef6f1", "#7fae99"),
     "conv":    ("#e2eee7", "#6f9c85"),
-    "stack":   ("#e2eee7", "#6f9c85"),
+    "stack":   ("#d1e4d9", "#5a8a71"),
     "concat":  ("#ece6f2", "#8d7ba8"),
     "op":      ("#f0f0ef", "#8a8a86"),
 }
+
+LEGEND_SIZE = 9.0
+LEGEND_ROW = 15.0
+LEGEND_SWATCH = 9.0
+
+
+def _legend(spec: Spec, graph: Graph) -> list[tuple[str, str, str]]:
+    """One row per FAMILY PRESENT: (kind to draw the swatch with, label, share).
+
+    Generated from the stages that were drawn, never from a hand-kept list, so a
+    kind cannot appear in the figure without appearing in the key. bugarach's own
+    generator states that rule about its `KINDS` dict; it is the right rule and it
+    is borrowed deliberately.
+
+    The share is counted off graph.json — traced ops and attributed parameters —
+    because that is the question the legend exists to answer and this tool does
+    not let a figure carry a number nobody traced.
+    """
+    traced = set(graph.traced)
+    seen: dict[str, dict] = {}
+    for st in spec.stages:
+        family, label = FAMILIES.get(st.kind, FAMILIES["op"])
+        rec = seen.setdefault(family, {"kind": st.kind, "label": label,
+                                       "ops": 0, "params": 0})
+        for nid in st.nodes:
+            if nid not in traced:
+                continue      # a model input is addressable but is not an op
+            rec["ops"] += 1
+            rec["params"] += graph.nodes[nid].get("params", 0) or 0
+
+    rows = []
+    for family in ("conv", "pool", "join", "flow", "other"):
+        rec = seen.get(family)
+        if not rec:
+            continue
+        share = f"{rec['ops']} op" + ("s" if rec["ops"] != 1 else "")
+        if rec["params"]:
+            share += f", {rec['params']} params"
+        rows.append((rec["kind"], rec["label"], share))
+    return rows
 
 
 def _fmt(v: float) -> str:
@@ -121,9 +188,17 @@ def render(spec: Spec, graph: Graph) -> str:
 
     head_h = 22.0 + (14.0 if subtitle else 0.0)
     foot_h = 18.0 if caption else 0.0
+
+    rows = _legend(spec, graph) if spec.layout.legend else []
+    legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
+                    + 6 + width(sh, LEGEND_SIZE) + 18
+                    for _, lbl, sh in rows), default=0.0)
+    legend_h = LEGEND_ROW * len(rows) + (8.0 if rows else 0.0)
+
     total_w = max(drawing.width, width(title, 14, bold=True) + 24,
-                  width(subtitle or "", 10) + 24, width(caption or "", CAPTION_SIZE) + 24)
-    total_h = drawing.height + head_h + foot_h
+                  width(subtitle or "", 10) + 24, width(caption or "", CAPTION_SIZE) + 24,
+                  legend_w + 24)
+    total_h = drawing.height + head_h + foot_h + legend_h
 
     out: list[str] = []
     out.append(
@@ -165,6 +240,34 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append(_box(drawing.boxes[sid], m))
 
     out.append("</g>")
+
+    if rows:
+        top = head_h + drawing.height + 8.0
+        out.append('<g class="ds-legend">')
+        for i, (kind, label, share) in enumerate(rows):
+            y = top + i * LEGEND_ROW
+            fill, stroke = PALETTE.get(kind, PALETTE["op"])
+            out.append(
+                f'<rect class="ds-legend-swatch ds-kind-{escape(kind)}" x="12" '
+                f'y="{_fmt(y)}" width="{_fmt(LEGEND_SWATCH)}" '
+                f'height="{_fmt(LEGEND_SWATCH)}" rx="2" '
+                f'style="fill:{fill};stroke:{stroke};stroke-width:1"/>'
+            )
+            tx = 12 + LEGEND_SWATCH + 6
+            out.append(
+                f'<text class="ds-legend-label" x="{_fmt(tx)}" '
+                f'y="{_fmt(y + LEGEND_SWATCH - 0.5)}" '
+                f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
+                f'font-weight:600;fill:{INK}">{escape(label)}</text>'
+            )
+            sx = tx + width(label, LEGEND_SIZE, bold=True) + 6
+            out.append(
+                f'<text class="ds-legend-share" x="{_fmt(sx)}" '
+                f'y="{_fmt(y + LEGEND_SWATCH - 0.5)}" '
+                f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
+                f'fill:{MUTED}">{escape(share)}</text>'
+            )
+        out.append("</g>")
 
     if caption:
         out.append(

@@ -86,6 +86,7 @@
     {"from": "concat", "to": "head"},
     {"from": "head", "to": "score"}
   ],
+  "layout": {"orientation": "lr", "legend": true},
   "constants": {
     "n0149.constants.dilation": "Architectural. _dilated_stack sets d = 2 ** i from the layer index, so the schedule is fixed by `depth` and no gradient reaches it.",
     "n0189.constants.dilation": "Architectural, as above — the last dilated layer, i = depth - 1."

@@ -60,6 +60,37 @@ measurements: the centre widths are fitted parameters, so no width is a fact
 `graph.json` holds. `check` asserts there are exactly as many labels as the model
 has channels.
 
+## The legend, and what colour can and cannot say
+
+Tony asked for an Inception-style figure for a stated reason — *"how much of the
+model is convolution, at a glance"* — and the first version of this figure could
+not answer it. The difference-of-Gaussian bank was gold and the dilated stack was
+green, so the two convolutional stages of a model that is 99% convolution by
+parameter read as unrelated things.
+
+**Hue is now the family and value is the kind.** Both convolutional stages are
+green and differ in value, which also keeps them apart in a greyscale print.
+
+**Colour still cannot carry the proportion, and this is the honest limit.** The
+Inception figure colours *layers*, so counting its boxes counts them. draughtsman
+collapses 26 traced operations into one stage, so a box here is not a layer and no
+amount of box area means anything. The legend is what answers the question: one
+row per family present, generated from the stages actually drawn, with the share
+counted off `graph.json`.
+
+```
+■ Convolution      38 ops, 1140 params
+■ Pool / reduce     6 ops
+■ Concat / join     1 op
+■ Input / output    2 ops, 9 params
+```
+
+That is the answer to "how much is convolution" as a fact rather than an
+impression, and every op and every parameter lands in exactly one row —
+`tests/test_render.py` asserts the two totals against `graph.json`. Turn it on
+with `"layout": {"legend": true}`; it is off by default, because a figure of one
+colour family does not need a key.
+
 ## The pool width, and what a trace cannot see
 
 This figure said **`max-pool, width 3`** until 2026-09-01, read straight from
