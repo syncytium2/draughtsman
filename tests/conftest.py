@@ -25,6 +25,17 @@ def tube_spec():
 
 
 @pytest.fixture(scope="session")
+def tube_graph_doc():
+    """The raw dict, for tests that need to vary one field of it."""
+    return json.loads((EXAMPLE / "graph.json").read_text())
+
+
+@pytest.fixture(scope="session")
+def tube_spec_doc():
+    return json.loads((EXAMPLE / "spec.json").read_text())
+
+
+@pytest.fixture(scope="session")
 def example_dir():
     return EXAMPLE
 

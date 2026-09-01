@@ -19,6 +19,7 @@ from __future__ import annotations
 import importlib
 import json
 import re
+import warnings
 from typing import Any
 
 from draughtsman import FORMAT
@@ -57,6 +58,71 @@ STRUCTURAL_RULE = (
     "no-op tensor moves. Everything that changes a tensor's values is substantive "
     "and must be covered by the spec (SPEC.md §5)."
 )
+
+
+# --------------------------------------------------------------------------------
+# WHAT A TRACE CANNOT SEE, IN THE TRACER'S OWN WORDS.
+#
+# A traced constant may be an architectural quantity or it may be an
+# initialisation, and `graph.json` cannot tell them apart because by the time
+# torch records the value the difference is gone. bugarach's `tube` is the case
+# that found this: its max-pool is `2 * kmin + 1` with
+#
+#     kmin = int(torch.exp(self.log_center.detach()).min().clamp(1, self.k))
+#
+# and `log_center` is a TRAINED parameter. At initialisation the centres are
+# 1/2/4/8 samples, so kmin is 1 and the pool is 3 wide; the trained widths are
+# ~4-7, which is a pool of 9-15. draughtsman drew "max-pool, width 3" and that
+# is true of an untrained model only.
+#
+# THE DATA FLOW IS SEVERED, AND NOT BY US. `int()` on a tensor leaves tensor-land
+# for Python, and `2 * kmin + 1` is then Python arithmetic torch never sees, so
+# the width arrives at `max_pool1d` as a bare `prim::Constant` indistinguishable
+# from a literal. No amount of provenance walking in this module recovers it --
+# checked against torch 2.13 -- so draughtsman must not pretend to a precision
+# the tracer denies.
+#
+# What IS available is that torch says so. It emits a TracerWarning naming the
+# file and line where the crossing happened, and draughtsman was discarding it.
+# Recording it is the whole mechanism: `check` then refuses to let a spec quote
+# a traced constant as a fact until the spec says which kind it is. That is a
+# decision in a diff, which is the same shape as an explicit elision, and it
+# needs no hand-maintained list of "design quantities" -- a list that would go
+# stale exactly when the model moved.
+#
+# NOTE WHAT DOES NOT CATCH THIS. Re-running the trace and comparing is no help:
+# `build_tube` initialises log_center deterministically, so the baked 3 is
+# perfectly reproducible. A determinism check and an architecture check are
+# different claims, and only the tracer's warning separates them.
+_HAZARD_PATTERNS = (
+    ("python_value_baked", "Converting a tensor to a Python"),
+    ("python_value_baked", "Iterating over a tensor"),
+    ("shape_baked", "the trace might not generalize"),
+)
+
+
+def _hazards(caught) -> list[dict]:
+    """TracerWarnings, deduplicated, as facts with a source location."""
+    out: dict[tuple, dict] = {}
+    for w in caught:
+        if "TracerWarning" not in type(w.message).__name__:
+            continue
+        text = str(w.message).strip()
+        kind = next((k for k, pat in _HAZARD_PATTERNS if pat in text), "tracer")
+        path = w.filename
+        # Same test `_source` uses. A bake inside torch is torch's own plumbing
+        # -- `rnn.py` asking `if batch_sizes is None` -- and reflects how the
+        # module was CONSTRUCTED. A bake in the model's own file is the author
+        # computing something in `forward`, which is where a fitted quantity
+        # turns into a literal. Only the second is evidence about this figure.
+        internal = "site-packages" in path or "/torch/" in path
+        file = path.rsplit("/", 1)[-1]
+        key = (kind, file, w.lineno)
+        out.setdefault(key, {
+            "kind": kind, "file": file, "line": w.lineno,
+            "internal": internal, "message": text.splitlines()[0],
+        })
+    return [out[k] for k in sorted(out)]
 
 
 def _load_target(target: str) -> Any:
@@ -208,10 +274,12 @@ def trace(target: str, input_shape, *, dtype="float32", seed: int = 0) -> dict:
 
     xs = tuple(torch.zeros(*s, dtype=getattr(torch, d))
                for s, d in zip(shapes, dtypes))
-    with torch.no_grad():
+    with torch.no_grad(), warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
         # A one-tuple and a bare tensor trace identically; passing the tuple
         # unconditionally keeps one code path.
         graph = torch.jit.trace(model, xs, check_trace=False).inlined_graph
+    hazards = _hazards(caught)
 
     nodes = list(graph.nodes())
 
@@ -400,6 +468,8 @@ def trace(target: str, input_shape, *, dtype="float32", seed: int = 0) -> dict:
             "backend": "torch.jit.trace",
             "torch": torch.__version__,
         },
+        # THE TRACER'S OWN TESTIMONY THAT IT BAKED SOMETHING. See _hazards.
+        "hazards": hazards,
         "classification": {
             "rule": STRUCTURAL_RULE,
             "structural_kinds": list(STRUCTURAL_KINDS),

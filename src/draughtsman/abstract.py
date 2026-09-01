@@ -41,6 +41,16 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    fact, the labels are yours. Drawing such a stage as a single block is how a
    figure ends up saying "linear stack" about a model that fans out.
 
+5. A TRACED CONSTANT MAY BE AN INITIALISATION. A trace watches one instantiation
+   and cannot see which of its numbers would survive training. bugarach's `tube`
+   max-pools at `2 * kmin + 1` where kmin comes off a TRAINED parameter: 3 at
+   init, 9-15 once trained. draughtsman drew "max-pool, width 3" and it was true
+   of an untrained model and of nothing else. Where the payload reports a BAKE
+   HAZARD, quoting a `constants.*` reference is an error until the spec's
+   top-level `constants` block says why THAT one is architectural — a kernel
+   size, a dilation schedule and a stride usually are; anything computed from a
+   parameter is not. If you cannot tell, do not put the number in the figure.
+
 Aim for six to twelve stages. Fewer and the figure says nothing; more and it is
 the trace again, which is already unreadable.
 """
@@ -85,6 +95,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
      "label": "<optional, e.g. 'bypass'>", "style": "solid|dashed"}
   ],
   "elided": [{"nodes": ["n0017"], "reason": "<why a reader does not need this>"}],
+  "constants": {"n0149.constants.dilation": "<why this traced constant is an"
+                " architectural quantity and not an initialisation>"},
   "caption": "<optional one line>"
 }
 
@@ -111,6 +123,17 @@ def payload(graph: Graph, *, out_path: str = "spec.json") -> str:
              f"structural and already set aside, "
              f"{cls['nodes_substantive']} substantive and yours to place",
              ""]
+
+    if doc.get("hazards"):
+        lines.append("BAKE HAZARDS — the tracer converted a tensor to a Python")
+        lines.append("value here, so a constant recorded downstream may be an")
+        lines.append("initialisation. See rule 5; the data flow is severed and")
+        lines.append("graph.json cannot tell you which constants are affected.")
+        for h in doc["hazards"]:
+            tag = "  (inside torch — how a stock module was built)" \
+                if h.get("internal") else "  <- THE MODEL'S OWN CODE"
+            lines.append(f"  {h['file']}:{h['line']}  {h['kind']}{tag}")
+        lines.append("")
 
     if doc.get("inputs"):
         lines.append("MODEL INPUTS (addressable, not counted in coverage):")

@@ -48,7 +48,7 @@ Every quantity is resolved from `graph.json` by node id at render time. Nothing 
 | shown | from |
 |---|---|
 | `1149 parameters` | `{model.params}` |
-| `max-pool, width 3` | `{node:n0031.constants.kernel_size}` |
+| `max-pool, width fitted` | nothing — **see below**; the traced width is an initialisation |
 | `26 ops, 12 learned params` | `{stage.nodes}`, `{stage.params}` |
 | `kernel 257, area-normalised` | `{node:n0100.out_shape[2]}` |
 | four lanes | `{node:n0116.out_shape[1]}` — the bank is **one** convolution with four output channels, so the count is a channel dimension, not a fork |
@@ -59,3 +59,44 @@ The lane labels `σ₁ … σ₄` are the agent's, and are indices rather than
 measurements: the centre widths are fitted parameters, so no width is a fact
 `graph.json` holds. `check` asserts there are exactly as many labels as the model
 has channels.
+
+## The pool width, and what a trace cannot see
+
+This figure said **`max-pool, width 3`** until 2026-09-01, read straight from
+`{node:n0031.constants.kernel_size}`. It was wrong, and nothing here could tell.
+
+`tube` pools at `2·kmin + 1` where
+
+```python
+kmin = int(torch.exp(self.log_center.detach()).min().clamp(1, self.k))
+```
+
+and `log_center` is a **trained parameter**. At initialisation the centres are
+1/2/4/8 samples, so `kmin` is 1 and the pool is 3 wide; the class docstring
+records trained widths of ~4–7, which is a pool of **9–15**. The figure stated an
+initialisation as though it were an architectural constant.
+
+**Re-running the trace does not catch this.** `build_tube` initialises
+`log_center` deterministically, so the baked `3` is perfectly reproducible. A
+determinism check and an architecture check are different claims.
+
+**Neither does walking `graph.json`.** `int()` on a tensor leaves tensor-land for
+Python, and `2*kmin + 1` is then Python arithmetic torch never records, so the
+width reaches `max_pool1d` as a bare `prim::Constant` — the same node kind a
+literal `kernel_size=3` produces. Verified against torch 2.13.
+
+What *is* available is that torch says so, and draughtsman was discarding it:
+
+> `TracerWarning: Converting a tensor to a Python integer might cause the trace to
+> be incorrect. We can't record the data flow of Python values, so this value will
+> be treated as a constant in the future.`
+
+`trace` now records those warnings in `graph.json` under `hazards`, and `check`
+refuses to let a spec quote a `constants.*` reference while a hazard stands
+unless the spec's `constants` block says why that one is architectural. This
+spec declares two — both dilations, which `_dilated_stack` sets as `d = 2 ** i`
+from the layer index — and quotes no width at all.
+
+The general form is in [`../../DECISIONS.md`](../../DECISIONS.md); the model-side
+write-up is bugarach's
+`docs/todo/2026-09-01-a-traced-figure-cannot-tell-a-constant-from-an-initialisation.md`.

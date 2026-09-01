@@ -180,3 +180,45 @@ def test_a_tied_weight_is_counted_once():
 def test_mismatched_dtype_count_is_refused():
     with pytest.raises(ValueError):
         trace(TIED, TIED_SHAPES, dtype=["float32", "int64", "float32"])
+
+
+def test_the_baked_python_value_is_recorded_as_a_hazard():
+    """The fixture's `kmin = int(exp(log_w).min().clamp(1, k))` is the same line
+    bugarach's `tube` has, and it is why the figure said "max-pool, width 3".
+
+    torch warns that it converted a tensor to a Python integer and that the value
+    "will be treated as a constant". draughtsman used to discard that warning, so
+    a fitted quantity reached the figure looking exactly like an architectural
+    one. It is a fact about the trace, so it belongs in graph.json.
+    """
+    g = _graph()
+    assert g.hazards_recorded
+    baked = [h for h in g.hazards if h["kind"] == "python_value_baked"]
+    assert baked, "the tracer baked a Python int and graph.json does not say so"
+    assert any(h["file"] == "branchy.py" for h in baked)
+
+
+def test_the_pool_width_is_baked_and_indistinguishable_from_a_literal():
+    """WHY THE HAZARD IS THE MECHANISM AND PROVENANCE-WALKING IS NOT.
+
+    `2 * kmin + 1` is Python arithmetic on a value that already left tensor-land,
+    so it reaches `max_pool1d` as a bare `prim::Constant` — the same node kind a
+    hand-written `kernel_size=3` produces. There is nothing in graph.json to walk
+    back to `log_w`. Checked here so that a future attempt to be cleverer than
+    the tracer finds this test first.
+    """
+    g = _graph()
+    pool = [n for n in g.traced if g.nodes[n]["kind"] == "aten::max_pool1d"]
+    assert len(pool) == 1
+    node = g.nodes[pool[0]]
+    assert node["constants"]["kernel_size"] == [3]
+    # nothing among its recorded producers carries a parameter
+    assert all(g.nodes[p]["params"] == 0
+               for p in node["inputs"] if p in g.nodes)
+
+
+def test_hazards_are_stable_run_to_run():
+    """The init is deterministic, so re-running proves nothing about whether a
+    value is architectural — which is exactly why the hazard has to be recorded
+    rather than inferred from a second trace."""
+    assert trace(TARGET, SHAPE)["hazards"] == trace(TARGET, SHAPE)["hazards"]

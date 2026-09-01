@@ -98,6 +98,7 @@
     "backend": "torch.jit.trace",
     "torch": "2.13.0"
   },
+  "hazards": [],
   "classification": {
     "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
     "structural_kinds": [

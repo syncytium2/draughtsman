@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from draughtsman.facts import FactError, Graph, bare_numbers, resolve
+from draughtsman.facts import (FactError, Graph, REF_RE, bare_numbers,
+                               resolve)
 from draughtsman.spec import Spec
 
 
@@ -146,6 +147,65 @@ def check(spec: Spec, graph: Graph) -> Result:
             except FactError as exc:
                 errors.append(str(exc))
 
+    # -- a traced constant may be an initialisation, and the trace cannot say ---
+    #
+    # `tube`'s max-pool width is `2 * kmin + 1` with kmin read off a TRAINED
+    # parameter. `int()` on a tensor leaves tensor-land for Python, so the width
+    # reaches the graph as a bare literal and draughtsman drew "max-pool, width
+    # 3" -- true of an untrained model and of nothing else. torch says so at
+    # trace time and tracing.py now records it; this is where saying so has
+    # teeth.
+    #
+    # THE RULE IS NOT "constants ARE SUSPECT". It is: when the tracer reports it
+    # baked a Python value, a spec may still quote a traced constant, but it has
+    # to say WHY that one is architectural. The trace cannot answer it -- the data
+    # flow is severed, so no walk of graph.json recovers which constant came from
+    # where -- and a hand-maintained list of design quantities would go stale
+    # exactly when the model moved. A line per reference, in the spec, is a
+    # decision in a diff. It is the same shape as an explicit elision, for the
+    # same reason.
+    if graph.model_hazards:
+        used = sorted({
+            ref for s in spec.stages
+            for text in [s.name, *(s.detail or [])] if text
+            for ref in _constant_refs(text)
+        })
+        for text in [spec.title, spec.subtitle or "", spec.caption or ""]:
+            used = sorted(set(used) | set(_constant_refs(text or "")))
+        where = ", ".join(f"{h['file']}:{h['line']}" for h in graph.model_hazards)
+        unacknowledged = [r for r in used if not spec.constants.get(r, "").strip()]
+        for ref in unacknowledged:
+            errors.append(
+                f"the figure quotes the traced constant {{{ref}}}, and the tracer "
+                f"reports it baked a Python value out of a tensor at {where}. A "
+                "constant may therefore be an initialisation rather than an "
+                "architectural quantity, and graph.json cannot tell which. Add "
+                f'"constants": {{"{ref}": "<why this one is architectural>"}} to '
+                "the spec, or stop quoting it.")
+        stale = sorted(set(spec.constants) - set(used))
+        for ref in stale:
+            warnings.append(
+                f"spec declares constant {ref!r} architectural, but no text quotes "
+                "it — a justification for a fact the figure no longer states")
+        if not used:
+            notes.append(f"the tracer baked a Python value at {where}; the figure "
+                         "quotes no traced constant")
+        elif not unacknowledged:
+            notes.append(f"the tracer baked a Python value at {where}; "
+                         f"{len(used)} traced constant(s) quoted, each declared "
+                         "architectural by the spec")
+    elif graph.hazards:
+        # Recorded, and all of it inside torch. Worth saying, because "no hazard"
+        # and "a hazard that is not about your model" should not read the same.
+        notes.append(
+            f"{len(graph.hazards)} bake hazard(s), all inside torch itself "
+            f"({', '.join(sorted({h['file'] for h in graph.hazards}))}) — how a "
+            "stock module was constructed, not a fitted quantity in this model")
+    elif not graph.hazards_recorded:
+        warnings.append(
+            "graph.json predates hazard recording, so a quoted constant that is "
+            "really an initialisation would not be caught here. Re-trace to check.")
+
     # -- parameters ------------------------------------------------------------
     total = graph.model["params"]
     covered = sum(graph.nodes[n]["params"] for s in spec.stages for n in s.nodes
@@ -177,6 +237,16 @@ def check(spec: Spec, graph: Graph) -> Result:
             f"{total} parameters to nodes; the rest can never be drawn")
 
     return Result(errors=errors, warnings=warnings, notes=notes, counts=counts)
+
+
+def _constant_refs(text: str) -> list[str]:
+    """The ``node:<id>.constants.<name>`` references in *text*, without braces."""
+    out = []
+    for m in REF_RE.finditer(text):
+        body = m.group(1).strip()
+        if body.startswith("node:") and ".constants." in body:
+            out.append(body[len("node:"):])
+    return out
 
 
 def _where(node: dict) -> str:

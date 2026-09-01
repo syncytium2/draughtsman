@@ -16,8 +16,8 @@
       "name": "widen each onset",
       "kind": "pool",
       "nodes": ["n0017", "n0021", "n0031", "n0033"],
-      "detail": ["max-pool, width {node:n0031.constants.kernel_size}", "{stage.out_shape}"],
-      "note": "Per cell. The raster is already binary, so this widens rather than caps."
+      "detail": ["max-pool, width fitted", "{stage.out_shape}"],
+      "note": "Per cell. The raster is already binary, so this widens rather than caps. The width is 2·kmin+1 and kmin is read from a trained parameter, so the traced 3 belongs to an untrained instantiation and is not drawn."
     },
     {
       "id": "mean",
@@ -74,17 +74,21 @@
       "name": "per-frame score",
       "kind": "output",
       "nodes": ["n0197", "n0199"],
-      "detail": ["kernel {node:n0197.weight_shape[2]}", "{stage.out_shape}"]
+      "detail": ["kernel {node:n0197.weight_shape[2]}", "{stage.params} params", "{stage.out_shape}"]
     }
   ],
   "edges": [
     {"from": "raster", "to": "widen"},
     {"from": "widen", "to": "mean"},
-    {"from": "mean", "to": "concat", "label": "bypass", "style": "dashed"},
+    {"from": "mean", "to": "concat", "label": "bypass"},
     {"from": "mean", "to": "dog"},
     {"from": "dog", "to": "concat"},
     {"from": "concat", "to": "head"},
     {"from": "head", "to": "score"}
   ],
+  "constants": {
+    "n0149.constants.dilation": "Architectural. _dilated_stack sets d = 2 ** i from the layer index, so the schedule is fixed by `depth` and no gradient reaches it.",
+    "n0189.constants.dilation": "Architectural, as above — the last dilated layer, i = depth - 1."
+  },
   "caption": "Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses {stage:dog.nodes} traced operations."
 }

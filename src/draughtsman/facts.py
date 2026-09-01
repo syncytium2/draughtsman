@@ -44,6 +44,17 @@ class Graph:
                 "outputs": [{"value": rec["value"], "shape": rec["shape"]}],
             }
         self.order = [r["id"] for r in self.inputs] + self.traced
+        # The tracer's own testimony that it baked a Python value out of a
+        # tensor, so a traced constant here may be an initialisation rather than
+        # an architectural quantity. Absent on a graph traced before this field
+        # existed, which reads as "the tracer said nothing", not "all clear" --
+        # check.py distinguishes the two.
+        self.hazards = list(doc.get("hazards") or [])
+        self.hazards_recorded = "hazards" in doc
+        # Only a bake in the MODEL's own code is evidence about this figure; one
+        # inside torch reflects how a stock module was constructed. See
+        # tracing._hazards.
+        self.model_hazards = [h for h in self.hazards if not h.get("internal")]
 
     # -- shaping -------------------------------------------------------------
     @staticmethod

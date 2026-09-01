@@ -80,6 +80,9 @@ class Spec:
     caption: str | None = None
     graph: str = "graph.json"
     layout: Layout = field(default_factory=Layout)
+    # Reference path -> why that traced constant is an architectural quantity.
+    # Required only when graph.json carries a bake hazard; see check.py.
+    constants: dict[str, str] = field(default_factory=dict)
 
     @property
     def by_id(self) -> dict[str, Stage]:
@@ -108,7 +111,8 @@ def load(doc: dict) -> Spec:
                 elided=elided, subtitle=doc.get("subtitle"),
                 caption=doc.get("caption"), graph=doc.get("graph", "graph.json"),
                 layout=Layout(orientation=lay.get("orientation", "lr"),
-                              wrap=lay.get("wrap")))
+                              wrap=lay.get("wrap")),
+                constants=dict(doc.get("constants") or {}))
 
 
 def dump(spec: Spec) -> dict:
@@ -134,6 +138,8 @@ def dump(spec: Spec) -> dict:
     ]
     if spec.elided:
         out["elided"] = [{"nodes": e.nodes, "reason": e.reason} for e in spec.elided]
+    if spec.constants:
+        out["constants"] = dict(spec.constants)
     if spec.caption:
         out["caption"] = spec.caption
     # Omitted entirely when it is the default, so adding this field changes no

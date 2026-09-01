@@ -112,6 +112,22 @@
     "backend": "torch.jit.trace",
     "torch": "2.13.0"
   },
+  "hazards": [
+    {
+      "kind": "python_value_baked",
+      "file": "rnn.py",
+      "line": 328,
+      "internal": true,
+      "message": "Converting a tensor to a Python boolean might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!"
+    },
+    {
+      "kind": "python_value_baked",
+      "file": "rnn.py",
+      "line": 361,
+      "internal": true,
+      "message": "Converting a tensor to a Python boolean might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!"
+    }
+  ],
   "classification": {
     "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
     "structural_kinds": [

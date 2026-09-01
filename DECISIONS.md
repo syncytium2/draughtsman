@@ -1,9 +1,10 @@
-# Decisions — what SPEC.md left open, and three things it had wrong
+# Decisions — what SPEC.md left open, and four things it had wrong
 
 > **Written 2026-09-01, building the spec.** SPEC.md §8 says *"decide before
 > building, not during"*. These are the decisions, and the measurements behind
-> them. It also records three places where building found the spec mistaken;
-> those are first, because they are the ones that would cost someone a day.
+> them. It also records four places where building found the spec mistaken;
+> those are first, because they are the ones that would cost someone a day. The
+> fourth was found by a reader of the first figure, after it was drawn.
 >
 > **Not murderboarded** — internal, like the spec it answers.
 
@@ -84,6 +85,82 @@ model would pin the torch version too.
 - `test_trace.py` traces a fixture model and asserts the facts *semantically*:
   every parameter attributed, shapes on every node, the concat seeing both
   branches. A torch point release that renames `%202` does not turn CI red.
+
+### 4. A traced constant is not necessarily an architectural one
+
+**Found by bugarach, reviewing the figure before vendoring it, 2026-09-01.** The
+figure said *"widen each onset — max-pool, width 3"*, resolved honestly from
+`{node:n0031.constants.kernel_size}`. Every rule in this repo was obeyed: the
+agent typed no number, the reference resolved, coverage passed. **The figure was
+still wrong.**
+
+`tube` pools at `2·kmin + 1` where `kmin = int(exp(self.log_center).min().clamp(1, k))`
+and `log_center` is a *trained parameter*. The centres initialise at 1/2/4/8
+samples, so kmin is 1 and the pool is 3; trained they are ~4–7, which is a pool of
+9–15. **The figure was true of an untrained model and of nothing else** — and it
+was about to be vendored into the repository whose own generator carries the
+docstring *"No fitted values appear here… this figure is true of the design."*
+
+This is correction 1 in another currency. There the lesson was that **a reader's
+"parallel" and a graph's "parallel" are different claims**. Here it is that **a
+graph's "constant" and a design's "constant" are different claims**, and again
+only one of them is in `graph.json`. SPEC.md's guarantee was always narrower than
+it read: the agent supplies no facts, and *the facts are about one instantiation*.
+
+**Two fixes were considered and rejected, and the reasons matter more than the
+one adopted.**
+
+*Walk the provenance back to the parameter.* Impossible, and not because of
+anything in this repo. `int()` on a tensor leaves tensor-land for Python; `2*kmin+1`
+is then Python arithmetic torch never sees, so the width reaches `max_pool1d` as a
+bare `prim::Constant` indistinguishable from a literal `kernel_size=3`. Checked
+against torch 2.13. `tests/test_trace.py::test_the_pool_width_is_baked_and_indistinguishable_from_a_literal`
+pins it so the next attempt to be cleverer than the tracer finds it first.
+
+*Keep a list of design quantities.* bugarach's own write-up names the objection
+while proposing it: a list that can go stale, and it goes stale exactly when the
+model moves — which is the defect the generator existed to prevent, reintroduced
+one level up.
+
+**What was built: record the tracer's own testimony.** torch already warns —
+*"Converting a tensor to a Python integer… this value will be treated as a
+constant"* — with a file and a line, and draughtsman was throwing it away.
+`trace` now records those under `hazards` in `graph.json`. `check` then makes
+quoting a `constants.*` reference an **error** while a hazard stands, until the
+spec's top-level `constants` block says why that particular one is architectural.
+`tube`'s spec declares two dilations (`_dilated_stack` sets `d = 2 ** i` from the
+layer index, so no gradient reaches them) and quotes no pool width at all.
+
+That is deliberately the same shape as an explicit elision: the tool cannot decide
+it, so the spec states it and the statement is a line in a diff. It needs no list,
+because the trace names the hazard and the check names the references.
+
+**Note what does not catch this, because it is the near miss.** bugarach's
+freshness test regenerates the figure twice and asserts the two agree, precisely
+to ensure the drawing does not depend on initialised weights. It passes.
+`build_tube` initialises `log_center` deterministically, so the baked 3 is
+perfectly reproducible. **Determinism and architecture are different claims** —
+a reproducible initialisation is still an initialisation — and a gate built for
+one does not cover the other.
+
+**One limit, stated.** A hazard is graph-wide, not per-constant, because the data
+flow really is severed and pretending otherwise would be the confident-and-wrong
+failure this repo exists to prevent. So the check asks about every quoted constant
+in a model that bakes anything, including ones that are plainly architectural.
+That is the correct side to err on, and the cost is one line of spec per reference.
+
+**One refinement, found by running it over the gallery.** `nn.LSTM` bakes a bool
+in torch's own `rnn.py` on every trace, and the first cut of this rule therefore
+demanded a justification for the LSTM figure's `num_layers` — a constructor
+argument, on evidence from a file the model's author never wrote. A bake inside
+torch says how a *stock module was constructed*; a bake in the model's own file is
+the author computing something in `forward`, which is where a fitted quantity
+turns into a literal. Only the second is evidence about the figure. `_hazards`
+records `internal` using the same site-packages test `_source` already uses, and
+the check ranges over the model's own. The torch-side ones are still reported,
+because *no hazard* and *a hazard that is not about your model* are different
+facts. A rule that cries wolf on nine models in ten is a rule that stops being
+read, and this one exists to be read on the tenth.
 
 ## SPEC.md §8, answered
 

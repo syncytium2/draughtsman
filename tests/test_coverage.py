@@ -180,3 +180,156 @@ def test_the_report_and_the_counts_cannot_disagree(tube_spec, tube_graph):
     text = report(result)
     assert f"{result.counts.exactly_once}/{result.counts.traced}" in text
     assert str(result.counts.traced) in text
+
+
+# ---------------------------------------------------------------------------------
+# A TRACED CONSTANT MAY BE AN INITIALISATION, AND THE TRACE CANNOT SAY WHICH.
+#
+# bugarach's `tube` drew "max-pool, width 3" from `{node:n0031.constants.kernel_size}`.
+# The width is `2 * kmin + 1` with `kmin` read off a TRAINED parameter: 3 at
+# initialisation, 9-15 once trained. `int()` on a tensor leaves tensor-land, so the
+# width arrives as a bare literal and no walk of graph.json recovers where it came
+# from. torch says it baked something; these tests pin that draughtsman listens.
+# ---------------------------------------------------------------------------------
+
+HAZARD = [{"kind": "python_value_baked", "file": "tube.py", "line": 139,
+           "message": "Converting a tensor to a Python integer ..."}]
+
+
+def _graph_with(doc, hazards):
+    from draughtsman.facts import Graph
+    doc = copy.deepcopy(doc)
+    if hazards is None:
+        doc.pop("hazards", None)
+    else:
+        doc["hazards"] = hazards
+    return Graph(doc)
+
+
+def _spec_quoting_a_constant(doc, *, declared=None):
+    doc = copy.deepcopy(doc)
+    for stage in doc["stages"]:
+        if stage["id"] == "head":
+            stage["detail"] = ["dilation {node:n0149.constants.dilation}"]
+    doc.pop("constants", None)
+    if declared:
+        doc["constants"] = declared
+    return load(doc)
+
+
+def test_quoting_a_traced_constant_under_a_bake_hazard_is_an_error(
+        tube_spec_doc, tube_graph_doc):
+    """The figure may not state a traced constant as a fact while the tracer is
+    reporting that it baked Python values — not without saying which kind it is."""
+    result = check(_spec_quoting_a_constant(tube_spec_doc),
+                   _graph_with(tube_graph_doc, HAZARD))
+    assert any("n0149.constants.dilation" in e for e in result.errors)
+    assert not result.ok
+
+
+def test_declaring_the_constant_architectural_clears_it(
+        tube_spec_doc, tube_graph_doc):
+    """A line in the spec, which is a decision in a diff — the same shape as an
+    explicit elision, and for the same reason."""
+    result = check(
+        _spec_quoting_a_constant(
+            tube_spec_doc,
+            declared={"n0149.constants.dilation": "d = 2 ** i, set by depth"}),
+        _graph_with(tube_graph_doc, HAZARD))
+    assert result.ok
+    assert not any("n0149" in e for e in result.errors)
+
+
+def test_an_empty_reason_does_not_clear_it(tube_spec_doc, tube_graph_doc):
+    """Otherwise the declaration is a checkbox rather than a justification."""
+    result = check(
+        _spec_quoting_a_constant(tube_spec_doc,
+                                 declared={"n0149.constants.dilation": "   "}),
+        _graph_with(tube_graph_doc, HAZARD))
+    assert not result.ok
+
+
+def test_no_hazard_means_constants_are_quotable_freely(
+        tube_spec_doc, tube_graph_doc):
+    """The rule is not 'constants are suspect'. Most models bake nothing, and on
+    those a traced constant IS an architectural fact."""
+    result = check(_spec_quoting_a_constant(tube_spec_doc),
+                   _graph_with(tube_graph_doc, []))
+    assert result.ok
+
+
+def test_a_graph_predating_hazard_recording_says_so(tube_spec_doc, tube_graph_doc):
+    """Silence from an old trace is not a clean bill of health, and the two must
+    not read the same."""
+    result = check(_spec_quoting_a_constant(tube_spec_doc),
+                   _graph_with(tube_graph_doc, None))
+    assert any("predates hazard recording" in w for w in result.warnings)
+
+
+def test_a_declaration_for_a_constant_nobody_quotes_is_flagged(
+        tube_spec_doc, tube_graph_doc):
+    """A justification outliving the text it justified is how the list this
+    mechanism exists to avoid grows back."""
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["constants"] = {"n0031.constants.kernel_size": "stale justification"}
+    result = check(load(doc), _graph_with(tube_graph_doc, HAZARD))
+    assert any("kernel_size" in w and "no text quotes it" in w
+               for w in result.warnings)
+
+
+def test_the_committed_tube_graph_records_the_hazard(tube_graph):
+    """tube.py:139 is `kmin = int(exp(log_center).min().clamp(1, k))`. If this
+    ever reads empty, the figure lost the one signal that its max-pool width is
+    an initialisation."""
+    assert tube_graph.hazards_recorded
+    assert any(h["file"] == "tube.py" and h["kind"] == "python_value_baked"
+               for h in tube_graph.hazards)
+
+
+def test_the_committed_figure_does_not_state_the_pool_width(example_dir):
+    """The width is fitted, so no number for it belongs in a figure that
+    describes the architecture."""
+    svg = (example_dir / "figure.svg").read_text()
+    assert "width 3" not in svg
+    assert "width fitted" in svg
+
+
+def test_a_hazard_inside_torch_does_not_demand_a_declaration(
+        tube_spec_doc, tube_graph_doc):
+    """`nn.LSTM` bakes a bool in torch's own `rnn.py` on every trace. That is how
+    a stock module was CONSTRUCTED, not a fitted quantity in the model being
+    drawn, and treating the two alike would make the rule noise — which is how a
+    check stops being read."""
+    internal = [{"kind": "python_value_baked", "file": "rnn.py", "line": 328,
+                 "internal": True, "message": "..."}]
+    result = check(_spec_quoting_a_constant(tube_spec_doc),
+                   _graph_with(tube_graph_doc, internal))
+    assert result.ok
+    assert any("inside torch itself" in n for n in result.notes)
+
+
+def test_a_torch_only_hazard_still_reads_differently_from_none(
+        tube_spec_doc, tube_graph_doc):
+    """"No hazard" and "a hazard that is not about your model" are different
+    facts, and the report says which."""
+    internal = [{"kind": "python_value_baked", "file": "rnn.py", "line": 328,
+                 "internal": True, "message": "..."}]
+    with_haz = check(_spec_quoting_a_constant(tube_spec_doc),
+                     _graph_with(tube_graph_doc, internal))
+    without = check(_spec_quoting_a_constant(tube_spec_doc),
+                    _graph_with(tube_graph_doc, []))
+    assert any("inside torch" in n for n in with_haz.notes)
+    assert not any("inside torch" in n for n in without.notes)
+
+
+def test_the_committed_lstm_hazard_is_torch_s_and_not_the_model_s():
+    """A live example of the split, so it is not only tested on a synthetic one."""
+    import json as _json
+    from pathlib import Path as _Path
+    from draughtsman.facts import Graph
+    root = _Path(__file__).resolve().parent.parent
+    g = Graph(_json.loads((root / "examples" / "gallery" / "lstm"
+                           / "graph.json").read_text()))
+    assert g.hazards, "nn.LSTM bakes a bool; the trace should record it"
+    assert all(h["file"] == "rnn.py" for h in g.hazards)
+    assert g.model_hazards == []

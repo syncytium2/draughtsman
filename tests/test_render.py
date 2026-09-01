@@ -71,7 +71,11 @@ def test_the_figure_says_what_the_reader_needs(example_dir):
     All five tools in §2 failed this."""
     svg = (example_dir / "figure.svg").read_text()
     assert svg.count("ds-lane") == 4          # four kernels, drawn as four lanes
-    assert "ds-edge-dashed" in svg            # the bypass, distinguished
+    # The bypass is distinguished by its LABEL, and deliberately not by dashing.
+    # bugarach's eab8e59 replaced a diagram that "drew the bypass as a dashed
+    # afterthought": it is a first-class fifth channel into the concat, and dashed
+    # reads as optional. Asserting it is solid is the point, not an omission.
+    assert "ds-edge-dashed" not in svg
     assert ">bypass<" in svg
     assert "concatenate" in svg
 
