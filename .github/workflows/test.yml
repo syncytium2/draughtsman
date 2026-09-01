@@ -1,0 +1,56 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The floor is whatever pyproject claims. Publishing a `requires-python`
+        # nobody has run is a claim, not a fact.
+        python: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+
+      # The CPU wheel, not the default CUDA build: only `trace` needs torch and
+      # nothing here needs a GPU.
+      - name: install
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+
+      # DRAUGHTSMAN_NO_SKIPS turns a skipped test into a failed run. `render` and
+      # `check` need neither torch nor a system binary precisely so that nothing
+      # in this suite has an excuse to go quiet, and this is what holds that to
+      # it: a skip is what silence looks like when it is being careful.
+      - name: test
+        env:
+          DRAUGHTSMAN_NO_SKIPS: "1"
+        run: pytest -q
+
+      # The figures are committed artifacts (SPEC.md §6). The suite already
+      # asserts this; running it again through the CLI a person would actually
+      # type checks the same property by the route they would use.
+      - name: every committed figure is current
+        run: |
+          set -euo pipefail
+          for spec in examples/*/spec.json examples/*/*/spec.json; do
+            dir=$(dirname "$spec")
+            draughtsman check "$spec"
+            draughtsman render "$spec" -o /tmp/figure.svg
+            if ! diff -q /tmp/figure.svg "$dir/figure.svg" > /dev/null; then
+              echo "::error file=$dir/figure.svg::stale — re-run draughtsman render and commit it"
+              exit 1
+            fi
+          done
