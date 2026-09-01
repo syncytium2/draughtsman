@@ -1,0 +1,29 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "draughtsman"
+version = "0.0.0"
+description = "Readable architecture diagrams for PyTorch models: the tracer supplies the facts, an agent supplies the abstraction, and a coverage check proves nothing was silently dropped."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "BSD-3-Clause" }
+dependencies = []
+
+# torch is NOT a hard dependency. `render` and `check` operate on graph.json and
+# spec.json alone, so a machine that only draws a figure needs neither torch nor a
+# GPU wheel. Only `trace` needs it.
+[project.optional-dependencies]
+trace = ["torch>=2.0"]
+render = ["graphviz>=0.20"]
+dev = ["pytest>=8", "torch>=2.0", "graphviz>=0.20"]
+
+[project.scripts]
+draughtsman = "draughtsman.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/draughtsman"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
