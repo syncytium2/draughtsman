@@ -407,3 +407,43 @@ def test_an_elided_node_does_not_sever_the_path_through_it(spec_doc, tube_graph)
     result = check(_mutate(spec_doc, elide_the_join), tube_graph)
     assert result.ok, [e for e in result.errors]
     assert not any("is drawn but no node" in e for e in result.errors)
+
+
+# -- meters: a number drawn instead of read ------------------------------------
+
+
+def _with_meters(doc, meters_by_stage):
+    doc = copy.deepcopy(doc)
+    for stage in doc["stages"]:
+        if stage["id"] in meters_by_stage:
+            stage["meters"] = meters_by_stage[stage["id"]]
+    return load(doc)
+
+
+def test_a_meter_must_resolve_to_a_number(spec_doc, tube_graph):
+    """A bar drawn from '1x4x600' would be drawing the length of the string."""
+    spec = _with_meters(spec_doc, {
+        "dog": [{"value": "{stage.out_shape}", "label": "size"}],
+        "head": [{"value": "{stage.out_shape}", "label": "size"}]})
+    result = check(spec, tube_graph)
+    assert not result.ok
+    assert any("not a number" in e for e in result.errors)
+
+
+def test_a_meter_on_one_stage_only_is_flagged(spec_doc, tube_graph):
+    """Meters share a scale across the figure, so a series of one is a bar that
+    is full by definition and compares with nothing."""
+    spec = _with_meters(spec_doc, {"head": [{"value": "{stage.params}",
+                                             "label": "params"}]})
+    result = check(spec, tube_graph)
+    assert result.ok          # decoration, not a lie
+    assert any("compares with nothing" in w for w in result.warnings)
+
+
+def test_meters_across_stages_pass(spec_doc, tube_graph):
+    spec = _with_meters(spec_doc, {
+        "dog": [{"value": "{stage.params}", "label": "params"}],
+        "head": [{"value": "{stage.params}", "label": "params"}]})
+    result = check(spec, tube_graph)
+    assert result.ok
+    assert not any("compares with nothing" in w for w in result.warnings)

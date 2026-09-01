@@ -168,6 +168,19 @@ def check(spec: Spec, graph: Graph) -> Result:
                 f"stage {s.id!r} writes the literal number(s) {', '.join(bare)} in "
                 "its own text — a fact in the figure that did not come from "
                 "graph.json. Use a {reference} unless it is part of a name.")
+        for meter in s.meters:
+            try:
+                text = resolve(meter.value, graph, node_ids=s.nodes,
+                               stages=stages, where=f"stage {s.id!r}")
+                float(text.replace(",", ""))
+            except FactError as exc:
+                errors.append(str(exc))
+            except ValueError:
+                errors.append(
+                    f"stage {s.id!r}: meter {meter.label!r} resolves to {text!r}, "
+                    "which is not a number. A bar drawn from a shape string would "
+                    "be drawing the length of the string.")
+
         if s.lanes:
             try:
                 count = int(resolve(s.lanes.count_from, graph, node_ids=s.nodes,
@@ -179,6 +192,21 @@ def check(spec: Spec, graph: Graph) -> Result:
                     errors.append(
                         f"stage {s.id!r} labels {len(s.lanes.labels)} lanes but "
                         f"{s.lanes.count_from} resolves to {count}")
+
+    # A BAR THAT COMPARES WITH NOTHING IS DECORATION. Meters are drawn on a
+    # scale shared by every stage carrying the same label, so a series with one
+    # member is a bar whose only information is that it is full.
+    series: dict[str, list[str]] = {}
+    for s in spec.stages:
+        for meter in s.meters:
+            series.setdefault(meter.label, []).append(s.id)
+    for label, holders in sorted(series.items()):
+        if len(holders) == 1:
+            warnings.append(
+                f"meter {label!r} appears on one stage ({holders[0]}), so its bar "
+                "is full by definition and compares with nothing. Put it on the "
+                "stages a reader should weigh against each other, or write the "
+                "number in `detail` instead.")
 
     for text in [spec.title, spec.subtitle or "", spec.caption or ""]:
         if text:

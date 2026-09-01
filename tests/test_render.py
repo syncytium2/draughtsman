@@ -184,3 +184,40 @@ def test_the_legend_is_off_unless_the_spec_asks(tube_spec, tube_graph):
     off.layout.legend = False
     assert "ds-legend" not in render(off, tube_graph)
     assert "ds-legend" in render(tube_spec, tube_graph)
+
+
+def test_meters_scale_against_the_largest_in_their_series(tube_spec_doc,
+                                                          tube_graph):
+    """FULL BAR IS THE SERIES MAXIMUM AND EMPTY IS ZERO. A stage holding most of
+    the model's parameters should read as a nearly full bar, because it does.
+    The legend has to state what full means, or the bar is a number with no unit.
+    """
+    import copy
+    from draughtsman.spec import load
+    doc = copy.deepcopy(tube_spec_doc)
+    for stage in doc["stages"]:
+        if stage["id"] in ("dog", "head"):
+            stage["meters"] = [{"value": "{stage.params}", "label": "params"}]
+    svg = render(load(doc), tube_graph)
+
+    assert "ds-meter-track" in svg and "ds-meter-fill" in svg
+    assert "full bar =" in svg, "the legend must carry the meter's scale"
+
+    fills = [float(m) for m in re.findall(
+        r'class="ds-meter-fill"[^>]*?width="([\d.]+)"', svg)]
+    tracks = [float(m) for m in re.findall(
+        r'class="ds-meter-track"[^>]*?width="([\d.]+)"', svg)]
+    assert len(fills) == len(tracks) == 2
+    # ONE LENGTH FOR EVERY TRACK IN THE FIGURE. If tracks stretched to fit their
+    # boxes, equal values would draw unequal bars and the reader would be
+    # comparing box widths instead of the quantity.
+    assert len(set(tracks)) == 1, "tracks must not depend on their box's width"
+    # The series maximum fills its track exactly; nothing overflows.
+    assert any(abs(f - tracks[0]) < 0.01 for f in fills)
+    assert all(f <= tracks[0] + 0.01 for f in fills)
+
+
+def test_a_spec_without_meters_renders_exactly_as_before(tube_spec, tube_graph):
+    """The feature must be inert when unused, which is what keeps every
+    committed figure byte-identical across its introduction."""
+    assert "ds-meter" not in render(tube_spec, tube_graph)

@@ -20,7 +20,7 @@ Class names are still emitted (``ds-stage``, ``ds-kind-conv``) so a page that
 
 from __future__ import annotations
 
-from draughtsman.facts import Graph, resolve
+from draughtsman.facts import FactError, Graph, resolve
 from draughtsman.layout import build
 from draughtsman.spec import Spec
 from draughtsman.text import FONT_STACK, escape, width
@@ -31,6 +31,15 @@ LANE_SIZE = 9.0
 CAPTION_SIZE = 10.0
 PAD_X, PAD_Y = 12.0, 9.0
 TITLE_LINE, DETAIL_LINE, LANE_ROW = 15.0, 12.5, 15.0
+# A meter is a bar, a label and nothing else. Deliberately shorter than a text
+# line: it replaces digits a reader has to compare in their head, and it should
+# not cost more room than the digits did.
+METER_ROW, METER_SIZE, METER_BAR = 11.0, 8.0, 4.5
+# ONE BAR LENGTH FOR THE WHOLE FIGURE, NOT ONE PER BOX. If the track stretched to
+# fit its box, two stages with the same value would draw different lengths and
+# the reader would be comparing box widths -- which is exactly the misreading the
+# meter exists to remove. Boxes widen to fit the bar instead.
+METER_BAR_W = 54.0
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -160,9 +169,17 @@ class _Stage:
         widths = [width(self.name, TITLE_SIZE, bold=True)]
         widths += [width(d, DETAIL_SIZE) for d in self.detail]
         widths += [width(l, LANE_SIZE) + 30 for l in self.lane_labels]
+        self.meters = [
+            (m.label, _number(resolve(m.value, graph, node_ids=stage.nodes,
+                                      stages=stages, where=where), where, m.label))
+            for m in stage.meters
+        ]
+        widths += [width(lbl, METER_SIZE) + 5 + METER_BAR_W
+                   for lbl, _ in self.meters]
         self.w = max(MIN_W, max(widths) + 2 * PAD_X)
         self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
-                  + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0))
+                  + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
+                  + (METER_ROW * len(self.meters) + 4 if self.meters else 0))
 
 
 def render(spec: Spec, graph: Graph) -> str:
@@ -189,7 +206,12 @@ def render(spec: Spec, graph: Graph) -> str:
     head_h = 22.0 + (14.0 if subtitle else 0.0)
     foot_h = 18.0 if caption else 0.0
 
+    scales = _meter_scales(measured)
     rows = _legend(spec, graph) if spec.layout.legend else []
+    # A BAR WITHOUT A STATED SCALE IS A NUMBER WITHOUT A UNIT. The legend
+    # carries the axis: what a full bar equals, per series.
+    rows += [("__meter__", label, f"full bar = {_fmt(full)}")
+             for label, full in sorted(scales.items())]
     legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
                     + 6 + width(sh, LEGEND_SIZE) + 18
                     for _, lbl, sh in rows), default=0.0)
@@ -237,7 +259,7 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append(_edge(route, drawing.vertical))
 
     for sid, m in measured.items():
-        out.append(_box(drawing.boxes[sid], m))
+        out.append(_box(drawing.boxes[sid], m, scales))
 
     out.append("</g>")
 
@@ -246,13 +268,30 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append('<g class="ds-legend">')
         for i, (kind, label, share) in enumerate(rows):
             y = top + i * LEGEND_ROW
-            fill, stroke = PALETTE.get(kind, PALETTE["op"])
-            out.append(
-                f'<rect class="ds-legend-swatch ds-kind-{escape(kind)}" x="12" '
-                f'y="{_fmt(y)}" width="{_fmt(LEGEND_SWATCH)}" '
-                f'height="{_fmt(LEGEND_SWATCH)}" rx="2" '
-                f'style="fill:{fill};stroke:{stroke};stroke-width:1"/>'
-            )
+            if kind == "__meter__":
+                # A MINIATURE OF THE THING, NOT A COLOUR. A family swatch here
+                # would say the meter is a family, and it is not -- it is an axis.
+                out.append(
+                    f'<rect class="ds-legend-meter" x="12" '
+                    f'y="{_fmt(y + 2.2)}" width="{_fmt(LEGEND_SWATCH)}" '
+                    f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                    f'style="fill:none;stroke:currentColor;stroke-opacity:0.55;'
+                    f'stroke-width:0.7"/>'
+                )
+                out.append(
+                    f'<rect class="ds-legend-meter-fill" x="12" '
+                    f'y="{_fmt(y + 2.2)}" width="{_fmt(LEGEND_SWATCH * 0.6)}" '
+                    f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                    f'style="fill:currentColor;fill-opacity:0.55"/>'
+                )
+            else:
+                fill, stroke = PALETTE.get(kind, PALETTE["op"])
+                out.append(
+                    f'<rect class="ds-legend-swatch ds-kind-{escape(kind)}" x="12" '
+                    f'y="{_fmt(y)}" width="{_fmt(LEGEND_SWATCH)}" '
+                    f'height="{_fmt(LEGEND_SWATCH)}" rx="2" '
+                    f'style="fill:{fill};stroke:{stroke};stroke-width:1"/>'
+                )
             tx = 12 + LEGEND_SWATCH + 6
             out.append(
                 f'<text class="ds-legend-label" x="{_fmt(tx)}" '
@@ -364,7 +403,7 @@ def _edge(route, vertical: bool = False) -> str:
     return "".join(parts)
 
 
-def _box(box, m: _Stage) -> str:
+def _box(box, m: _Stage, scales: dict[str, float]) -> str:
     fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
     top = box.y - box.h / 2.0
     # data-stage is how `draughtsman ui` binds a click in the figure back to the
@@ -411,5 +450,67 @@ def _box(box, m: _Stage) -> str:
                 f'fill:{INK}">{escape(label)}</text>'
             )
             y += LANE_ROW
+
+    if m.meters:
+        y += 4
+        widest = max(width(lbl, METER_SIZE) for lbl, _ in m.meters)
+        row_w = widest + 5 + METER_BAR_W
+        bx = box.x + (box.w - row_w) / 2.0
+        for label, value in m.meters:
+            full = scales.get(label) or 1.0
+            bar_x = bx + widest + 5
+            bar_w = METER_BAR_W
+            parts.append(
+                f'<text x="{_fmt(bx)}" y="{_fmt(y + METER_BAR)}" '
+                f'style="font-family:{FONT_STACK};font-size:{METER_SIZE}px;'
+                f'fill:{MUTED}">{escape(label)}</text>'
+            )
+            # The track is the whole series, so an almost-empty bar reads as
+            # "small share of the largest", not as a missing value.
+            parts.append(
+                f'<rect class="ds-meter-track" x="{_fmt(bar_x)}" '
+                f'y="{_fmt(y)}" width="{_fmt(bar_w)}" '
+                f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                f'style="fill:#ffffff;fill-opacity:0.62;stroke:{stroke};'
+                f'stroke-width:0.5"/>'
+            )
+            filled = bar_w * (value / full) if full else 0.0
+            if filled > 0:
+                parts.append(
+                    f'<rect class="ds-meter-fill" x="{_fmt(bar_x)}" '
+                    f'y="{_fmt(y)}" width="{_fmt(max(1.0, filled))}" '
+                    f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                    f'style="fill:{stroke}"/>'
+                )
+            y += METER_ROW
     parts.append("</g>")
     return "".join(parts)
+
+
+def _number(text: str, where: str, label: str) -> float:
+    """A meter's value must BE a number. A bar drawn from '1×4×600' would be
+    drawing the string's length, which is not a fact about anything."""
+    try:
+        return float(text.replace(",", ""))
+    except ValueError:
+        raise FactError(
+            f"{where}: meter {label!r} resolved to {text!r}, which is not a "
+            "number. A meter draws a magnitude, so its reference must be one — "
+            "{stage.params}, {stage.nodes} or one axis of a shape such as "
+            "{stage.out_shape[1]}.") from None
+
+
+def _meter_scales(measured) -> dict[str, float]:
+    """One scale per series, over the whole figure.
+
+    FULL BAR IS THE LARGEST VALUE IN THE SERIES AND EMPTY IS ZERO. No truncated
+    baseline, no log: a stage holding most of the model's parameters SHOULD read
+    as a bar that is nearly all of the width, because that is the fact. The
+    legend states what full width means, so the bar is never a number without a
+    scale.
+    """
+    scales: dict[str, float] = {}
+    for m in measured.values():
+        for label, value in m.meters:
+            scales[label] = max(scales.get(label, 0.0), value)
+    return scales

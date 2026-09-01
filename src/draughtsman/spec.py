@@ -34,6 +34,24 @@ class Lanes:
 
 
 @dataclass
+class Meter:
+    """A number in a box, drawn as a bar instead of read as digits.
+
+    THE AGENT STILL SUPPLIES NO FACT. `value` is a {reference}; the renderer
+    resolves it against graph.json and scales it. What the agent chooses is WHICH
+    quantity deserves a picture and what to call it.
+
+    `label` is also the SERIES. Every meter sharing a label is drawn on one scale
+    computed across the whole figure, so two bars are comparable iff they are
+    labelled the same -- and never comparable across labels, because a bar of
+    parameters and a bar of frames have no common unit. A bar whose series has
+    only one member compares with nothing and `check` says so.
+    """
+    value: str
+    label: str
+
+
+@dataclass
 class Stage:
     id: str
     name: str
@@ -42,6 +60,7 @@ class Stage:
     detail: list[str] = field(default_factory=list)
     note: str | None = None
     lanes: Lanes | None = None
+    meters: list[Meter] = field(default_factory=list)
 
 
 @dataclass
@@ -110,6 +129,8 @@ def load(doc: dict) -> Spec:
             id=raw["id"], name=raw["name"], kind=raw.get("kind", "op"),
             nodes=list(raw.get("nodes", [])), detail=list(raw.get("detail", [])),
             note=raw.get("note"), lanes=lanes,
+            meters=[Meter(value=m["value"], label=m["label"])
+                    for m in raw.get("meters", [])],
         ))
     edges = [Edge(src=e["from"], dst=e["to"], label=e.get("label"),
                   style=e.get("style", "solid"), untraced=e.get("untraced"))
@@ -140,6 +161,9 @@ def dump(spec: Spec) -> dict:
         if s.lanes:
             rec["lanes"] = {"count_from": s.lanes.count_from,
                             "labels": s.lanes.labels}
+        if s.meters:
+            rec["meters"] = [{"value": m.value, "label": m.label}
+                             for m in s.meters]
         out["stages"].append(rec)
     out["edges"] = [
         {k: v for k, v in (("from", e.src), ("to", e.dst), ("label", e.label),

@@ -51,6 +51,15 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    size, a dilation schedule and a stride usually are; anything computed from a
    parameter is not. If you cannot tell, do not put the number in the figure.
 
+6. A QUANTITY A READER COMPARES ACROSS STAGES WANTS A BAR, NOT DIGITS. `meters`
+   draws one: `value` is a {reference} like any other, `label` is the name AND
+   the series. Every meter sharing a label is scaled together across the whole
+   figure, full bar = the largest value, empty = zero, and the legend states
+   what full means. Use it for what a reader would otherwise compare in their
+   head -- parameters per stage, or a width that shrinks down the network. Do
+   not use it for a quantity only one stage has: that bar is full by definition
+   and `check` will say so.
+
 Aim for six to twelve stages. Fewer and the figure says nothing; more and it is
 the trace again, which is already unreadable.
 """
@@ -87,7 +96,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "nodes": ["n0021", "n0031"],
       "detail": ["{stage.out_shape}", "{stage.params} params"],
       "lanes": {"count_from": "{node:n0126.out_shape[1]}",
-                "labels": ["<one name per lane>"]}
+                "labels": ["<one name per lane>"]},
+      "meters": [{"value": "{stage.params}", "label": "params"}]
     }
   ],
   "edges": [
