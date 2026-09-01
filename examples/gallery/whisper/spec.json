@@ -475,6 +475,11 @@
       "to": "drest"
     },
     {
+      "from": "audio",
+      "to": "drest",
+      "style": "dashed"
+    },
+    {
       "from": "drest",
       "to": "logits"
     }
