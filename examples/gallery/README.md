@@ -88,12 +88,32 @@ wrapping, so depth converts directly into width — the same defect the README
 criticises torchview for, arrived at more slowly. Whisper escapes it only because
 its two input rails give the figure a second row for free.
 
-**Coverage checks placement, not edges.** The VAE proves it: `randn_like` reads
-the mean's *shape*, so `graph.json` records the mean as its ancestor. The figure
-draws an edge the trace does not contain and the check reports 18/18 green. The
-safety argument covers "no operation was silently dropped"; it does not cover
-"the topology drawn is the topology traced". An assertion against
-`tensor_inputs` would close most of it.
+**Coverage checked placement, not edges — now closed, and it was backwards.**
+The original finding here said the VAE "draws an edge the trace does not
+contain". Building the assertion showed the opposite: **every drawn edge in all
+ten figures was real.** What the VAE does is *omit* an edge the trace has —
+`randn_like` reads the mean's shape, so `graph.json` records mean → noise, and
+the figure does not draw it. The hole was never the arrows being false; it was
+that nothing looked at the arrows at all.
+
+`check` now derives the traced stage-to-stage topology from `tensor_inputs` and
+compares it with the declared edges, in both directions and at different
+severities:
+
+- **An arrow with nothing under it is an error.** The figure would be asserting
+  a data path the model does not have. It can be declared instead, with
+  `"untraced": "<reason>"` on the edge — a decision in a diff, exactly as
+  `elided` is for a dropped node. An empty reason buys nothing.
+- **A traced path the figure omits is a warning.** It cannot be an error: many
+  are shape dependencies no reader wants drawn (`raster → mean` divides by the
+  raster's channel count; `tokens → pos` is a sequence length), and collapsing a
+  repeated block legitimately buries fan-out inside one box. A check that cried
+  wolf here would be turned off.
+
+It found a real defect on its first run. Whisper's figure drew the audio
+features into decoder block one and stopped, and **every** decoder block
+cross-attends to that same audio. The figure understated the model. The edge is
+drawn now.
 
 **`lanes` can claim a parallelism that is not there.** Found by the Whisper figure
 looking wrong. The first draft put six head lanes on the collapsed four-block
