@@ -5,3 +5,7 @@ dist/
 build/
 *.egg-info/
 .pytest_cache/
+
+# `draughtsman ui` and EnterWorktree both live here; worktrees are checkouts,
+# not sources.
+.claude/worktrees/
