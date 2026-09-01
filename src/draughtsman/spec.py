@@ -52,6 +52,34 @@ class Meter:
 
 
 @dataclass
+class Glyph:
+    """The stage's tensor, drawn to scale: one axis tall, another wide.
+
+    BOTH AXES COME FROM ONE SHAPE, and that is the constraint that makes the mark
+    honest rather than decorative. The eye reads a rectangle's AREA whether or not
+    you meant it to, so if height and width came from unrelated references the
+    reader would be perceiving a product that means nothing. Two axes of one
+    tensor multiply to something real.
+
+    Not the box's own geometry. A box is already sized by its text and is already
+    an input to the layout engine, so an encoding put there would be clamped by
+    the longest label -- and a clamped scale is a truncated baseline, which is the
+    thing a figure must never do quietly. The glyph sits on a canvas of constant
+    size instead, and the box is left alone.
+    """
+    of: str                 # ONE shape reference, e.g. "{stage.out_shape}"
+    axes: list[int]         # [tall, wide] — indices into that shape
+    labels: list[str]       # what to call them, in the same order
+    # "sqrt" (default) or "linear". Linear is the faithful encoding and the one
+    # to use when the range allows it: area is then literally the tensor. It is
+    # not the default because channel counts in real models span three orders of
+    # magnitude, and a linear edge there puts the smallest rectangle under a
+    # pixel -- a figure showing "big" and "absent" rather than a range. Whichever
+    # is chosen, the legend names it, so the compression is never silent.
+    scale: str = "sqrt"
+
+
+@dataclass
 class Stage:
     id: str
     name: str
@@ -61,6 +89,7 @@ class Stage:
     note: str | None = None
     lanes: Lanes | None = None
     meters: list[Meter] = field(default_factory=list)
+    glyph: Glyph | None = None
 
 
 @dataclass
@@ -131,6 +160,11 @@ def load(doc: dict) -> Spec:
             note=raw.get("note"), lanes=lanes,
             meters=[Meter(value=m["value"], label=m["label"])
                     for m in raw.get("meters", [])],
+            glyph=(Glyph(of=raw["glyph"]["of"],
+                         axes=list(raw["glyph"]["axes"]),
+                         labels=list(raw["glyph"]["labels"]),
+                         scale=raw["glyph"].get("scale", "sqrt"))
+                   if raw.get("glyph") else None),
         ))
     edges = [Edge(src=e["from"], dst=e["to"], label=e.get("label"),
                   style=e.get("style", "solid"), untraced=e.get("untraced"))
@@ -164,6 +198,11 @@ def dump(spec: Spec) -> dict:
         if s.meters:
             rec["meters"] = [{"value": m.value, "label": m.label}
                              for m in s.meters]
+        if s.glyph:
+            rec["glyph"] = {"of": s.glyph.of, "axes": s.glyph.axes,
+                            "labels": s.glyph.labels}
+            if s.glyph.scale != "sqrt":
+                rec["glyph"]["scale"] = s.glyph.scale
         out["stages"].append(rec)
     out["edges"] = [
         {k: v for k, v in (("from", e.src), ("to", e.dst), ("label", e.label),

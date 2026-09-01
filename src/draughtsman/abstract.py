@@ -60,6 +60,16 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    not use it for a quantity only one stage has: that bar is full by definition
    and `check` will say so.
 
+7. THE TENSOR ITSELF CAN BE DRAWN. `glyph` puts a rectangle in the box: one axis
+   of a shape as its height, another as its width, on a scale shared by the whole
+   figure. BOTH AXES MUST COME FROM THE ONE `of` REFERENCE -- the eye reads a
+   rectangle's area whether you meant it to or not, and two axes of one tensor
+   multiply to something real while two unrelated numbers do not. `scale` is
+   "sqrt" by default because channel counts span three orders of magnitude in
+   real models and a linear edge would put the smallest rectangle under a pixel;
+   use "linear" when the figure's range is narrow enough, and the legend will say
+   which you chose. Every glyph in a figure must label its axes the same way.
+
 Aim for six to twelve stages. Fewer and the figure says nothing; more and it is
 the trace again, which is already unreadable.
 """
@@ -97,7 +107,9 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "detail": ["{stage.out_shape}", "{stage.params} params"],
       "lanes": {"count_from": "{node:n0126.out_shape[1]}",
                 "labels": ["<one name per lane>"]},
-      "meters": [{"value": "{stage.params}", "label": "params"}]
+      "meters": [{"value": "{stage.params}", "label": "params"}],
+      "glyph": {"of": "{stage.out_shape}", "axes": [1, 2],
+                "labels": ["channels", "frames"], "scale": "sqrt"}
     }
   ],
   "edges": [

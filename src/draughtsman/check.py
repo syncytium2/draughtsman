@@ -168,6 +168,21 @@ def check(spec: Spec, graph: Graph) -> Result:
                 f"stage {s.id!r} writes the literal number(s) {', '.join(bare)} in "
                 "its own text — a fact in the figure that did not come from "
                 "graph.json. Use a {reference} unless it is part of a name.")
+        if s.glyph:
+            try:
+                resolve(s.glyph.of, graph, node_ids=s.nodes, stages=stages,
+                        where=f"stage {s.id!r}")
+            except FactError as exc:
+                errors.append(str(exc))
+            if s.glyph.scale not in ("sqrt", "linear"):
+                errors.append(
+                    f"stage {s.id!r}: glyph scale {s.glyph.scale!r} is neither "
+                    "'sqrt' nor 'linear'.")
+            if len(s.glyph.axes) != 2 or len(s.glyph.labels) != 2:
+                errors.append(
+                    f"stage {s.id!r}: a glyph needs exactly two axes and two "
+                    "labels — one for height, one for width.")
+
         for meter in s.meters:
             try:
                 text = resolve(meter.value, graph, node_ids=s.nodes,
@@ -192,6 +207,27 @@ def check(spec: Spec, graph: Graph) -> Result:
                     errors.append(
                         f"stage {s.id!r} labels {len(s.lanes.labels)} lanes but "
                         f"{s.lanes.count_from} resolves to {count}")
+
+    # ONE SCALE MEANS ONE MEANING. Glyphs share a figure-wide scale, so two
+    # stages labelling their axes differently are drawing incomparable rectangles
+    # on a common ruler — the reader has no way to see that and every reason to
+    # compare them.
+    glyphed = [s for s in spec.stages if s.glyph]
+    labelling = {tuple(s.glyph.labels) for s in glyphed}
+    if len(labelling) > 1:
+        errors.append(
+            "glyphs in one figure must label their axes the same way; found "
+            + " and ".join(repr(" × ".join(l)) for l in sorted(labelling)))
+    scaling = {s.glyph.scale for s in glyphed}
+    if len(scaling) > 1:
+        errors.append(
+            "glyphs in one figure must use one scale; found "
+            + " and ".join(sorted(repr(x) for x in scaling)))
+    if len(glyphed) == 1:
+        warnings.append(
+            f"stage {glyphed[0].id!r} is the only one with a glyph, so its "
+            "rectangle is the full scale by definition and shows nothing a "
+            "reader can weigh against anything.")
 
     # A BAR THAT COMPARES WITH NOTHING IS DECORATION. Meters are drawn on a
     # scale shared by every stage carrying the same label, so a series with one

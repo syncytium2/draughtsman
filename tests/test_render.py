@@ -221,3 +221,58 @@ def test_a_spec_without_meters_renders_exactly_as_before(tube_spec, tube_graph):
     """The feature must be inert when unused, which is what keeps every
     committed figure byte-identical across its introduction."""
     assert "ds-meter" not in render(tube_spec, tube_graph)
+
+
+def _glyphed(doc, ids, **over):
+    import copy
+    d = copy.deepcopy(doc)
+    for stage in d["stages"]:
+        if stage["id"] in ids:
+            stage["glyph"] = {"of": "{stage.out_shape}", "axes": [1, 2],
+                              "labels": ["channels", "frames"], **over}
+    return d
+
+
+def test_the_glyph_scales_both_edges_and_never_resizes_the_box(tube_spec_doc,
+                                                               tube_graph):
+    """THE ENCODING IS THE GLYPH, NOT THE BOX. A box is sized by its text and is
+    an input to the layout engine, so an encoding put there would be clamped by
+    the longest label — a truncated baseline, silently."""
+    from draughtsman.spec import load
+    from draughtsman.render import GLYPH_H, GLYPH_W
+
+    plain = render(load(tube_spec_doc), tube_graph)
+    doc = _glyphed(tube_spec_doc, {"dog", "head", "concat"}, scale="linear")
+    svg = render(load(doc), tube_graph)
+
+    boxes = lambda s: re.findall(r'<rect x="([\d.]+)" y="[\d.]+" '
+                                r'width="([\d.]+)"', s)
+    assert [b[1] for b in boxes(plain)] == [b[1] for b in boxes(svg)], \
+        "adding a glyph must not change any box's width"
+
+    g = [(float(w), float(h)) for w, h in re.findall(
+        r'class="ds-glyph"[^>]*?width="([\d.]+)" height="([\d.]+)"', svg)]
+    assert len(g) == 3
+    # The figure's largest value in each axis fills that edge of the canvas.
+    assert max(w for w, _ in g) == GLYPH_W
+    assert max(h for _, h in g) == GLYPH_H
+    assert all(w <= GLYPH_W + 0.01 and h <= GLYPH_H + 0.01 for w, h in g)
+    assert "each edge ∝ value" in svg, "the legend must name the scale"
+
+
+def test_sqrt_is_the_default_and_compresses_less_faithfully_but_visibly(
+        tube_spec_doc, tube_graph):
+    """Channel counts in this gallery span 1568:1. A linear edge there puts the
+    smallest rectangle under a pixel, so the default compresses — and says so."""
+    from draughtsman.spec import load
+    lin = render(load(_glyphed(tube_spec_doc, {"dog", "head"}, scale="linear")),
+                 tube_graph)
+    sq = render(load(_glyphed(tube_spec_doc, {"dog", "head"})), tube_graph)
+    assert "each edge ∝ √value" in sq and "each edge ∝ value" in lin
+
+    # tube's extent is 600 at every stage, so width is constant and carries
+    # nothing here — which is itself the honest reading. Height is the axis that
+    # varies, so that is the one the compression can be measured on.
+    small = lambda s: min(float(h) for h in re.findall(
+        r'class="ds-glyph"[^>]*?height="([\d.]+)"', s))
+    assert small(sq) > small(lin), "sqrt must lift the smallest edge, not lower it"

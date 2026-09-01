@@ -447,3 +447,19 @@ def test_meters_across_stages_pass(spec_doc, tube_graph):
     result = check(spec, tube_graph)
     assert result.ok
     assert not any("compares with nothing" in w for w in result.warnings)
+
+
+def test_glyphs_must_agree_on_labels_and_scale(spec_doc, tube_graph):
+    """One figure, one ruler. Two stages labelling their axes differently draw
+    incomparable rectangles that a reader has every reason to compare."""
+    def clash(d):
+        for stage in d["stages"]:
+            if stage["id"] == "dog":
+                stage["glyph"] = {"of": "{stage.out_shape}", "axes": [1, 2],
+                                  "labels": ["channels", "frames"]}
+            if stage["id"] == "head":
+                stage["glyph"] = {"of": "{stage.out_shape}", "axes": [1, 2],
+                                  "labels": ["filters", "samples"]}
+    result = check(_mutate(spec_doc, clash), tube_graph)
+    assert not result.ok
+    assert any("label their axes the same way" in e for e in result.errors)

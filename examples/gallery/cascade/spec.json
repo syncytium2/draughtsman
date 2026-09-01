@@ -15,13 +15,7 @@
         "{node:n0015.out_shape[2]} frames",
         "{stage.out_shape}"
       ],
-      "note": "One neuron, one sliding window, resampled to the model's frame rate. The spike rate predicted is the one at the window's centre, so the network sees equally far forward and back.",
-      "meters": [
-        {
-          "value": "{node:n0015.out_shape[2]}",
-          "label": "frames"
-        }
-      ]
+      "note": "One neuron, one sliding window, resampled to the model's frame rate. The spike rate predicted is the one at the window's centre, so the network sees equally far forward and back."
     },
     {
       "id": "conv1",
@@ -37,16 +31,18 @@
         "{stage.params} params"
       ],
       "note": "Nearly half the window wide. This is the layer that sees the slow decay of a calcium transient.",
-      "meters": [
-        {
-          "value": "{stage.out_shape[2]}",
-          "label": "frames"
-        },
-        {
-          "value": "{stage.params}",
-          "label": "params"
-        }
-      ]
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          1,
+          2
+        ],
+        "labels": [
+          "filters",
+          "frames"
+        ],
+        "scale": "linear"
+      }
     },
     {
       "id": "conv2",
@@ -61,16 +57,18 @@
         "→ {stage.out_shape[2]} frames",
         "{stage.params} params"
       ],
-      "meters": [
-        {
-          "value": "{stage.out_shape[2]}",
-          "label": "frames"
-        },
-        {
-          "value": "{stage.params}",
-          "label": "params"
-        }
-      ]
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          1,
+          2
+        ],
+        "labels": [
+          "filters",
+          "frames"
+        ],
+        "scale": "linear"
+      }
     },
     {
       "id": "pool1",
@@ -83,12 +81,18 @@
         "stride {node:n0048.constants.stride}",
         "→ {stage.out_shape[2]} frames"
       ],
-      "meters": [
-        {
-          "value": "{stage.out_shape[2]}",
-          "label": "frames"
-        }
-      ]
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          1,
+          2
+        ],
+        "labels": [
+          "filters",
+          "frames"
+        ],
+        "scale": "linear"
+      }
     },
     {
       "id": "conv3",
@@ -104,16 +108,18 @@
         "{stage.params} params"
       ],
       "note": "Widest in channels and narrowest in time — the window has become a short code rather than a trace.",
-      "meters": [
-        {
-          "value": "{stage.out_shape[2]}",
-          "label": "frames"
-        },
-        {
-          "value": "{stage.params}",
-          "label": "params"
-        }
-      ]
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          1,
+          2
+        ],
+        "labels": [
+          "filters",
+          "frames"
+        ],
+        "scale": "linear"
+      }
     },
     {
       "id": "pool2",
@@ -126,12 +132,18 @@
         "stride {node:n0069.constants.stride}",
         "→ {stage.out_shape[2]} frames"
       ],
-      "meters": [
-        {
-          "value": "{stage.out_shape[2]}",
-          "label": "frames"
-        }
-      ]
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          1,
+          2
+        ],
+        "labels": [
+          "filters",
+          "frames"
+        ],
+        "scale": "linear"
+      }
     },
     {
       "id": "dense1",
@@ -145,17 +157,7 @@
         "to {stage.out_shape[2]} units",
         "{stage.params} params"
       ],
-      "note": "Applied at each of the surviving frames independently, with weights shared between them — which is why the tensor is put back into frame-major order first.",
-      "meters": [
-        {
-          "value": "{stage.out_shape[1]}",
-          "label": "frames"
-        },
-        {
-          "value": "{stage.params}",
-          "label": "params"
-        }
-      ]
+      "note": "Applied at each of the surviving frames independently, with weights shared between them — which is why the tensor is put back into frame-major order first."
     },
     {
       "id": "readout",
@@ -170,13 +172,7 @@
         "{stage.params} params",
         "{stage.out_shape}"
       ],
-      "note": "The only layer that mixes the surviving frames. Its input width is computed in Python from the window and the kernel sizes, so it is fixed by the architecture rather than fitted.",
-      "meters": [
-        {
-          "value": "{stage.params}",
-          "label": "params"
-        }
-      ]
+      "note": "The only layer that mixes the surviving frames. Its input width is computed in Python from the window and the kernel sizes, so it is fixed by the architecture rather than fitted."
     }
   ],
   "edges": [

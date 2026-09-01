@@ -20,7 +20,9 @@ Class names are still emitted (``ds-stage``, ``ds-kind-conv``) so a page that
 
 from __future__ import annotations
 
-from draughtsman.facts import FactError, Graph, resolve
+import math
+
+from draughtsman.facts import TIMES, FactError, Graph, resolve
 from draughtsman.layout import build
 from draughtsman.spec import Spec
 from draughtsman.text import FONT_STACK, escape, width
@@ -40,6 +42,9 @@ METER_ROW, METER_SIZE, METER_BAR = 11.0, 8.0, 4.5
 # the reader would be comparing box widths -- which is exactly the misreading the
 # meter exists to remove. Boxes widen to fit the bar instead.
 METER_BAR_W = 54.0
+# The glyph's canvas. Constant for every stage in the figure, because the scale
+# is shared: two stages with the same tensor must draw the same rectangle.
+GLYPH_W, GLYPH_H, GLYPH_ROW, GLYPH_MIN = 46.0, 26.0, 32.0, 1.5
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -176,10 +181,18 @@ class _Stage:
         ]
         widths += [width(lbl, METER_SIZE) + 5 + METER_BAR_W
                    for lbl, _ in self.meters]
+        self.glyph: tuple[float, float] | None = None
+        if stage.glyph:
+            shape = _shape_axes(
+                resolve(stage.glyph.of, graph, node_ids=stage.nodes,
+                        stages=stages, where=where), stage.glyph, where)
+            self.glyph = shape
+            widths.append(GLYPH_W)
         self.w = max(MIN_W, max(widths) + 2 * PAD_X)
         self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
                   + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
-                  + (METER_ROW * len(self.meters) + 4 if self.meters else 0))
+                  + (METER_ROW * len(self.meters) + 4 if self.meters else 0)
+                  + (GLYPH_ROW if self.glyph else 0))
 
 
 def render(spec: Spec, graph: Graph) -> str:
@@ -207,11 +220,21 @@ def render(spec: Spec, graph: Graph) -> str:
     foot_h = 18.0 if caption else 0.0
 
     scales = _meter_scales(measured)
+    gscale = _glyph_scales(measured)
     rows = _legend(spec, graph) if spec.layout.legend else []
     # A BAR WITHOUT A STATED SCALE IS A NUMBER WITHOUT A UNIT. The legend
     # carries the axis: what a full bar equals, per series.
     rows += [("__meter__", label, f"full bar = {_fmt(full)}")
              for label, full in sorted(scales.items())]
+    glyphed = [m for m in measured.values() if m.spec.glyph]
+    if glyphed:
+        lbl = glyphed[0].spec.glyph.labels
+        rows.append(("__glyph__",
+                     f"{lbl[0]} × {lbl[1]}",
+                     f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
+                     + ("each edge ∝ value"
+                        if glyphed[0].spec.glyph.scale == "linear"
+                        else "each edge ∝ √value")))
     legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
                     + 6 + width(sh, LEGEND_SIZE) + 18
                     for _, lbl, sh in rows), default=0.0)
@@ -259,7 +282,7 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append(_edge(route, drawing.vertical))
 
     for sid, m in measured.items():
-        out.append(_box(drawing.boxes[sid], m, scales))
+        out.append(_box(drawing.boxes[sid], m, scales, gscale))
 
     out.append("</g>")
 
@@ -268,7 +291,14 @@ def render(spec: Spec, graph: Graph) -> str:
         out.append('<g class="ds-legend">')
         for i, (kind, label, share) in enumerate(rows):
             y = top + i * LEGEND_ROW
-            if kind == "__meter__":
+            if kind == "__glyph__":
+                out.append(
+                    f'<rect class="ds-legend-glyph" x="12" '
+                    f'y="{_fmt(y + 1)}" width="{_fmt(LEGEND_SWATCH)}" '
+                    f'height="{_fmt(LEGEND_SWATCH - 1)}" '
+                    f'style="fill:currentColor;fill-opacity:0.42"/>'
+                )
+            elif kind == "__meter__":
                 # A MINIATURE OF THE THING, NOT A COLOUR. A family swatch here
                 # would say the meter is a family, and it is not -- it is an axis.
                 out.append(
@@ -403,7 +433,8 @@ def _edge(route, vertical: bool = False) -> str:
     return "".join(parts)
 
 
-def _box(box, m: _Stage, scales: dict[str, float]) -> str:
+def _box(box, m: _Stage, scales: dict[str, float],
+         gscale: tuple[float, float]) -> str:
     fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
     top = box.y - box.h / 2.0
     # data-stage is how `draughtsman ui` binds a click in the figure back to the
@@ -450,6 +481,21 @@ def _box(box, m: _Stage, scales: dict[str, float]) -> str:
                 f'fill:{INK}">{escape(label)}</text>'
             )
             y += LANE_ROW
+
+    if m.glyph:
+        tall, wide = m.glyph
+        sc = m.spec.glyph.scale
+        gh = _edge_px(tall, gscale[0], GLYPH_H, sc)
+        gw = _edge_px(wide, gscale[1], GLYPH_W, sc)
+        gx = box.x + (box.w - gw) / 2.0
+        gy = y + 3 + (GLYPH_H - gh)          # sits ON a baseline, not centred
+        parts.append(
+            f'<rect class="ds-glyph" x="{_fmt(gx)}" y="{_fmt(gy)}" '
+            f'width="{_fmt(gw)}" height="{_fmt(gh)}" '
+            f'style="fill:{stroke};fill-opacity:0.5;stroke:{stroke};'
+            f'stroke-width:0.6"/>'
+        )
+        y += GLYPH_ROW
 
     if m.meters:
         y += 4
@@ -514,3 +560,52 @@ def _meter_scales(measured) -> dict[str, float]:
         for label, value in m.meters:
             scales[label] = max(scales.get(label, 0.0), value)
     return scales
+
+
+def _shape_axes(text: str, glyph, where: str) -> tuple[float, float]:
+    """Pull the two named axes out of one resolved shape."""
+    parts = text.split(TIMES)
+    try:
+        dims = [float(p) for p in parts]
+    except ValueError:
+        raise FactError(
+            f"{where}: glyph `of` resolved to {text!r}, which is not a shape. It "
+            "must be one reference to a tensor shape, such as "
+            "{stage.out_shape}.") from None
+    if len(glyph.axes) != 2 or len(glyph.labels) != 2:
+        raise FactError(f"{where}: a glyph needs exactly two axes and two labels")
+    out = []
+    for i in glyph.axes:
+        if i >= len(dims):
+            raise FactError(
+                f"{where}: glyph asks for axis {i} of {text!r}, which has "
+                f"{len(dims)} axes.")
+        out.append(dims[i])
+    return out[0], out[1]
+
+
+def _glyph_scales(measured) -> tuple[float, float]:
+    """Tallest and widest values anywhere in the figure. One scale, both axes."""
+    tall = wide = 0.0
+    for m in measured.values():
+        if m.glyph:
+            tall = max(tall, m.glyph[0])
+            wide = max(wide, m.glyph[1])
+    return tall, wide
+
+
+def _edge_px(value: float, biggest: float, full: float,
+             scale: str = "sqrt") -> float:
+    """SQUARE ROOT, AND THE LEGEND SAYS SO.
+
+    Channel counts in this gallery span 1568:1. Linear edges would put the
+    smallest rectangle below one pixel while the largest filled the box, so the
+    figure would be showing "big" and "absent" rather than a range. Rooting each
+    edge compresses 1568:1 to 40:1 and preserves order exactly. The cost is that
+    area becomes the root of the tensor rather than the tensor, which is why the
+    legend states the scale and `detail` keeps the true numbers.
+    """
+    if biggest <= 0:
+        return GLYPH_MIN
+    frac = max(value, 0.0) / biggest
+    return max(GLYPH_MIN, full * (frac if scale == "linear" else math.sqrt(frac)))
