@@ -40,6 +40,31 @@ def _rows() -> list[dict]:
     return out
 
 
+def _touched(branch: str) -> list[str] | None:
+    """What the branch has ACTUALLY changed against main.
+
+    THE DECLARED PATHS ARE A HAND-MAINTAINED LIST, which is the failure mode this
+    repository has spent two days on. This is the same list, computed, and the
+    check below is that the hand-written one covers it.
+
+    Returns None when the comparison cannot be made -- no such branch, no merge
+    base -- so a missing branch is reported by its own assertion rather than
+    twice.
+    """
+    out = subprocess.run(["git", "diff", "--name-only", f"origin/main...{branch}"],
+                         cwd=ROOT, capture_output=True, text=True)
+    if out.returncode != 0:
+        return None
+    return [p for p in out.stdout.split() if p]
+
+
+def _merged(branch: str) -> bool:
+    out = subprocess.run(["git", "branch", "--all", "--merged", "origin/main"],
+                         cwd=ROOT, capture_output=True, text=True)
+    names = {n.strip().lstrip("* ").split("/")[-1] for n in out.stdout.splitlines()}
+    return branch.split("/")[-1] in names
+
+
 def _branches() -> set[str]:
     out = subprocess.run(["git", "for-each-ref", "--format=%(refname:short)",
                           "refs/heads", "refs/remotes"],
@@ -99,6 +124,43 @@ def test_no_two_open_claims_name_the_same_path():
     assert not clashes, (
         "two sessions claim the same file: "
         + "; ".join(f"{p} claimed by {a} and {b}" for p, a, b in clashes))
+
+
+def test_a_claim_covers_everything_its_branch_actually_touches():
+    """THE ROW IS ONLY AS GOOD AS ITS PATHS, AND PATHS ARE TYPED BY HAND.
+
+    draughtsman-e9 wrote a row naming three files and its branch touched nine.
+    The two it left out included render.py, which another session was drawing in
+    at the same time — so the board would have said both were clear while they
+    were in one file. That is the failure the board exists to stop, arriving
+    through an incomplete row rather than a missing one.
+
+    A claim is still DECLARED, because a claim is made before the work exists and
+    a computed list is empty then. What is checked is that the declaration has
+    kept up with the branch: touch a file you did not claim and this fails.
+    """
+    escaped = []
+    for r in _rows():
+        touched = _touched(r["branch"])
+        if touched is None:
+            continue
+        for path in touched:
+            if path not in r["paths"]:
+                escaped.append((r["session"], r["branch"], path))
+    assert not escaped, (
+        "branches have changed files their claim does not name:\n  "
+        + "\n  ".join(f"{s} on {b} touched {p}" for s, b, p in escaped)
+        + "\nAdd the path to the row, or stop editing the file. A row that has "
+          "fallen behind its branch is worse than no row: it reads as current.")
+
+
+def test_a_claim_whose_branch_has_landed_is_closed():
+    """An open claim on merged work blocks somebody for no reason, and there is
+    no way to tell from the row that it is spent."""
+    spent = [(r["session"], r["branch"]) for r in _rows() if _merged(r["branch"])]
+    assert not spent, (
+        f"claims name branches already merged into main: {spent}. The work is "
+        "done; remove the row so the file says what is actually open.")
 
 
 @pytest.mark.parametrize("doc", ["DECISIONS.md", "examples/gallery/README.md"])

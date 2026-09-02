@@ -5,8 +5,9 @@ better than it had any right to, and it worked by **messaging**: every collision
 was avoided by one session asking another before writing. Messages are not a
 record. This file is, and unlike the messages it is **checked** —
 [`tests/test_claims.py`](tests/test_claims.py) fails when a claim names a branch
-that does not exist, when two open claims name the same file, or when a claim
-points at a path that is not there.
+that does not exist, when two open claims name the same file, when a claim points
+at a path that is not there, **when a branch has touched a file its claim does not
+name**, and when a claim's branch has already landed.
 
 That is deliberate and it is the repository's own rule applied to its own working
 arrangements: see [`DECISIONS.md`](DECISIONS.md) correction 5. **A claim board
@@ -32,19 +33,32 @@ that nothing checks is decoration until something does.**
    same test file.
 
 4. **Release a claim when the branch lands.** An open claim on merged work blocks
-   somebody for no reason.
+   somebody for no reason, and nothing in the row says it is spent. Checked.
 
-5. **A session that does not appear here is not accounted for.** One session
-   worked this repo for eighteen hours before the other two knew it existed.
+5. **A row is only as good as its paths, and paths are typed by hand.** So the
+   check computes `git diff --name-only origin/main...<branch>` and fails when the
+   branch has touched a file the row does not name.
+   *Because:* the first version of this file trusted the typed list. A claim
+   naming three files was made on a branch that touched nine, and two of the six
+   it omitted were `render.py` and `abstract.py` — `render.py` being a file
+   another session was drawing in at that moment. The board would have said both
+   were clear. **That is this repository's own subject arriving in the file that
+   argues about it:** a hand-maintained list, holding a value with one correct
+   answer, going stale exactly when it mattered. Found by
+   `draughtsman-e9`, whose row it was.
+
+6. **A session that does not appear here is not accounted for.** One session
+   worked this repo for eighteen hours before the other two knew it existed. This
+   is the one rule nothing can check.
 
 ## Open claims
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-e9` | `name-every-axis` | `src/draughtsman/facts.py`, `src/draughtsman/spec.py`, `DECISIONS.md` | 2026-09-02 | Naming shape axes so a reader can tell which is which; correction 5's sixth row |
-| `draughtsman-fa` | `claim-board` | `CLAIMS.md`, `tests/test_claims.py` | 2026-09-02 | This file and its check |
+| `draughtsman-fa` | `claim-board` | `CLAIMS.md`, `tests/test_claims.py`, `README.md` | 2026-09-02 | This file and its check |
 
-`draughtsman-f0` holds no claim; its `edge-labels` worktree is level with `main`.
+`draughtsman-f0` and `draughtsman-e9` hold no claims. `name-every-axis` landed as
+`cb7fc2a` and its row was removed by the check that noticed it had.
 
 ## Queue — unclaimed, roughly in the order they are worth doing
 
