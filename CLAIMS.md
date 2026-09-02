@@ -104,23 +104,39 @@ parallelism, and nothing verifies that a lane count is attached to a single
 sublayer. Two sessions have agreed it should stay open and honest rather than get
 a heuristic — so the first move is a design, not a commit.
 
-**3. Meters and glyphs are used on one model out of eleven.** `block` and
-`marks` are not competing proposals waiting on a decision — they are styles
-**selected per figure**, the way `lanes` or `wrap` are, and a spec picks whichever
-suits its model. An earlier version of this queue listed "settle the glyph" as a
-blocker and stood another session down for it; there was never anything to settle.
-The open work is editorial and per-model: U-Net is the strongest candidate, since
-a glyph per stage would make it read as a U in channel space, which
-[`examples/gallery/README.md`](examples/gallery/README.md) notes a ranked layout
-cannot produce. `marks` suits models with countable axes; `block` suits wide
-ranges.
+**3. NO FIGURE IS LEGIBLE AT A JOURNAL COLUMN WIDTH.** Measured by
+`draughtsman-65` and reproduced independently. Detail text is 9.5 units; figures
+are 646–1737 units wide, so placing one in a 3.5in column scales the type to
+between 1.4pt and 3.7pt. **Nothing clears 6pt at 3.5in.** At the full 7in text
+width only cascade, lenet and resnet do. To clear 6pt in a column a figure must
+come in at **≤399 units**, and the narrowest today is 646.
 
-**4. Public-readiness, remainder.** Install instructions, the zero-dependency
-claim and a friendly no-torch error are done. Not done: nothing states which
-Python versions are supported outside CI, and no `CONTRIBUTING` or issue template
-exists for a repo that may be read as a record of working with Claude Code.
+The correction-5 half: naming every axis at `14cfa91` made **six of eleven**
+figures wider and none narrower, +50 to +55 units each, and no test noticed.
+Every gain in honesty is paid for in width, the budget is never stated, and
+nothing fails when it is overspent. `layout.wrap` is the right lever with no
+target to solve against.
 
-**5. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
+Shape of a fix, unbuilt: the spec states an output width and a minimum type size;
+layout solves for it — wrap harder, drop detail lines, shrink the graph, **never
+the type**; `check` fails when the effective point size falls under the floor. One
+quantity, one implementation, something that fails. `render.py` and `layout.py`,
+so `draughtsman-f0`'s if it is live, otherwise open.
+
+**4. `pip install draughtsman` INSTALLS SOMEONE ELSE'S PACKAGE.** PyPI
+`draughtsman` is Kyle Fuller's API Blueprint parser, 0.2.0, last released
+2020-03-26 — verified against the PyPI JSON API, not assumed. `pyproject.toml`
+declares `name = "draughtsman"`, which cannot be uploaded. Needs a distribution
+name that is free, or a PEP 541 name transfer, and transfers take weeks. **Start
+before any publish, not after.** Found by `draughtsman-65`.
+
+**5. Public-readiness, remainder.** Install instructions, the zero-dependency
+claim, a friendly no-torch error and the supported-Python range are done — the
+last of those at `787b1d4`, where `tests/test_versions.py` ties the README, the
+`pyproject` floor and the CI matrix together. Not done: no `CONTRIBUTING` or issue
+template for a repo that may be read as a record of working with Claude Code.
+
+**6. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
 published artifact; none is in the estate's figure store, whose own README says a
 figure nobody can re-run, date or attribute is one the next session re-derives.
 `bugarach/net-figure-options/` — the regression suite `SPEC.md` §2 says to keep —
