@@ -192,6 +192,14 @@ the UI never becomes the only way to edit it: there is a raw-JSON escape hatch,
 and hand edits survive, because `abstract` refuses to overwrite a spec without
 `--force`.
 
+## Working on this
+
+Several Claude Code sessions have worked this repository at once.
+[`CLAIMS.md`](CLAIMS.md) records who holds which files and what is queued, and
+`tests/test_claims.py` fails when it goes stale — a claim board nothing checks is
+decoration, which is [`DECISIONS.md`](DECISIONS.md) correction 5 applied to the
+sessions themselves.
+
 ## Licence
 
 BSD-3-Clause.
