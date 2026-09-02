@@ -213,11 +213,14 @@ def drop_batch(value, path: list[str], batch_axis: int | None):
 
     THE RENDERER CANNOT KNOW WHICH AXIS IS BATCH, so it is never guessed. A
     traced `[1, 1, 28, 28]` has two axes of size 1 and only the spec's author
-    knows which is the batch; `[30, 1, 600]` inside `tube` is cells folded INTO
-    the batch and dropping its first axis would delete the cell count. So this
-    fires only on a declared `batch_axis`, only on a whole shape, and `check`
-    refuses the declaration wherever the hidden number is not 1 -- because an
-    axis that is not 1 is carrying information and hiding it would be a lie.
+    knows which is the batch. And `tube` traces `[30, 1, 600]` midway --
+    **that leading 30 is CELLS, not a batch of 30** -- so a renderer that
+    guessed would delete the cell count and say nothing about it.
+
+    So this fires only on a declared `batch_axis`, only on a whole shape, and
+    `check` refuses the declaration wherever the hidden number is not 1 --
+    because an axis that is not 1 is carrying information and hiding it would be
+    a lie.
     """
     if batch_axis is None or not isinstance(value, list):
         return value

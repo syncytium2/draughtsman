@@ -170,20 +170,35 @@ for letting an agent into the pipeline." `README.md` repeats it and `check.py`
 says it twice. It was true of the failure §2 measured, and five separate incidents
 have now shown it is not true in general.
 
-**Every one of these passed every check there was.** Three of them put a false
-statement in the figure. One left the figure true but shaped so a reader could not
-follow it. One was the indicator rather than the figure — which is worse than it
-sounds, because the indicator is what tells you whether to trust the other four.
-The distinction is kept because a summary that flattened it would be the same kind
-of tidy-and-slightly-false this correction is about.
+**Every one of the first five passed every check there was.** Three of them put a
+false statement in the figure. One left the figure true but shaped so a reader
+could not follow it. One was the indicator rather than the figure — which is worse
+than it sounds, because the indicator is what tells you whether to trust the other
+four. The distinction is kept because a summary that flattened it would be the
+same kind of tidy-and-slightly-false this correction is about.
 
-| what was wrong | the figure said | coverage said |
-|---|---|---|
-| A tied weight was fetched twice and charged twice | 57,100,800 parameters on a 37,184,640-parameter model | green |
-| The UI counted coverage in JavaScript as well as in `check` | `48/47`, and would have said `47/47` with a node in two stages | green |
-| Nothing looked at the arrows at all | Whisper's audio reaching one decoder block of four | green |
-| The stage-2 payload never mentioned `layout` | every figure a ribbon, because the agent could not ask for wrapping | green |
-| `{stage.out_shape}` guessed when a stage had two exits | the causal mask's `12×12` where the embedding's `1×12×384` belonged | green |
+| what was wrong | the figure said | coverage said | found |
+|---|---|---|---|
+| A tied weight was fetched twice and charged twice | 57,100,800 parameters on a 37,184,640-parameter model | green | shipped |
+| The UI counted coverage in JavaScript as well as in `check` | `48/47`, and would have said `47/47` with a node in two stages | green | shipped |
+| Nothing looked at the arrows at all | Whisper's audio reaching one decoder block of four | green | shipped |
+| The stage-2 payload never mentioned `layout` | every figure a ribbon, because the agent could not ask for wrapping | green | shipped |
+| `{stage.out_shape}` guessed when a stage had two exits | the causal mask's `12×12` where the embedding's `1×12×384` belonged | green | shipped |
+| An indexed reference handed back the batch axis the figure declares it hides | `1`, in a figure showing `30×600` | green | **in review** |
+
+**The sixth row is the only one that is evidence this write-up does anything.**
+The first five were found after they shipped, by someone tripping over a wrong
+figure; the pattern is what they have in common, discovered five times. The sixth
+was found *before* it shipped, by a reader applying the pattern deliberately to
+work in progress — and two more ways the same feature could have gone wrong were
+closed during the build for the same reason (correction 6). Five incidents are
+evidence the shape exists. One catch is the beginning of evidence that naming it
+changes anything, and it is worth more than the tidiness of a table that stops at
+the historical five.
+
+It is also the sharpest instance of the *"nothing checks the claim"* half. The
+value it printed was true — the hidden axis really is `1` — and being true is
+precisely what made it silent.
 
 **They are one shape.** A quantity with a single correct value was either
 **computed in two places and allowed to disagree**, or **computed in one place and
