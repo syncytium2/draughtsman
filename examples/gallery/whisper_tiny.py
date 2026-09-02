@@ -27,7 +27,8 @@ bracket the range of what a tracer hands you for the same idea.
 
 from __future__ import annotations
 
-import numpy as np
+import math
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -47,7 +48,10 @@ N_VOCAB = 51865
 
 def sinusoids(length: int, channels: int, max_timescale: int = 10000):
     """Whisper's audio positional encoding. A buffer, never trained."""
-    log_timescale_increment = np.log(max_timescale) / (channels // 2 - 1)
+    # `math`, not `numpy`. This is one natural log of one scalar, and numpy was
+    # the only third-party import in the gallery -- in a repo whose `render` and
+    # `check` deliberately need nothing at all, and whose CI installs no numpy.
+    log_timescale_increment = math.log(max_timescale) / (channels // 2 - 1)
     inv_timescales = torch.exp(
         -log_timescale_increment * torch.arange(channels // 2))
     scaled = torch.arange(length)[:, None] * inv_timescales[None, :]
