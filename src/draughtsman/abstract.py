@@ -78,7 +78,13 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    not use it for a quantity only one stage has: that bar is full by definition
    and `check` will say so.
 
-7. THE TENSOR ITSELF CAN BE DRAWN. `glyph` puts a rectangle in the box: one axis
+7. A GLYPH AND A METER ON THE SAME STAGE COMPETE, AND THE GLYPH LOSES. A meter
+   is a row, and adding one widens the box and pulls the eye along it; the glyph
+   is a shape, read at a glance, and it stops reading. Measured on U-Net: with a
+   params meter added the hourglass its glyphs draw became hard to see. Use one
+   or the other per stage unless you have looked at both together and want them.
+
+8. THE TENSOR ITSELF CAN BE DRAWN. `glyph` puts a rectangle in the box: one axis
    of a shape as its height, another as its width, on a scale shared by the whole
    figure. BOTH AXES MUST COME FROM THE ONE `of` REFERENCE -- the eye reads a
    rectangle's area whether you meant it to or not, and two axes of one tensor
@@ -88,7 +94,7 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    use "linear" when the figure's range is narrow enough, and the legend will say
    which you chose. Every glyph in a figure must label its axes the same way.
 
-8. A REPEATED BLOCK IS COUNTED, NOT CLAIMED. Deep models are one block over and
+9. A REPEATED BLOCK IS COUNTED, NOT CLAIMED. Deep models are one block over and
    over, and a stage whose name says "and three more like it" has put a number in
    the figure that came from you. `repeat` fixes that the way `lanes` does: you
    name the TEMPLATE — the ordered stage ids that draw ONE unit — and draughtsman

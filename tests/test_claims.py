@@ -30,8 +30,13 @@ UNCLAIMABLE = {"CLAIMS.md"}
 
 
 def _rows() -> list[dict]:
-    """The open-claims table, parsed. One dict per claim."""
-    text = CLAIMS.read_text()
+    """The open-claims table in the working tree, parsed. One dict per claim."""
+    return _parse(CLAIMS.read_text())
+
+
+def _parse(text: str) -> list[dict]:
+    """ONE PARSER, read by the working-tree rows and by main's. Two would be an
+    instance of the correction this file cites."""
     body = text.split("## Open claims", 1)[1].split("## Queue", 1)[0]
     out = []
     fenced = False
@@ -75,11 +80,28 @@ def _touched(branch: str) -> list[str] | None:
     return [p for p in out.stdout.split() if p]
 
 
-def _merged(branch: str) -> bool:
-    out = subprocess.run(["git", "branch", "--all", "--merged", "origin/main"],
-                         cwd=ROOT, capture_output=True, text=True)
-    names = {n.strip().lstrip("* ").split("/")[-1] for n in out.stdout.splitlines()}
-    return branch.split("/")[-1] in names
+def _spent(branch: str) -> bool:
+    """Has this branch's work already landed?
+
+    "Merged into main" is NOT the test, and using it was wrong: a branch just
+    created for a claim has no commits yet, so it is trivially merged, and the
+    check called a claim spent at the moment it was made. Rule 2 says claim before
+    you write -- so the state this check must tolerate is exactly the one it was
+    failing.
+
+    Spent is: nothing of its own left to land, AND main has moved past it. A fresh
+    branch sitting exactly on main is neither.
+    """
+    def count(rev: str) -> int | None:
+        out = subprocess.run(["git", "rev-list", "--count", rev],
+                             cwd=ROOT, capture_output=True, text=True)
+        return int(out.stdout.strip()) if out.returncode == 0 else None
+
+    ahead = count(f"origin/main..{branch}")
+    behind = count(f"{branch}..origin/main")
+    if ahead is None or behind is None:
+        return False
+    return ahead == 0 and behind > 0
 
 
 def _branches() -> set[str]:
@@ -183,10 +205,11 @@ def test_a_claim_covers_everything_its_branch_actually_touches():
 def test_a_claim_whose_branch_has_landed_is_closed():
     """An open claim on merged work blocks somebody for no reason, and there is
     no way to tell from the row that it is spent."""
-    spent = [(r["session"], r["branch"]) for r in _rows() if _merged(r["branch"])]
+    spent = [(r["session"], r["branch"]) for r in _rows() if _spent(r["branch"])]
     assert not spent, (
-        f"claims name branches already merged into main: {spent}. The work is "
-        "done; remove the row so the file says what is actually open.")
+        f"claims name branches with nothing left to land: {spent}. Either the "
+        "work is done and the row should go, or the branch needs rebasing onto "
+        "main before it means anything.")
 
 
 def test_the_rule_the_board_cites_still_exists_under_that_number():
@@ -207,3 +230,44 @@ def test_the_rule_the_board_cites_still_exists_under_that_number():
         "DECISIONS.md has no correction 5 under that number; CLAIMS.md cites it "
         "and the citation is now wrong. Renumbering a correction means fixing "
         "what points at it.")
+
+
+def _rows_on_main() -> list[dict]:
+    """The board AS MAIN HAS IT, which is the only copy every session can see."""
+    out = subprocess.run(["git", "show", "origin/main:CLAIMS.md"],
+                         cwd=ROOT, capture_output=True, text=True)
+    if out.returncode != 0:
+        return []
+    return _parse(out.stdout)
+
+
+def test_a_claim_does_not_collide_with_one_already_on_main():
+    """THE BOARD COULD NOT SEE ACROSS BRANCHES, WHICH IS THE ONE JOB IT HAS.
+
+    CLAIMS.md is a file, so every branch carries its own copy. Two sessions
+    claiming at the same time each added a row to their own branch and neither
+    could see the other's -- the same-path check compared each file against
+    itself and passed both times. U-Net's glyphs were built twice, identically,
+    by two sessions that had each claimed them.
+
+    It is the CI failure again: a gate that runs where the collision cannot be.
+    So the comparison is against `origin/main:CLAIMS.md`, the only copy everyone
+    shares. Claim on main BEFORE the work and other sessions see it; claim only
+    on your branch and this fails.
+    """
+    landed = {p: r["session"] for r in _rows_on_main() for p in r["paths"]
+              if p not in UNCLAIMABLE}
+    clashes = []
+    for r in _rows():
+        for p in r["paths"]:
+            if p in UNCLAIMABLE:
+                continue
+            holder = landed.get(p)
+            if holder and holder != r["session"]:
+                clashes.append((p, holder, r["session"]))
+    assert not clashes, (
+        "a claim on this branch collides with one already on main:\n  "
+        + "\n  ".join(f"{p} held by {a}, also claimed by {b}"
+                      for p, a, b in clashes)
+        + "\nThe other session claimed first and can see nothing you have not "
+          "landed. Rebase, and take something else.")

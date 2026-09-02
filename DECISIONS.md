@@ -187,6 +187,7 @@ same kind of tidy-and-slightly-false this correction is about.
 | An indexed reference handed back the batch axis the figure declares it hides | `1`, in a figure showing `30×600` | green | **in review** |
 | A claim board's paths were typed by hand | *(not a figure — a session's row named three files while its branch touched nine, two of them files another session was editing)* | green | in review |
 | CI ran only after code was already on `main` | *(not a figure — the suite was red for six hours and two sessions pushed onto it)* | green on the last branch that ran | shipped, for six hours |
+| A claim board compared each branch's copy against itself | *(not a figure — two sessions each claimed U-Net's glyphs and built the same one twice)* | green on both branches | shipped |
 
 **The sixth row is the only one that is evidence this write-up does anything.**
 The first five were found after they shipped, by someone tripping over a wrong

@@ -22,9 +22,13 @@ that nothing checks is decoration until something does.**
    whether `main` was green, and was one `git add -A` from committing it under
    the wrong name.
 
-2. **Claim before you write, in the same commit that starts the work.**
-   *Because:* two sessions were both about to edit `render.py`'s `_box`. It was
-   caught by one of them asking. Nothing would have caught it otherwise.
+2. **Claim before you write, and land the claim on `main` before the work.**
+   A branch's `CLAIMS.md` is a copy nobody else can read.
+   *Because:* two sessions were both about to edit `render.py`'s `_box`, caught
+   only by one of them asking — and later, two sessions each claimed U-Net's
+   glyphs on their own branch, could not see each other, and built the same figure
+   twice. The check now compares against `origin/main:CLAIMS.md`, so a claim that
+   has not landed protects nobody.
 
 3. **A claim names paths, not intentions.** "the layout" is not a claim;
    `src/draughtsman/layout.py` is.
@@ -32,8 +36,11 @@ that nothing checks is decoration until something does.**
    by two sessions, and two of those collided as append-append conflicts in the
    same test file.
 
-4. **Release a claim when the branch lands.** An open claim on merged work blocks
-   somebody for no reason, and nothing in the row says it is spent. Checked.
+4. **Release the claim in the LAST COMMIT BEFORE you land, not after.** There is
+   no ordering of "land, then release" that keeps `main` green: the instant the
+   branch merges, its row names landed work and the check fires on `main` until a
+   second push removes it. Released on the branch, `main` is green at every
+   instant. Found by `draughtsman-f0` running the sequence end to end.
 
 5. **A row is only as good as its paths, and paths are typed by hand.** So the
    check computes `git diff --name-only origin/main...<branch>` and fails when the
@@ -63,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-fa` | `claims-crossbranch` | `CLAIMS.md`, `tests/test_claims.py`, `src/draughtsman/abstract.py`, `DECISIONS.md` | 2026-09-02 | The board could not see a claim on another branch, which is why U-Net was built twice |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
