@@ -23,8 +23,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from draughtsman.facts import (FactError, Graph, REF_RE, bare_numbers,
-                               repeat_counts, resolve)
+from draughtsman.facts import (BATCHED_SHAPE_FIELDS, FactError, Graph, REF_RE,
+                               bare_numbers, repeat_counts, resolve)
 from draughtsman.spec import Spec
 
 
@@ -293,6 +293,54 @@ def check(spec: Spec, graph: Graph) -> Result:
                 resolve(text, graph, stages=stages, where="title")
             except FactError as exc:
                 errors.append(str(exc))
+
+    # -- a hidden axis must be 1, or hiding it deletes information --------------
+    #
+    # `batch_axis` lets a figure stop drawing an axis that carries nothing. That
+    # is only true while the axis IS 1. `tube` reshapes to [30, 1, 600] midway --
+    # cells folded into the batch -- and a figure that dropped that leading 30
+    # would delete the cell count and say nothing about it. So the declaration is
+    # checked against every shape the figure actually renders, not assumed.
+    if spec.batch_axis is not None:
+        ba = spec.batch_axis
+        # Every text the figure draws, not just the stages: the title resolves
+        # {model.input_shape} through the same hiding, and a claim that nothing
+        # checks is decoration (DECISIONS.md correction 5).
+        checked = [(s_, t) for s_ in spec.stages
+                   for t in [s_.name, *(s_.detail or [])]]
+        checked += [(None, t) for t in
+                    (spec.title, spec.subtitle or "", spec.caption or "")]
+        for s_, text in checked:
+                if not text:
+                    continue
+                for ref in REF_RE.findall(text):
+                    body = ref.strip()
+                    head, _, rest = body.partition(".")
+                    path = [p for p in rest.split(".") if p] if rest else []
+                    if not path or path[-1].partition("[")[0] not in \
+                            BATCHED_SHAPE_FIELDS or path[-1].endswith("]"):
+                        continue
+                    try:
+                        if head == "stage":
+                            if s_ is None:
+                                continue        # not addressable from a title
+                            val = graph.stage_fact(s_.nodes, path)
+                        elif head.startswith("node:"):
+                            val = graph.node_fact(head[5:], path)
+                        elif head == "model":
+                            val = graph.model_fact(path)
+                        else:
+                            continue
+                    except FactError:
+                        continue        # already reported by the resolver above
+                    if isinstance(val, list) and -len(val) <= ba < len(val) \
+                            and val[ba] != 1:
+                        errors.append(
+                            f"{f'stage {s_.id!r}' if s_ else 'the title'} is drawn "
+                            f"with batch_axis {ba} and shows "
+                            f"{{{body}}}, whose axis {ba} is {val[ba]}, not 1. "
+                            "Hiding it would delete a number the reader needs — "
+                            "drop the declaration, or do not draw this shape.")
 
     # -- a traced constant may be an initialisation, and the trace cannot say ---
     #

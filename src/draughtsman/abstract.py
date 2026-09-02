@@ -41,7 +41,18 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    fact, the labels are yours. Drawing such a stage as a single block is how a
    figure ends up saying "linear stack" about a model that fans out.
 
-5. A TRACED CONSTANT MAY BE AN INITIALISATION. A trace watches one instantiation
+5. NAME EVERY NUMBER YOU DRAW. A shape is only a fact to a reader who knows what
+   its axes count. `1x30x600` under the label "cells x frames" is three numbers
+   and two names, and the reader is one short at the first box. Set `batch_axis`
+   when the model has one and the figure will stop drawing it -- the batch axis
+   is 1 throughout an architecture figure and carries nothing -- then label the
+   axes that remain. `check` refuses the declaration wherever the hidden number
+   is not 1, because an axis that is not 1 is carrying information. WATCH FOR AN
+   AXIS THAT CHANGES MEANING: in a model that reduces over a spatial or ROI axis
+   and then convolves, the same POSITION counts something different before and
+   after, and only your labels can say so.
+
+6. A TRACED CONSTANT MAY BE AN INITIALISATION. A trace watches one instantiation
    and cannot see which of its numbers would survive training. bugarach's `tube`
    max-pools at `2 * kmin + 1` where kmin comes off a TRAINED parameter: 3 at
    init, 9-15 once trained. draughtsman drew "max-pool, width 3" and it was true
@@ -151,6 +162,7 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
      "label": "<optional, e.g. 'bypass'>", "style": "solid|dashed",
      "untraced": "<only if graph.json has no path here: why you drew it anyway>"}
   ],
+  "batch_axis": 0,
   "elided": [{"nodes": ["n0017"], "reason": "<why a reader does not need this>"}],
   "constants": {"n0149.constants.dilation": "<why this traced constant is an"
                 " architectural quantity and not an initialisation>"},

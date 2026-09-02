@@ -224,11 +224,21 @@ def test_a_spec_without_meters_renders_exactly_as_before(tube_spec, tube_graph):
 
 
 def _glyphed(doc, ids, **over):
+    """`axes` indexes the shape AS DRAWN, so it follows the spec's batch_axis.
+
+    tube declares `batch_axis: 0`, so the drawn shape is (channels, frames) and
+    the glyph's axes are 0 and 1. Before the batch axis could be hidden these
+    read [1, 2]; a spec carrying two axis numberings — one for its labels and
+    one for its glyphs — is DECISIONS.md correction 5 in miniature, so there is
+    exactly one, and it is the numbering the reader sees.
+    """
     import copy
     d = copy.deepcopy(doc)
+    drop = 1 if d.get("batch_axis") is not None else 0
     for stage in d["stages"]:
         if stage["id"] in ids:
-            stage["glyph"] = {"of": "{stage.out_shape}", "axes": [1, 2],
+            stage["glyph"] = {"of": "{stage.out_shape}",
+                              "axes": [1 - drop, 2 - drop],
                               "labels": ["channels", "frames"], **over}
     return d
 

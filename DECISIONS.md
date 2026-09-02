@@ -210,6 +210,53 @@ before it was written down once.
 deleted.** Coverage is the *first* assertion and still the one that catches the
 failure §2 measured. It was never the only one it needed to be.
 
+### 6. A shape is not a fact to a reader who cannot name its axes
+
+**Found by Tony, reading the shipped figure, 2026-09-02.** The first box drew
+`1×30×600` under the label *"cells × frames, binary"* — three numbers, two names.
+He read it as an error and asked twice: *"each number needs to be defined. box
+from draughtsman says 1x30x600, then cells x frames. doesn't match."*
+
+Every number was the model's, every reference resolved, coverage was green, and
+the figure still failed at its first box. This is correction 5's list continued:
+nothing had ever checked whether a drawn quantity was *legible*, because §5 asks
+whether an operation was dropped.
+
+It compounds down the figure, which is the part worth keeping. `1×1×600` at *mean
+over cells* is where the ROI axis collapses and that is the single most important
+thing the stage does — unnamed, it reads as a number that changed. Then `1×4×600`
+and `1×5×600` have their middle axis meaning **channels** rather than cells: the
+same position, counting something else, with nothing marking the change.
+
+**What was built.** A spec may declare `batch_axis`, and the figure stops drawing
+it. The batch axis is 1 throughout an architecture figure and carries nothing, so
+removing it takes a whole column of unexplained `1`s out and leaves two numbers
+against two names.
+
+**The renderer never guesses which axis that is.** A traced `[1, 1, 28, 28]` has
+two axes of size one, and `tube` reshapes to `[30, 1, 600]` midway — cells folded
+*into* the batch — where dropping the leading axis would delete the cell count and
+say nothing. So it is a declaration, and `check` refuses it wherever the hidden
+number is not 1: an axis that is not 1 is carrying information.
+
+**Correction 5 caught two things here before they shipped, which is the first time
+it has been used as a checklist rather than a history.**
+
+- `glyph.axes` indexes **positionally** into a resolved shape. Hiding the axis in
+  the text but not the glyph would give one spec two numberings — axis 1 is
+  "cells" to the glyph and "frames" to the label — and the picture would disagree
+  with the words beside it with every check green. Both now resolve through the
+  same call, so asking for an axis the reader cannot see is an error.
+- The rule was checking stage text only, while `resolve` applied the hiding to the
+  title as well. A claim nothing verifies is decoration; the title, subtitle and
+  caption are checked too.
+
+**One implementation.** `facts.drop_batch`, reached only through `resolve`'s
+`shaped()`. It fires on whole activation shapes and not on `weight_shape` — a conv
+weight is `(out_ch, in_ch, k)` and has no batch axis to hide — and never on an
+indexed reference, so `{stage.out_shape[1]}` cannot silently start reading a
+different axis.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**

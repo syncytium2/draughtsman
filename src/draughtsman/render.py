@@ -204,11 +204,19 @@ class _Stage:
     """One stage, measured."""
 
     def __init__(self, stage, graph: Graph, stages: dict[str, list[str]],
-                 repeats: dict | None = None):
+                 repeats: dict | None = None, batch_axis: int | None = None):
         self.spec = stage
         where = f"stage {stage.id!r}"
         self.repeat = (repeats or {}).get(stage.id) if stage.repeat else None
-        rkw = dict(stage_id=stage.id, repeats=repeats or {})
+        # ONE AXIS NUMBERING PER SPEC. `lanes.count_from` and `meters` resolve to
+        # scalars and are unaffected, but `glyph.axes` indexes POSITIONALLY into
+        # a resolved shape, so the glyph must see the same shape the text does.
+        # Otherwise a spec declaring batch_axis carries two numbering
+        # conventions -- axis 1 is "cells" in the glyph and "frames" in the
+        # label -- which is DECISIONS.md correction 5 exactly: one quantity, two
+        # places, allowed to disagree.
+        rkw = dict(stage_id=stage.id, repeats=repeats or {},
+                   batch_axis=batch_axis)
         self.name = resolve(stage.name, graph, node_ids=stage.nodes,
                             stages=stages, where=where, **rkw)
         self.detail = [resolve(d, graph, node_ids=stage.nodes, stages=stages,
@@ -238,7 +246,8 @@ class _Stage:
         if stage.glyph:
             shape = _shape_axes(
                 resolve(stage.glyph.of, graph, node_ids=stage.nodes,
-                        stages=stages, where=where), stage.glyph, where)
+                        stages=stages, where=where, batch_axis=batch_axis),
+                stage.glyph, where)
             self.glyph = shape
             if stage.glyph.style == "marks":
                 self.marks = _Marks(shape, stage.glyph.labels)
@@ -256,7 +265,7 @@ class _Stage:
 def render(spec: Spec, graph: Graph) -> str:
     stages = {s.id: s.nodes for s in spec.stages}
     counts = repeat_counts(spec.stages, graph)
-    measured = {s.id: _Stage(s, graph, stages, counts)
+    measured = {s.id: _Stage(s, graph, stages, counts, spec.batch_axis)
                 for s in spec.stages}
 
     if not measured:
@@ -270,11 +279,12 @@ def render(spec: Spec, graph: Graph) -> str:
         orientation=spec.layout.orientation, wrap=spec.layout.wrap,
     )
 
-    title = resolve(spec.title, graph, stages=stages, where="title")
-    subtitle = (resolve(spec.subtitle, graph, stages=stages, where="subtitle")
-                if spec.subtitle else None)
-    caption = (resolve(spec.caption, graph, stages=stages, where="caption")
-               if spec.caption else None)
+    ba = spec.batch_axis
+    title = resolve(spec.title, graph, stages=stages, where="title", batch_axis=ba)
+    subtitle = (resolve(spec.subtitle, graph, stages=stages, where="subtitle",
+                        batch_axis=ba) if spec.subtitle else None)
+    caption = (resolve(spec.caption, graph, stages=stages, where="caption",
+                       batch_axis=ba) if spec.caption else None)
 
     head_h = 22.0 + (14.0 if subtitle else 0.0)
     foot_h = 18.0 if caption else 0.0

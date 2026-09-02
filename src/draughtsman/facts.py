@@ -202,18 +202,50 @@ def repeat_counts(spec_stages, graph: Graph) -> dict[str, int | None]:
     return out
 
 
+#: Fields whose value is a whole activation shape, and therefore carry the batch
+#: axis. `weight_shape` is deliberately absent -- a conv weight is
+#: (out_ch, in_ch, k) and has no batch axis to hide.
+BATCHED_SHAPE_FIELDS = ("out_shape", "input_shape")
+
+
+def drop_batch(value, path: list[str], batch_axis: int | None):
+    """Hide the batch axis from a whole shape, when the spec declared one.
+
+    THE RENDERER CANNOT KNOW WHICH AXIS IS BATCH, so it is never guessed. A
+    traced `[1, 1, 28, 28]` has two axes of size 1 and only the spec's author
+    knows which is the batch; `[30, 1, 600]` inside `tube` is cells folded INTO
+    the batch and dropping its first axis would delete the cell count. So this
+    fires only on a declared `batch_axis`, only on a whole shape, and `check`
+    refuses the declaration wherever the hidden number is not 1 -- because an
+    axis that is not 1 is carrying information and hiding it would be a lie.
+    """
+    if batch_axis is None or not isinstance(value, list):
+        return value
+    if not path or path[-1].partition("[")[0] not in BATCHED_SHAPE_FIELDS:
+        return value
+    if path[-1].endswith("]"):          # an index was taken; this is a scalar
+        return value
+    if not (-len(value) <= batch_axis < len(value)):
+        return value
+    return value[:batch_axis] + value[batch_axis + 1:]
+
+
 def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
             where: str = "", stage_id: str | None = None,
-            repeats: dict | None = None) -> str:
+            repeats: dict | None = None, batch_axis: int | None = None) -> str:
     """Substitute every ``{reference}`` in *text*. Unresolvable -> FactError."""
 
     def sub(m: re.Match) -> str:
         ref = m.group(1).strip()
         head, _, rest = ref.partition(".")
         path = [p for p in rest.split(".") if p] if rest else []
+
+        def shaped(value):
+            return Graph.fmt(drop_batch(value, path, batch_axis))
+
         try:
             if head == "model":
-                return Graph.fmt(graph.model_fact(path))
+                return shaped(graph.model_fact(path))
             if head == "stage":
                 if node_ids is None:
                     raise FactError("'stage.' used outside a stage")
@@ -223,13 +255,13 @@ def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
                         raise FactError(
                             "this stage has no verified repeat count")
                     return Graph.fmt(n)
-                return Graph.fmt(graph.stage_fact(node_ids, path))
+                return shaped(graph.stage_fact(node_ids, path))
             if head.startswith("node:"):
-                return Graph.fmt(graph.node_fact(head[5:], path))
+                return shaped(graph.node_fact(head[5:], path))
             if head.startswith("stage:"):
                 if stages is None or head[6:] not in stages:
                     raise FactError(f"no stage {head[6:]!r}")
-                return Graph.fmt(graph.stage_fact(stages[head[6:]], path))
+                return shaped(graph.stage_fact(stages[head[6:]], path))
         except FactError as exc:
             raise FactError(f"{where}: {{{ref}}} -> {exc}") from None
         raise FactError(

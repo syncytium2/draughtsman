@@ -168,6 +168,11 @@ class Spec:
     # Reference path -> why that traced constant is an architectural quantity.
     # Required only when graph.json carries a bake hazard; see check.py.
     constants: dict[str, str] = field(default_factory=dict)
+    # Which axis of an activation shape is the batch, so the figure can stop
+    # drawing it. A judgement -- the renderer cannot tell a batch axis of 1 from
+    # a channel axis of 1 -- so the spec declares it and `check` refuses the
+    # declaration wherever the hidden number is not 1. None: draw every axis.
+    batch_axis: int | None = None
 
     @property
     def by_id(self) -> dict[str, Stage]:
@@ -208,7 +213,8 @@ def load(doc: dict) -> Spec:
                 layout=Layout(orientation=lay.get("orientation", "lr"),
                               wrap=lay.get("wrap"),
                               legend=bool(lay.get("legend", False))),
-                constants=dict(doc.get("constants") or {}))
+                constants=dict(doc.get("constants") or {}),
+                batch_axis=doc.get("batch_axis"))
 
 
 def dump(spec: Spec) -> dict:
@@ -247,6 +253,8 @@ def dump(spec: Spec) -> dict:
     ]
     if spec.elided:
         out["elided"] = [{"nodes": e.nodes, "reason": e.reason} for e in spec.elided]
+    if spec.batch_axis is not None:
+        out["batch_axis"] = spec.batch_axis
     if spec.constants:
         out["constants"] = dict(spec.constants)
     if spec.caption:

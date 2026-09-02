@@ -1,6 +1,7 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "tube — a coordinated-event detector",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0199.out_shape} out",
   "stages": [
@@ -24,7 +25,7 @@
       "name": "mean over cells",
       "kind": "reduce",
       "nodes": ["n0038", "n0039"],
-      "detail": ["{stage.out_shape}", "one brightness trace"],
+      "detail": ["{stage.out_shape}", "all cells → one trace"],
       "note": "Cells are summed, so the model never sees which cell is which."
     },
     {
@@ -39,8 +40,8 @@
       ],
       "detail": [
         "{stage.nodes} ops, {stage.params} learned params",
-        "kernel {node:n0100.out_shape[2]}, area-normalised",
-        "{stage.out_shape}"
+        "kernel {node:n0100.out_shape[2]}, area-normalized",
+        "{stage.out_shape}", "channels × frames, from here on"
       ],
       "lanes": {
         "count_from": "{node:n0116.out_shape[1]}",
@@ -74,7 +75,7 @@
       "name": "per-frame score",
       "kind": "output",
       "nodes": ["n0197", "n0199"],
-      "detail": ["kernel {node:n0197.weight_shape[2]}", "{stage.params} params", "{stage.out_shape}"]
+      "detail": ["kernel {node:n0197.weight_shape[2]}", "{stage.params} params", "{stage.out_shape} — one score per frame"]
     }
   ],
   "edges": [

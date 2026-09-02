@@ -520,3 +520,95 @@ def test_a_stage_cannot_repeat_itself(spec_doc, tube_graph):
     result = check(_repeating(spec_doc, "head", ["head"]), tube_graph)
     assert not result.ok
     assert any("includes itself" in e for e in result.errors)
+
+
+# ---------------------------------------------------------------------------------
+# EVERY NUMBER A FIGURE DRAWS NEEDS A NAME.
+#
+# Tony, reading the shipped tube figure: "each number needs to be defined. box from
+# draughtsman says 1x30x600, then cells x frames. doesn't match." Three numbers, two
+# names, at the very first box. The batch axis is 1 throughout an architecture figure
+# and carries nothing, so the fix is to stop drawing it -- but only the spec's author
+# knows WHICH axis that is, and only while it really is 1.
+# ---------------------------------------------------------------------------------
+
+def test_the_batch_axis_is_hidden_when_declared(tube_spec, tube_graph):
+    from draughtsman.render import render
+    svg = render(tube_spec, tube_graph)
+    assert ">30×600<" in svg          # cells × frames: two numbers, two names
+    assert ">1×30×600<" not in svg
+
+
+def test_without_the_declaration_every_axis_is_drawn(tube_spec_doc, tube_graph):
+    """The renderer never guesses. A traced [1, 1, 28, 28] has two axes of size
+    one and only the spec's author knows which is the batch."""
+    import copy
+    from draughtsman.render import render
+    doc = copy.deepcopy(tube_spec_doc)
+    doc.pop("batch_axis", None)
+    assert ">1×30×600<" in render(load(doc), tube_graph)
+
+
+def test_hiding_an_axis_that_is_not_one_is_refused(tube_spec_doc, tube_graph):
+    """`tube` reshapes to [30, 1, 600] midway -- cells folded INTO the batch --
+    so a blanket 'drop axis 0' would delete the cell count and say nothing. The
+    declaration is checked against what the figure actually draws."""
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["batch_axis"] = 1            # the CELL axis on the first two stages
+    result = check(load(doc), tube_graph)
+    assert not result.ok
+    assert any("not 1" in e and "delete a number" in e for e in result.errors)
+
+
+def test_an_indexed_axis_is_never_rebased(tube_spec, tube_graph):
+    """`{stage.out_shape[1]}` names an axis by position. Hiding the batch axis
+    must not silently shift what index 1 means, or the concat's '5 channels'
+    would start reading the frame count."""
+    from draughtsman.render import render
+    svg = render(tube_spec, tube_graph)
+    assert ">5 channels<" in svg
+
+
+def test_the_figure_carries_no_british_spelling(example_dir):
+    """Tony, on the front page: "get rid of british english throughout." The
+    figure was the only one left, in the kernel bank's own label."""
+    svg = (example_dir / "figure.svg").read_text()
+    for word in ("normalised", "colour", "behaviour", "centre-surround"):
+        assert word not in svg, f"{word!r} is in the shipped figure"
+
+
+def test_the_glyph_and_the_labels_share_one_axis_numbering(tube_spec_doc,
+                                                           tube_graph):
+    """DECISIONS.md correction 5: one quantity, one implementation, and something
+    that fails when it cannot be answered.
+
+    `glyph.axes` indexes positionally into a resolved shape. If the text hid the
+    batch axis and the glyph did not, a spec would carry two numberings — axis 1
+    is "cells" to the glyph and "frames" to the label — and the picture would
+    disagree with the words beside it while every check stayed green. Both go
+    through the same `resolve`, so asking for an axis the reader cannot see is an
+    error rather than a different tensor.
+    """
+    import copy
+    from draughtsman.facts import FactError
+    from draughtsman.render import render
+    doc = copy.deepcopy(tube_spec_doc)
+    assert doc.get("batch_axis") == 0
+    for stage in doc["stages"]:
+        if stage["id"] == "dog":
+            stage["glyph"] = {"of": "{stage.out_shape}", "axes": [1, 2],
+                              "labels": ["channels", "frames"]}
+    with pytest.raises(FactError, match="axis 2"):
+        render(load(doc), tube_graph)
+
+
+def test_the_title_is_checked_for_the_hidden_axis_too(tube_spec_doc, tube_graph):
+    """The title resolves {model.input_shape} through the same hiding, so it
+    needs the same check — a claim nothing verifies is decoration."""
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["batch_axis"] = 1               # the cell axis, 30, in the model input
+    doc["subtitle"] = "{model.input_shape} in"
+    result = check(load(doc), tube_graph)
+    assert any("the title" in e and "not 1" in e for e in result.errors)
