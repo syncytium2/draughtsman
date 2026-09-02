@@ -452,7 +452,8 @@
     {
       "from": "audio",
       "to": "dcross",
-      "style": "dashed"
+      "style": "dashed",
+      "label": "keys, values"
     },
     {
       "from": "tokens",
@@ -464,7 +465,8 @@
     },
     {
       "from": "dself",
-      "to": "dcross"
+      "to": "dcross",
+      "label": "queries"
     },
     {
       "from": "dcross",
