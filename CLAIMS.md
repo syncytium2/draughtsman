@@ -63,6 +63,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-fa` | `claims-crossbranch` | `CLAIMS.md`, `tests/test_claims.py`, `src/draughtsman/abstract.py`, `DECISIONS.md` | 2026-09-02 | The board could not see a claim on another branch, which is why U-Net was built twice |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
