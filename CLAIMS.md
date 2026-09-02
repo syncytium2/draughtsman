@@ -47,7 +47,15 @@ that nothing checks is decoration until something does.**
    answer, going stale exactly when it mattered. Found by
    `draughtsman-e9`, whose row it was.
 
-6. **A session that does not appear here is not accounted for.** One session
+6. **This file is never itself claimed.** Rule 2 says claim before you write, so
+   a session holding `CLAIMS.md` would make every other session edit a file it
+   does not own in order to claim anything. Edits here are one row and are
+   expected to be concurrent. The check exempts it.
+   *Because:* the first version of this board claimed itself, which made the file
+   that exists to prevent collisions the most contended file in the repository.
+   Found by `draughtsman-f0`.
+
+7. **A session that does not appear here is not accounted for.** One session
    worked this repo for eighteen hours before the other two knew it existed. This
    is the one rule nothing can check.
 
@@ -55,7 +63,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-fa` | `claim-board` | `CLAIMS.md`, `tests/test_claims.py`, `README.md` | 2026-09-02 | This file and its check |
+| `draughtsman-fa` | `claim-board` | `tests/test_claims.py`, `README.md`, `DECISIONS.md` | 2026-09-02 | This file and its check |
 
 `draughtsman-f0` and `draughtsman-e9` hold no claims. `name-every-axis` landed as
 `cb7fc2a` and its row was removed by the check that noticed it had.

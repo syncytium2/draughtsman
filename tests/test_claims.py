@@ -21,6 +21,13 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 CLAIMS = ROOT / "CLAIMS.md"
 
+# THE BOARD IS NEVER CLAIMED. Rule 2 says claim before you write, so if one
+# session held CLAIMS.md every other session would have to edit a file it did not
+# own in order to claim anything at all -- making the file that exists to prevent
+# collisions the most contended file in the repository. Edits to it are one row
+# and are expected to be concurrent. Found by draughtsman-f0.
+UNCLAIMABLE = {"CLAIMS.md"}
+
 
 def _rows() -> list[dict]:
     """The open-claims table, parsed. One dict per claim."""
@@ -77,13 +84,14 @@ def _branches() -> set[str]:
     return names
 
 
-def test_the_board_parses_and_is_not_empty():
-    """A board with no rows is a board nobody is using, and every session working
-    this repository is supposed to have one."""
+def test_the_board_parses_and_every_row_is_well_formed():
+    """AN EMPTY BOARD IS THE CORRECT BOARD when nobody is working, and in three
+    months that is the expected state. An earlier version of this test required at
+    least one row, which would have gone red forever the moment the last session
+    released its claim -- a check firing on the right answer, in a repository whose
+    argument is that its checks mean something."""
     assert CLAIMS.exists(), "CLAIMS.md is gone; the sessions have no shared record"
-    rows = _rows()
-    assert rows, "no open claims — either nobody is working, or nobody claimed"
-    for r in rows:
+    for r in _rows():
         assert r["session"].startswith("draughtsman-"), r
         assert r["paths"], f"claim by {r['session']} names no paths"
 
@@ -118,6 +126,8 @@ def test_no_two_open_claims_name_the_same_path():
     clashes = []
     for r in _rows():
         for p in r["paths"]:
+            if p in UNCLAIMABLE:
+                continue
             if p in seen and seen[p] != r["session"]:
                 clashes.append((p, seen[p], r["session"]))
             seen[p] = r["session"]
@@ -163,11 +173,21 @@ def test_a_claim_whose_branch_has_landed_is_closed():
         "done; remove the row so the file says what is actually open.")
 
 
-@pytest.mark.parametrize("doc", ["DECISIONS.md", "examples/gallery/README.md"])
-def test_the_board_points_at_the_rule_it_applies(doc):
+def test_the_rule_the_board_cites_still_exists_under_that_number():
     """The board's whole argument is that it is correction 5 applied to the
-    sessions themselves. If that link rots the file becomes process for its own
-    sake, which is the thing it is trying not to be."""
-    assert (ROOT / doc).exists()
-    assert "correction 5" in CLAIMS.read_text(), (
-        "CLAIMS.md no longer cites the rule it claims to be an instance of")
+    sessions rather than the figures. If that link rots the file becomes process
+    for its own sake.
+
+    THE FIRST VERSION OF THIS TEST DID NOT CHECK THE TARGET. It asserted that
+    CLAIMS.md contained the string "correction 5" -- which CLAIMS.md controls --
+    and that DECISIONS.md existed. Renumber the corrections and it would have
+    stayed green while the citation pointed at nothing, which is precisely the
+    failure it is named after. Found by draughtsman-f0.
+    """
+    board = CLAIMS.read_text()
+    assert "correction 5" in board, "the board no longer cites its own rule"
+    decisions = (ROOT / "DECISIONS.md").read_text()
+    assert re.search(r"^### 5\. ", decisions, re.M), (
+        "DECISIONS.md has no correction 5 under that number; CLAIMS.md cites it "
+        "and the citation is now wrong. Renumbering a correction means fixing "
+        "what points at it.")

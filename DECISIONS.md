@@ -185,6 +185,7 @@ same kind of tidy-and-slightly-false this correction is about.
 | The stage-2 payload never mentioned `layout` | every figure a ribbon, because the agent could not ask for wrapping | green | shipped |
 | `{stage.out_shape}` guessed when a stage had two exits | the causal mask's `12×12` where the embedding's `1×12×384` belonged | green | shipped |
 | An indexed reference handed back the batch axis the figure declares it hides | `1`, in a figure showing `30×600` | green | **in review** |
+| A claim board's paths were typed by hand | *(not a figure — a session's row named three files while its branch touched nine, two of them files another session was editing)* | green | in review |
 
 **The sixth row is the only one that is evidence this write-up does anything.**
 The first five were found after they shipped, by someone tripping over a wrong
@@ -206,6 +207,19 @@ review` still true while quietly falsifying "one catch is the beginning of
 evidence". It is left as a live claim rather than hedged into something nobody has
 to maintain — but a live claim with no owner is how a table becomes decoration,
 which is the failure this section is about. So the owner is named here.
+
+**The sixth and seventh are not figures, and that is the point.** One is a
+reference handing back an axis the figure had declared hidden; the other is not a
+figure at all — it is [`CLAIMS.md`](CLAIMS.md), the board three sessions use to
+say who is editing what, whose paths were a hand-typed list that nothing compared
+against the branches it described. A row naming three files was made on a branch
+touching nine, and two of the omitted files were being edited by someone else at
+the time. The board said both sessions were clear.
+
+That one is worth its row because it is the first instance found in the *process*
+rather than in the product, and it arrived in the file that cites this correction.
+The fix is the same fix: `git diff --name-only origin/main...<branch>` is the list,
+computed, and the check now fails when the typed one has fallen behind it.
 
 **They are one shape.** A quantity with a single correct value was either
 **computed in two places and allowed to disagree**, or **computed in one place and
