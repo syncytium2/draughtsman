@@ -373,6 +373,27 @@ def _traced_edges(spec: Spec, graph: Graph) -> set[tuple[str, str]]:
     for s in spec.stages:
         for nid in s.nodes:
             owner[nid] = s.id
+    elided = {n for e in spec.elided for n in e.nodes}
+
+    # AN ELIDED NODE IS TRANSPARENT, NOT ABSENT. Eliding says a reader does not
+    # need to see an operation; it does not say the data stopped flowing through
+    # it. CASCADE elides both permutes, and treating them as gaps reported its
+    # входной arrow as unbacked -- the check calling a correct figure wrong, which
+    # is how a check gets switched off. So resolve through them to the stages
+    # behind, the way `tensor_inputs` already sees through structural nodes.
+    def sources(nid: str, seen: frozenset[str]) -> set[str]:
+        node = graph.nodes.get(nid)
+        if not node or nid in seen:
+            return set()
+        seen = seen | {nid}
+        out: set[str] = set()
+        for anc in node.get("tensor_inputs") or []:
+            if anc in owner:
+                out.add(owner[anc])
+            elif anc in elided:
+                out |= sources(anc, seen)
+        return out
+
     edges: set[tuple[str, str]] = set()
     for s in spec.stages:
         for nid in s.nodes:
@@ -380,7 +401,11 @@ def _traced_edges(spec: Spec, graph: Graph) -> set[tuple[str, str]]:
             if not node:
                 continue
             for anc in node.get("tensor_inputs") or []:
-                src = owner.get(anc)
-                if src is not None and src != s.id:
-                    edges.add((src, s.id))
+                if anc in owner:
+                    if owner[anc] != s.id:
+                        edges.add((owner[anc], s.id))
+                elif anc in elided:
+                    for src in sources(anc, frozenset()):
+                        if src != s.id:
+                            edges.add((src, s.id))
     return edges

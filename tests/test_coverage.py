@@ -388,3 +388,22 @@ def test_a_traced_path_the_figure_omits_warns_but_does_not_fail(spec_doc,
     assert result.ok
     assert any("raster -> mean is in the trace and not in the figure" in w
                for w in result.warnings)
+
+
+def test_an_elided_node_does_not_sever_the_path_through_it(spec_doc, tube_graph):
+    """ELIDING SAYS A READER DOES NOT NEED TO SEE AN OPERATION. It does not say
+    the data stopped flowing through it.
+
+    CASCADE elides both of its permutes, which sit between stages. Treating them
+    as gaps made the edge assertion report two correct arrows as unbacked — a
+    check calling a right figure wrong, which is how a check gets switched off.
+    """
+    def elide_the_join(d):
+        # `mean` is what `dog` and the bypass both consume; elide its last node
+        # and the arrows either side of it must still hold.
+        mean = next(s for s in d["stages"] if s["id"] == "mean")
+        nid = mean["nodes"].pop()
+        d["elided"] = [{"nodes": [nid], "reason": "axis bookkeeping"}]
+    result = check(_mutate(spec_doc, elide_the_join), tube_graph)
+    assert result.ok, [e for e in result.errors]
+    assert not any("is drawn but no node" in e for e in result.errors)
