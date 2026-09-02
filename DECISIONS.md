@@ -188,27 +188,37 @@ same kind of tidy-and-slightly-false this correction is about.
 | A claim board's paths were typed by hand | *(not a figure — a session's row named three files while its branch touched nine, two of them files another session was editing)* | green | in review |
 | CI ran only after code was already on `main` | *(not a figure — the suite was red for six hours and two sessions pushed onto it)* | green on the last branch that ran | shipped, for six hours |
 | A claim board compared each branch's copy against itself | *(not a figure — two sessions each claimed U-Net's glyphs and built the same one twice)* | green on both branches | shipped |
+| A reference resolved correctly, to the **wrong node** | `1` where the model's LSTM state counts `4` layers × directions | green | in review |
 
-**The sixth row is the only one that is evidence this write-up does anything.**
-The first five were found after they shipped, by someone tripping over a wrong
-figure; the pattern is what they have in common, discovered five times. The sixth
-was found *before* it shipped, by a reader applying the pattern deliberately to
-work in progress — and two more ways the same feature could have gone wrong were
-closed during the build for the same reason (correction 6). Five incidents are
-evidence the shape exists. One catch is the beginning of evidence that naming it
-changes anything, and it is worth more than the tidiness of a table that stops at
-the historical five.
+**Read the `found` column, not the row count.** Five shipped and were found by
+someone tripping over the damage; two more shipped and were found later; three
+were caught in review, before anything went out. The first group is evidence the
+shape exists, discovered the expensive way. **The caught-in-review group is the
+only evidence that writing it down does anything** — each was found by someone
+applying this list deliberately to work in progress rather than by being wrong
+first, and correction 6 records two further ways one feature could have gone
+wrong that were closed during the build for the same reason.
 
-It is also the sharpest instance of the *"nothing checks the claim"* half. The
-value it printed was true — the hidden axis really is `1` — and being true is
-precisely what made it silent.
+Rows six and eight are the sharpest instances of the *"nothing checks the claim"*
+half, and they fail in opposite directions. Six printed a value that was **true**
+— the hidden axis really is `1` — and being true is what made it silent. Eight
+printed a value that was **false** while every mechanism worked perfectly: the
+reference resolved, coverage was green, no bare number was typed, the agent
+supplied no fact. It named the wrong node. **A correct reference to the wrong
+node is indistinguishable from a correct one**, and nothing in this design can
+tell them apart, because the design's whole guarantee is that a resolved
+reference is a real quantity from the graph — not that it is the quantity the
+sentence beside it needs. Resolving is not the same as being right. It was caught
+by reading the rendered text, which is the only thing that can catch it.
 
-**Whoever adds row seven owns the paragraph above it.** `found` is a column that
-goes stale: a seventh instance discovered *after* shipping leaves row six's `in
-review` still true while quietly falsifying "one catch is the beginning of
-evidence". It is left as a live claim rather than hedged into something nobody has
-to maintain — but a live claim with no owner is how a table becomes decoration,
-which is the failure this section is about. So the owner is named here.
+**Whoever adds the next row owns this paragraph.** `found` goes stale: a new
+instance discovered *after* shipping does not change any existing row and quietly
+falsifies the claim about what the caught-in-review group shows. It is left live
+rather than hedged into something nobody has to maintain — but a live claim with
+no owner is how a table becomes decoration, which is the failure this section is
+about, so the owner is named. **This has already happened once**: rows seven,
+eight and nine were added without the paragraph moving, and it sat asserting "the
+sixth row is the only one" while three more stood beneath it.
 
 **The sixth and seventh are not figures, and that is the point.** One is a
 reference handing back an axis the figure had declared hidden; the other is not a
@@ -342,6 +352,47 @@ catches is the spec that had a glyph before the declaration was added.
 weight is `(out_ch, in_ch, k)` and has no batch axis to hide — and never on an
 indexed reference, so `{stage.out_shape[1]}` cannot silently start reading a
 different axis.
+
+### 7. Resolving is not the same as being right
+
+**Written 2026-09-02, having nearly shipped it.** `lstm`'s caption was to explain
+why that one model still draws its leading axis, so it cited the number: *"{node:n0041.out_shape[0]}
+on the initial state is layers × directions."* It rendered **`1`**. The state is
+`4×1×48` and the 4 is what the sentence was about.
+
+**Every rule in this repo held.** The reference resolved. Coverage was green. No
+bare number was typed. The agent supplied no fact — the number came from
+`graph.json`, by node id, exactly as §4 requires. And the figure said something
+false.
+
+`n0041` is a real node with a real `out_shape` whose axis 0 is genuinely 1. It is
+simply not the node the sentence is about. **A correct reference to the wrong node
+is indistinguishable from a correct one**, and nothing here can tell them apart,
+because the guarantee this design offers is that a resolved reference is a real
+quantity from the graph — never that it is the quantity the sentence beside it
+needs. That second thing is a claim about *meaning*, and meaning is the half the
+agent supplies.
+
+**This is different in kind from corrections 1 through 6, and that is why it is
+worth its own section.** Every one of those was a mechanism failing: a count
+computed twice, an arrow nobody looked at, a field the payload never mentioned, an
+index that shifted under a declaration. This is the mechanism working exactly as
+specified and producing a false statement anyway. There is no check to add. §4's
+guarantee is narrower than it reads, and stating the limit is the only fix
+available:
+
+> **A reference cannot be wrong about the graph. It can be wrong about the
+> sentence.** The first is mechanised; the second is read, or it is not caught.
+
+It was caught by rendering the figure and reading the text, an hour after writing
+a correction about exactly this kind of confidence. The right reference was
+`{stage:state.out_shape[0]}` — addressing the stage the sentence names rather than
+a node id copied from the wrong row of a table.
+
+**What follows for practice, and it is small:** when a spec's prose asserts
+something *about* a number, prefer `{stage:<id>.…}` over `{node:<id>.…}`. A stage
+id is the thing the sentence talks about and is stable; a node id is a positional
+artifact of the trace, and getting it wrong looks exactly like getting it right.
 
 ## SPEC.md §8, answered
 
