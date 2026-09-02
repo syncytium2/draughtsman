@@ -18,9 +18,26 @@ draughtsman render   spec.json -o figure.svg
 draughtsman ui       spec.json                    # review and fix it in a browser
 ```
 
-`trace` needs torch. `check` and `render` need nothing at all — no torch, no
-graphviz, no system binary — because the layout is ours. See
-[`examples/tube/`](examples/tube/) for the result on the model below, and for
+## Installing
+
+```
+pip install -e .                  # check, render, ui — no dependencies at all
+pip install -e ".[trace]"         # ... and read a PyTorch model
+pip install -e ".[dev]"           # ... and run the tests
+```
+
+**The first line installs nothing but draughtsman.** No torch, no graphviz, no
+system binary, no CDN at runtime — the layout engine and the SVG emitter are in
+this repo. A machine that only draws figures needs none of it, which is why the
+staleness test in CI can be an unconditional assertion rather than one that skips
+when a tool is missing.
+
+That is checked rather than claimed: `pip install -e .` into an empty virtualenv,
+then `draughtsman render examples/gallery/resnet/spec.json`, produces a file
+byte-identical to the committed `figure.svg`. `trace` is the only verb that wants
+torch, and without it says so in a sentence rather than a stack trace.
+
+See [`examples/tube/`](examples/tube/) for the result on the model below, and for
 where every number in it comes from.
 
 ## What it produces

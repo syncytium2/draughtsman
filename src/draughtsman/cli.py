@@ -43,6 +43,18 @@ def cmd_trace(args) -> int:
         doc = trace(args.target, shapes, dtype=args.dtype or "float32")
     except ValueError as exc:
         sys.exit(f"draughtsman: {exc}")
+    except ModuleNotFoundError as exc:
+        # torch is deliberately not a hard dependency, so being without it is the
+        # EXPECTED state for anyone who only draws figures. A stack trace tells
+        # them they broke something; they did not.
+        if exc.name != "torch":
+            raise
+        sys.exit(
+            "draughtsman: `trace` needs PyTorch, and it is not installed.\n"
+            "    pip install 'draughtsman[trace]'\n"
+            "`check` and `render` need nothing at all and work as they are — "
+            "torch is only for reading a model."
+        )
     _write(args.output, dumps(doc))
     c = doc["classification"]
     print(f"{c['nodes_total']} nodes, {c['nodes_substantive']} substantive, "

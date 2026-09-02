@@ -232,3 +232,34 @@ def test_state_names_the_model_and_lists_the_others(example_dir):
     assert st["name"] == w.models[0].name
     page = (HERE / "ui.html").read_text()
     assert 'id="model"' in page and "/api/gallery" in page
+
+
+def test_trace_without_torch_explains_rather_than_traces(monkeypatch, capsys):
+    """torch is deliberately not a hard dependency, so being without it is the
+    EXPECTED state for anyone who only draws figures. A stack trace tells them
+    they broke something; they did not."""
+    import draughtsman.cli as cli
+
+    def no_torch(*a, **kw):
+        raise ModuleNotFoundError("No module named 'torch'", name="torch")
+
+    monkeypatch.setattr("draughtsman.tracing.trace", no_torch)
+    with pytest.raises(SystemExit) as exc:
+        cli.main(["trace", "pkg:build", "--input-shape", "1,3"])
+    said = str(exc.value)
+    assert "not installed" in said
+    assert "draughtsman[trace]" in said
+    assert "Traceback" not in said
+
+
+def test_a_missing_module_that_is_not_torch_still_raises(monkeypatch):
+    """Only torch gets the friendly message. Anything else is a real bug and
+    must not be dressed up as a missing optional dependency."""
+    import draughtsman.cli as cli
+
+    def other(*a, **kw):
+        raise ModuleNotFoundError("No module named 'numpy'", name="numpy")
+
+    monkeypatch.setattr("draughtsman.tracing.trace", other)
+    with pytest.raises(ModuleNotFoundError):
+        cli.main(["trace", "pkg:build", "--input-shape", "1,3"])
