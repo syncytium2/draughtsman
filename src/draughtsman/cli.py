@@ -51,7 +51,7 @@ def cmd_trace(args) -> int:
             raise
         sys.exit(
             "draughtsman: `trace` needs PyTorch, and it is not installed.\n"
-            "    pip install 'draughtsman[trace]'\n"
+            "    pip install 'draughtsman-nn[trace]'\n"
             "`check` and `render` need nothing at all and work as they are — "
             "torch is only for reading a model."
         )

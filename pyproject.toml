@@ -3,7 +3,17 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "draughtsman"
+# THE DISTRIBUTION NAME IS NOT THE IMPORT NAME, AND THAT IS DELIBERATE.
+# PyPI's `draughtsman` is Kyle Fuller's API Blueprint parser (0.2.0, last released
+# 2020-03-26), so this project cannot upload under it and `pip install draughtsman`
+# fetches someone else's package. Only the name pip is given changes: the import
+# package, the console script and the repository all keep the spelling.
+#
+# It is now stated in three files -- here, `README.md`, and `cli.py`'s no-torch
+# hint -- so `tests/test_dist_name.py` ties them together. A name kept in three
+# places and checked in none is DECISIONS.md correction 5, and the hint in cli.py
+# had already gone wrong: it told a reader to install the other package.
+name = "draughtsman-nn"
 version = "0.1.0"
 description = "Readable architecture diagrams for PyTorch models: the tracer supplies the facts, an agent supplies the abstraction, and a coverage check proves nothing was silently dropped."
 readme = "README.md"

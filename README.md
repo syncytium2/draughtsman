@@ -35,6 +35,13 @@ pip install -e ".[trace]"         # ... and read a PyTorch model
 pip install -e ".[dev]"           # ... and run the tests
 ```
 
+On PyPI this is `draughtsman-nn`, and everything else — the import, the
+`draughtsman` command, this repository — keeps the unabbreviated spelling. PyPI's
+`draughtsman` is an unrelated API Blueprint parser last released in 2020, so the
+name had to move; nothing a reader types does. It is not published yet, so the
+lines above are the only way in today. `tests/test_dist_name.py` holds the three
+files that state the name to each other.
+
 Runs on Python 3.10 through 3.13, and CI runs the whole suite on every one of
 them — a range stated in three files and checked in `tests/test_versions.py`, so
 the floor in `pyproject.toml`, the matrix in the workflow and this sentence

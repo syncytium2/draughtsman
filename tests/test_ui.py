@@ -248,7 +248,11 @@ def test_trace_without_torch_explains_rather_than_traces(monkeypatch, capsys):
         cli.main(["trace", "pkg:build", "--input-shape", "1,3"])
     said = str(exc.value)
     assert "not installed" in said
-    assert "draughtsman[trace]" in said
+    # DERIVED, NOT RESTATED. This line used to hardcode the name and was a
+    # fourth copy of it -- it went red when the distribution was renamed,
+    # which is the only reason anyone found it. See tests/test_dist_name.py.
+    from test_dist_name import distribution
+    assert f"{distribution()}[trace]" in said
     assert "Traceback" not in said
 
 
