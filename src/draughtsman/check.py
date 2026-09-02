@@ -1,9 +1,16 @@
 """Stage 5 — the check that can fail.
 
 SPEC.md §5: every traced node must be accounted for in exactly one stage. Not
-zero, not two. This is the entire safety argument for letting an agent into the
-pipeline, and it is precisely what pytorch-graph lacked: it dropped five whole
+zero, not two. It is precisely what pytorch-graph lacked: it dropped five whole
 stages and reported success.
+
+IT IS THE FIRST ASSERTION HERE, NOT THE ONLY ONE. Coverage answers "was an
+operation dropped" and nothing else, and five separate failures have now been
+green under it while the figure was wrong -- a parameter counted twice, an arrow
+nobody checked, a reference with two answers, a format the agent was never told
+about. The others live beside it in this module and in facts.py. DECISIONS.md
+correction 5 names the pattern; do not restore the claim that this one is
+sufficient.
 
 What this does NOT verify: that the names are good, the grouping is natural, or
 the figure is legible. Those need a human, and :func:`report` says so out loud so
@@ -26,8 +33,9 @@ class Counts:
     THERE IS ONE PLACE THAT COUNTS COVERAGE. Anything that displays it -- the CLI
     report, the UI badge -- reads these numbers rather than deriving its own. A
     second implementation is how an indicator ends up disagreeing with the check
-    it indicates, and this indicator is the entire safety argument for letting an
-    agent into the pipeline.
+    it indicates, and this indicator is the first thing a reader trusts about a
+    figure. Deriving it twice is itself an instance of the pattern in DECISIONS.md
+    correction 5, and is how this one read 48/47.
     """
     traced: int = 0        # traced nodes, which is what coverage ranges over
     exactly_once: int = 0  # ... in exactly one stage or elision. §5's condition.

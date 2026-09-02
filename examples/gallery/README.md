@@ -177,6 +177,33 @@ The count resolved from a real fact and `check` passed, because nothing verifies
 that a lane count is attached to a single sublayer. The committed spec carries
 lanes only on the decoder's two real attention stages.
 
+## The one thing this run actually taught
+
+Five findings here look unrelated — a parameter counted twice, an arrow nobody
+checked, a reference with two answers, a format the agent was never told about, a
+badge derived in JavaScript. They are one shape, and it took five of them to see
+it:
+
+> **A quantity with a single correct value was either computed in two places and
+> allowed to disagree, or computed in one place and never checked at all — and in
+> every case the checks were green while the figure was wrong.**
+
+Coverage cannot see either. It answers *was an operation dropped*, which is one
+question, and each of these is a different one: is this number the model's, is
+this arrow the graph's, can this reference be answered at all, does the agent even
+know this field exists.
+
+The habit that follows is written up as
+[`DECISIONS.md`](../../DECISIONS.md) correction 5, and it is the most useful thing
+in this repository: **one quantity, one implementation, and something that fails
+when it cannot be answered.** Where a number has two possible sources, ask both
+and refuse when they disagree rather than picking one. Where nothing checks a
+claim, the claim is decoration until something does.
+
+That is why `SPEC.md` §5's "the entire safety argument" is now corrected in three
+places rather than left standing. Coverage is the first assertion. It was never
+the only one it needed to be.
+
 ## What held
 
 **`lanes` generalised across three families, which is the headline.** The

@@ -95,8 +95,10 @@ because every node would still be covered.
 
 **Every traced node must be accounted for in exactly one stage.** Not zero, not
 two. A node may be marked `elided` explicitly, with a reason — a decision in a
-diff, not a silent loss. This is the entire safety argument for letting an agent
-into the pipeline, and it is precisely what pytorch-graph lacked.
+diff, not a silent loss. It is precisely what pytorch-graph lacked — and it is the
+FIRST of the assertions that make an agent safe here, not the only one. Four more
+things have since been caught being confidently wrong while coverage was green:
+see [`DECISIONS.md`](DECISIONS.md) correction 5.
 
 Coverage passing says nothing about whether the figure is any good. `check` says
 so in its own output, so a green check is never read as a good figure.

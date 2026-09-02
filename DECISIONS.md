@@ -162,6 +162,49 @@ because *no hazard* and *a hazard that is not about your model* are different
 facts. A rule that cries wolf on nine models in ten is a rule that stops being
 read, and this one exists to be read on the tenth.
 
+### 5. §5 is not the entire safety argument, and saying so was the risk
+
+**Written 2026-09-02, after the fifth instance of one failure.** SPEC.md §5 says
+coverage — every traced node in exactly one stage — "is the entire safety argument
+for letting an agent into the pipeline." `README.md` repeats it and `check.py`
+says it twice. It was true of the failure §2 measured, and five separate incidents
+have now shown it is not true in general.
+
+**Every one of these had green checks and a wrong figure.**
+
+| what was wrong | the figure said | coverage said |
+|---|---|---|
+| A tied weight was fetched twice and charged twice | 57,100,800 parameters on a 37,184,640-parameter model | green |
+| The UI counted coverage in JavaScript as well as in `check` | `48/47`, and would have said `47/47` with a node in two stages | green |
+| Nothing looked at the arrows at all | Whisper's audio reaching one decoder block of four | green |
+| The stage-2 payload never mentioned `layout` | every figure a ribbon, because the agent could not ask for wrapping | green |
+| `{stage.out_shape}` guessed when a stage had two exits | the causal mask's `12×12` where the embedding's `1×12×384` belonged | green |
+
+**They are one shape.** A quantity with a single correct value was either
+**computed in two places and allowed to disagree**, or **computed in one place and
+never checked at all**. Nothing about node coverage can see either. Coverage
+answers *was an operation dropped*, and every one of these is a different question:
+*is this number the model's, is this arrow the graph's, can this reference be
+answered at all, does the agent even know this field exists.*
+
+So the safety argument is not one assertion, it is a habit, and the habit is the
+thing to state:
+
+> **One quantity, one implementation, and something that fails when it cannot be
+> answered.** Where a number has two possible sources, ask both and refuse when
+> they disagree rather than picking. Where nothing checks a claim, the claim is
+> decoration until something does.
+
+That is what `check.Counts` already does for coverage, what `_traced_edges` now
+does for arrows, what `repeat_counts` does for repetitions, what the payload's
+field-coverage test does for the format itself, and what `{stage.out_shape}` now
+does by refusing a stage with two exits. Five instances found it five times
+before it was written down once.
+
+**The wording in `SPEC.md` §5, `README.md` and `check.py` is corrected rather than
+deleted.** Coverage is the *first* assertion and still the one that catches the
+failure §2 measured. It was never the only one it needed to be.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**
