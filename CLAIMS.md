@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-f0` | `caption-wrap` | `CLAIMS.md`, `src/draughtsman/render.py`, `tests/test_render.py`, `examples/tube/figure.svg`, `examples/gallery/cascade/figure.svg`, `examples/gallery/dual/figure.svg`, `examples/gallery/lenet/figure.svg`, `examples/gallery/lstm/figure.svg`, `examples/gallery/mlp/figure.svg`, `examples/gallery/resnet/figure.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/unet/figure.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/whisper/figure.svg` | 2026-09-02 | A long caption sets the figure's width and then clips; wrap it to the drawing instead |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is

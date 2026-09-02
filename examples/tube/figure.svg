@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="tube — a coordinated-event detector" viewBox="0 0 1243.39 340" width="1243.39" height="340">
+<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="tube — a coordinated-event detector" viewBox="0 0 1243.39 343" width="1243.39" height="343">
 <title>tube — a coordinated-event detector</title>
 <desc>tube — a coordinated-event detector: 7 stages over 47 traced operations, 1149 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
@@ -34,5 +34,5 @@
 <text class="ds-legend-label" x="27" y="315.5" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;font-weight:600;fill:currentColor">Input / output</text>
 <text class="ds-legend-share" x="88.69" y="315.5" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">2 ops, 9 params</text>
 </g>
-<text class="ds-caption" x="12" y="334" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses 26 traced operations.</text>
+<text class="ds-caption" x="12" y="332" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses 26 traced operations.</text>
 </svg>

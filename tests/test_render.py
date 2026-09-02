@@ -286,3 +286,57 @@ def test_sqrt_is_the_default_and_compresses_less_faithfully_but_visibly(
     small = lambda s: min(float(h) for h in re.findall(
         r'class="ds-glyph"[^>]*?height="([\d.]+)"', s))
     assert small(sq) > small(lin), "sqrt must lift the smallest edge, not lower it"
+
+
+def test_a_caption_does_not_set_the_figure_s_width(tube_graph, tube_spec_doc):
+    """A 416-character caption made U-Net 1831px wide — the figure sized by a
+    sentence rather than by the drawing — and clipped its own last word anyway,
+    because fitting exactly leaves no margin for a text metric to be wrong in.
+    Prose wraps to the drawing; the drawing does not stretch to the prose."""
+    import copy
+    short = copy.deepcopy(tube_spec_doc)
+    short["caption"] = "Short."
+    long = copy.deepcopy(tube_spec_doc)
+    long["caption"] = "word " * 300
+
+    def w(doc):
+        svg = render(load(doc), tube_graph)
+        return float(re.search(r'viewBox="0 0 ([\d.]+) ', svg)[1])
+
+    assert w(long) == w(short)
+
+
+def test_a_long_caption_wraps_and_keeps_every_word(tube_graph, tube_spec_doc):
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["caption"] = " ".join(f"word{i}" for i in range(120))
+    svg = render(load(doc), tube_graph)
+    lines = re.findall(r'class="ds-caption"[^>]*>([^<]*)<', svg)
+    assert len(lines) > 1
+    assert " ".join(lines) == doc["caption"], "wrapping lost or reordered words"
+
+
+def test_every_caption_line_fits_inside_the_figure(tube_graph, tube_spec_doc):
+    """The bug was a line running past the canvas edge, so this measures the
+    lines rather than trusting that wrapping happened."""
+    import copy
+    from draughtsman.render import CAPTION_SIZE
+    from draughtsman.text import width as text_width
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["caption"] = " ".join(f"word{i}" for i in range(120))
+    svg = render(load(doc), tube_graph)
+    total = float(re.search(r'viewBox="0 0 ([\d.]+) ', svg)[1])
+    for line in re.findall(r'class="ds-caption"[^>]*>([^<]*)<', svg):
+        assert 12 + text_width(line, CAPTION_SIZE) <= total - 12 + 0.01, line
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_no_committed_caption_overflows(d):
+    """All eleven, against the committed files rather than a constructed case."""
+    from draughtsman.render import CAPTION_SIZE
+    from draughtsman.text import width as text_width
+    svg = (d / "figure.svg").read_text()
+    total = float(re.search(r'viewBox="0 0 ([\d.]+) ', svg)[1])
+    for line in re.findall(r'class="ds-caption"[^>]*>([^<]*)<', svg):
+        assert 12 + text_width(line, CAPTION_SIZE) <= total - 12 + 0.01, (
+            f"{d.name}: caption line runs past the canvas — {line!r}")

@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="CASCADE — spike inference from calcium imaging" viewBox="0 0 1107.47 374" width="1107.47" height="374">
+<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="CASCADE — spike inference from calcium imaging" viewBox="0 0 643.71 390" width="643.71" height="390">
 <title>CASCADE — spike inference from calcium imaging</title>
 <desc>CASCADE — spike inference from calcium imaging: 8 stages over 14 traced operations, 34381 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
 <text class="ds-title" x="12" y="15" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:14px;font-weight:600;fill:currentColor">CASCADE — spike inference from calcium imaging</text>
 <text class="ds-subtitle" x="12" y="29" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10px;fill:currentColor;opacity:0.62">34381 parameters · one 64-frame ΔF/F window in, one spike rate out</text>
-<g class="ds-body" transform="translate(231.88 36)">
+<g class="ds-body" transform="translate(0 36)">
 <path class="ds-edge ds-edge-solid" data-from="window" data-to="conv1" d="M139.1 67.25 C166.1 67.25 166.1 67.25 193.1 67.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="conv1" data-to="conv2" d="M312.15 67.25 C339.15 67.25 339.15 67.25 366.15 67.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="conv2" data-to="pool1" d="M470.41 67.25 C497.41 67.25 497.41 67.25 524.41 67.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
@@ -26,5 +26,6 @@
 <text class="ds-legend-label" x="27" y="349.5" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;font-weight:600;fill:currentColor">filters × frames</text>
 <text class="ds-legend-share" x="95.55" y="349.5" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">tallest = 50, widest = 34 · each edge ∝ value</text>
 </g>
-<text class="ds-caption" x="12" y="368" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Transcribed from CascadeTorch's define_model at the shipped defaults. Every pretrained CASCADE model — Global_EXC_10Hz_50ms among them — is this same network; they differ in training set, frame rate and target smoothing, not in layers.</text>
+<text class="ds-caption" x="12" y="366" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Transcribed from CascadeTorch's define_model at the shipped defaults. Every pretrained CASCADE model — Global_EXC_10Hz_50ms</text>
+<text class="ds-caption" x="12" y="379" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">among them — is this same network; they differ in training set, frame rate and target smoothing, not in layers.</text>
 </svg>

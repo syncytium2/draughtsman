@@ -32,6 +32,10 @@ TITLE_SIZE = 12.0
 DETAIL_SIZE = 9.5
 LANE_SIZE = 9.0
 CAPTION_SIZE = 10.0
+CAPTION_LINE = 13.0
+# A caption never sets the figure's width, but a figure narrower than this would
+# wrap prose into a column, so it is the floor the caption may widen the page to.
+CAPTION_MIN_W = 460.0
 PAD_X, PAD_Y = 12.0, 9.0
 TITLE_LINE, DETAIL_LINE, LANE_ROW = 15.0, 12.5, 15.0
 # A meter is a bar, a label and nothing else. Deliberately shorter than a text
@@ -165,6 +169,28 @@ def _legend(spec: Spec, graph: Graph) -> list[tuple[str, str, str]]:
     return rows
 
 
+def _wrap(text: str, limit: float, size: float) -> list[str]:
+    """Break *text* into lines that fit *limit*, on spaces.
+
+    Greedy, because a caption is three lines at most and Knuth-Plass would be
+    solving a problem nobody has. A single word longer than the limit is left
+    long rather than broken: hyphenating a node id or a shape would make a false
+    token out of a true one.
+    """
+    lines: list[str] = []
+    current = ""
+    for word in text.split():
+        trial = f"{current} {word}".strip()
+        if current and width(trial, size) > limit:
+            lines.append(current)
+            current = word
+        else:
+            current = trial
+    if current:
+        lines.append(current)
+    return lines
+
+
 def _fmt(v: float) -> str:
     return f"{round(v, 2):g}"
 
@@ -287,7 +313,6 @@ def render(spec: Spec, graph: Graph) -> str:
                        batch_axis=ba) if spec.caption else None)
 
     head_h = 22.0 + (14.0 if subtitle else 0.0)
-    foot_h = 18.0 if caption else 0.0
 
     scales = _meter_scales(measured)
     gscale = _glyph_scales(measured)
@@ -317,9 +342,17 @@ def render(spec: Spec, graph: Graph) -> str:
                     for _, lbl, sh in rows), default=0.0)
     legend_h = LEGEND_ROW * len(rows) + (8.0 if rows else 0.0)
 
+    # THE CAPTION IS NOT IN THIS MAX, AND THAT IS THE POINT. Sized to fit its own
+    # prose, a 416-character caption made U-Net 1831px wide -- the figure's width
+    # set by a sentence rather than by the drawing -- and then clipped anyway,
+    # because fitting exactly leaves 12px of margin for a text metric to be wrong
+    # in. It was wrong by under one percent and the last word was cut. Prose wraps
+    # to the drawing; the drawing does not stretch to the prose.
     total_w = max(drawing.width, width(title, 14, bold=True) + 24,
-                  width(subtitle or "", 10) + 24, width(caption or "", CAPTION_SIZE) + 24,
-                  legend_w + 24)
+                  width(subtitle or "", 10) + 24, legend_w + 24,
+                  CAPTION_MIN_W if caption else 0.0)
+    caption_lines = _wrap(caption, total_w - 24, CAPTION_SIZE) if caption else []
+    foot_h = CAPTION_LINE * len(caption_lines) + 8.0 if caption_lines else 0.0
     total_h = drawing.height + head_h + foot_h + legend_h
 
     out: list[str] = []
@@ -420,12 +453,15 @@ def render(spec: Spec, graph: Graph) -> str:
             )
         out.append("</g>")
 
-    if caption:
-        out.append(
-            f'<text class="ds-caption" x="12" y="{_fmt(total_h - 6)}" '
-            f'style="font-family:{FONT_STACK};font-size:{CAPTION_SIZE}px;'
-            f'fill:{PAGE_MUTED}">{escape(caption)}</text>'
-        )
+    if caption_lines:
+        base = total_h - foot_h + CAPTION_SIZE
+        for k, line in enumerate(caption_lines):
+            out.append(
+                f'<text class="ds-caption" x="12" '
+                f'y="{_fmt(base + k * CAPTION_LINE)}" '
+                f'style="font-family:{FONT_STACK};font-size:{CAPTION_SIZE}px;'
+                f'fill:{PAGE_MUTED}">{escape(line)}</text>'
+            )
     out.append("</svg>")
     return "\n".join(out) + "\n"
 
