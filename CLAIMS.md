@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-f0` | `version-claim` | `CLAIMS.md`, `README.md`, `tests/test_versions.py` | 2026-09-02 | Which Pythons this supports is claimed in two places and checked in none |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
