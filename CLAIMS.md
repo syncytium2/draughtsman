@@ -63,7 +63,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-f0` | `unet-glyphs` | `CLAIMS.md`, `examples/gallery/unet/spec.json`, `examples/gallery/unet/figure.svg` | 2026-09-02 | A glyph per stage on U-Net, so the figure carries the U a ranked layout cannot draw |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
