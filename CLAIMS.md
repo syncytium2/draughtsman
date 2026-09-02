@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-f0` | `glyph-adoption` | `CLAIMS.md`, `examples/tube/spec.json`, `examples/tube/figure.svg`, `examples/gallery/resnet/spec.json`, `examples/gallery/resnet/figure.svg` | 2026-09-02 | marks on tube, block on resnet — the two candidates that measure out |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
