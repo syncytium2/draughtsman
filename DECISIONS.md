@@ -200,6 +200,13 @@ It is also the sharpest instance of the *"nothing checks the claim"* half. The
 value it printed was true — the hidden axis really is `1` — and being true is
 precisely what made it silent.
 
+**Whoever adds row seven owns the paragraph above it.** `found` is a column that
+goes stale: a seventh instance discovered *after* shipping leaves row six's `in
+review` still true while quietly falsifying "one catch is the beginning of
+evidence". It is left as a live claim rather than hedged into something nobody has
+to maintain — but a live claim with no owner is how a table becomes decoration,
+which is the failure this section is about. So the owner is named here.
+
 **They are one shape.** A quantity with a single correct value was either
 **computed in two places and allowed to disagree**, or **computed in one place and
 never checked at all**. Nothing about node coverage can see either. Coverage
