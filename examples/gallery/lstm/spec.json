@@ -29,5 +29,5 @@
     {"from": "lstm", "to": "drop"},
     {"from": "drop", "to": "tags"}
   ],
-  "caption": "The opposite of tube's problem. Most of this model's parameters sit in a single fused operation, so there is almost nothing for stage 2 to judge."
+  "caption": "The opposite of tube's problem. Most of this model's parameters sit in a single fused operation, so there is almost nothing for stage 2 to judge. This is also the one model here that still draws its leading axis: {stage:state.out_shape[0]} on the initial state is layers × directions, not a batch, so declaring batch_axis would delete it and check refuses."
 }

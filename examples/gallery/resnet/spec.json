@@ -1,11 +1,12 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "ResNet — residual blocks, one opened up",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0250.out_shape} out",
   "stages": [
     {"id": "image", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}"]},
+     "detail": ["{stage.out_shape}", "channels × height × width"]},
     {"id": "stem", "name": "stem", "kind": "conv",
      "nodes": ["n0014", "n0023", "n0024"],
      "detail": ["conv, batch-norm, ReLU", "{stage.out_shape}", "{stage.params} params"]},

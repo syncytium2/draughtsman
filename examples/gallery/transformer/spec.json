@@ -1,6 +1,7 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "Transformer encoder — the case the market wants",
   "subtitle": "{model.params} parameters · {model.input_shape} tokens in, {node:n0201.out_shape} out",
   "stages": [
@@ -12,7 +13,8 @@
         "in1"
       ],
       "detail": [
-        "{stage.out_shape}"
+        "{stage.out_shape}",
+        "tokens"
       ]
     },
     {

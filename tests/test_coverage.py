@@ -654,3 +654,35 @@ def test_every_other_index_still_addresses_the_traced_shape(tube_spec, tube_grap
     from `{stage.out_shape[1]}` against a traced [1, 5, 600]."""
     from draughtsman.render import render
     assert ">5 channels<" in render(tube_spec, tube_graph)
+
+
+def test_a_positively_indexed_glyph_is_warned_about_under_a_batch_axis(
+        tube_spec_doc, tube_graph):
+    """U-Net's `axes: [1, 2]` with labels ["channels", "height"] means
+    (channels, height) on a four-axis shape and (height, width) once the batch is
+    hidden — both in range, so nothing errors and every rectangle becomes a
+    square. Found by draughtsman-f0 before it shipped."""
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    for stage in doc["stages"]:
+        if stage["id"] == "raster":
+            stage["glyph"] = {"of": "{stage.out_shape}", "axes": [0, 1],
+                              "labels": ["cells", "frames"]}
+    result = check(load(doc), tube_graph)
+    assert result.ok, "positive indices into the drawn shape are legitimate"
+    assert any("do not move when a leading axis is hidden" in w
+               for w in result.warnings)
+
+
+def test_a_negatively_indexed_glyph_is_not_warned_about(tube_spec_doc, tube_graph):
+    """Negative indices are invariant under batch hiding, which is the whole
+    reason to prefer them."""
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    for stage in doc["stages"]:
+        if stage["id"] == "raster":
+            stage["glyph"] = {"of": "{stage.out_shape}", "axes": [-2, -1],
+                              "labels": ["cells", "frames"]}
+    result = check(load(doc), tube_graph)
+    assert result.ok
+    assert not any("leading axis is hidden" in w for w in result.warnings)

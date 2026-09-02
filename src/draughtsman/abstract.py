@@ -54,7 +54,13 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    any shape you draw has something other than 1 there, do not declare the axis.
    An indexed reference to a declared batch axis (`{stage.out_shape[0]}`) is an
    error; every other index still addresses the TRACED shape, so
-   `{stage.out_shape[1]}` is the same axis it was before you declared. WATCH FOR AN
+   `{stage.out_shape[1]}` is the same axis it was before you declared.
+   A GLYPH'S `axes` ARE DIFFERENT AND YOU SHOULD WRITE THEM NEGATIVE. They index
+   the shape AS DRAWN, so declaring `batch_axis` shifts them by one: `[1, 2]` on
+   a four-axis shape means (channels, height) and then means (height, width),
+   with the labels still claiming the first and nothing erroring. `[-3, -2]`
+   names the same two axes either way, because hiding a LEADING axis leaves the
+   trailing positions where they were. WATCH FOR AN
    AXIS THAT CHANGES MEANING: in a model that reduces over a spatial or ROI axis
    and then convolves, the same POSITION counts something different before and
    after, and only your labels can say so.

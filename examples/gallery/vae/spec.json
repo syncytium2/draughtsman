@@ -1,11 +1,12 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "Convolutional VAE",
   "subtitle": "{model.params} parameters · {model.input_shape} in, reconstruction out",
   "stages": [
     {"id": "image", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}"]},
+     "detail": ["{stage.out_shape}", "channels × height × width"]},
     {"id": "enc", "name": "strided conv encoder", "kind": "conv",
      "nodes": ["n0020", "n0021", "n0028", "n0029"],
      "detail": ["stride {node:n0020.constants.stride[0]}, halving twice",

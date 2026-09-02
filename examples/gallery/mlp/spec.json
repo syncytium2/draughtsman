@@ -1,11 +1,12 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "MLP — the floor",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0020.out_shape} out",
   "stages": [
     {"id": "pixels", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}"]},
+     "detail": ["{stage.out_shape}", "channels × height × width"]},
     {"id": "flatten", "name": "flatten", "kind": "op", "nodes": ["n0006"],
      "detail": ["{stage.out_shape}"]},
     {"id": "h1", "name": "hidden", "kind": "stack", "nodes": ["n0009", "n0010"],

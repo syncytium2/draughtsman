@@ -1,6 +1,7 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "CASCADE — spike inference from calcium imaging",
   "subtitle": "{model.params} parameters · one {node:n0015.out_shape[2]}-frame ΔF/F window in, one spike rate out",
   "stages": [
@@ -13,7 +14,8 @@
       ],
       "detail": [
         "{node:n0015.out_shape[2]} frames",
-        "{stage.out_shape}"
+        "{stage.out_shape}",
+        "frames × neurons"
       ],
       "note": "One neuron, one sliding window, resampled to the model's frame rate. The spike rate predicted is the one at the window's centre, so the network sees equally far forward and back."
     },
@@ -33,10 +35,7 @@
       "note": "Nearly half the window wide. This is the layer that sees the slow decay of a calcium transient.",
       "glyph": {
         "of": "{stage.out_shape}",
-        "axes": [
-          1,
-          2
-        ],
+        "axes": [-2, -1],
         "labels": [
           "filters",
           "frames"
@@ -59,10 +58,7 @@
       ],
       "glyph": {
         "of": "{stage.out_shape}",
-        "axes": [
-          1,
-          2
-        ],
+        "axes": [-2, -1],
         "labels": [
           "filters",
           "frames"
@@ -83,10 +79,7 @@
       ],
       "glyph": {
         "of": "{stage.out_shape}",
-        "axes": [
-          1,
-          2
-        ],
+        "axes": [-2, -1],
         "labels": [
           "filters",
           "frames"
@@ -110,10 +103,7 @@
       "note": "Widest in channels and narrowest in time — the window has become a short code rather than a trace.",
       "glyph": {
         "of": "{stage.out_shape}",
-        "axes": [
-          1,
-          2
-        ],
+        "axes": [-2, -1],
         "labels": [
           "filters",
           "frames"
@@ -134,10 +124,7 @@
       ],
       "glyph": {
         "of": "{stage.out_shape}",
-        "axes": [
-          1,
-          2
-        ],
+        "axes": [-2, -1],
         "labels": [
           "filters",
           "frames"

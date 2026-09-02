@@ -312,6 +312,31 @@ it has been used as a checklist rather than a history.**
   shape: renumbering the survivors would silently move what index 1 means, which
   is the trap the convention exists to avoid.
 
+**Adopted across the gallery, 2026-09-02, and the adoption found one more.**
+Nine of the ten remaining models declare it; `lstm` is refused, and the refusal is
+the best thing in this section. Its initial state is `4×1×48` and that leading 4
+is *layers × directions* — a second architecture, unrelated to `tube`, where the
+first axis carries information. Two independent refusals in eleven models is a
+much stronger argument that the declaration cannot be inferred than `tube` alone
+was. `lstm`'s caption now says so, with the 4 resolved from the graph.
+
+**The one that nearly shipped wrong: `glyph.axes` shifts under the declaration.**
+Found by draughtsman-f0 before it landed. U-Net's `axes: [1, 2]` with
+`labels: ["channels", "height"]` means (channels, height) on a four-axis shape and
+**(height, width)** once the batch is hidden. Both indices stay in range, so
+nothing errors; every rectangle becomes a square and the constant-area finding
+that figure exists for disappears. Cascade's three-axis shape fell off the end and
+raised — loud at rank three, silent at rank four.
+
+Nothing can verify the labels; they are the agent's words and only they say what
+an axis means. But **negative indices do not move**: hiding a *leading* axis
+leaves every trailing position where it was, so `[-3, -2]` names the same pair
+before and after. The gallery's glyphs are negative now, verified by rendering
+both ways and comparing the drawn rectangles byte for byte, and `check` warns when
+a spec declares `batch_axis` while indexing a glyph positively — a warning and not
+an error, because positive indices into the *drawn* shape are legitimate. What it
+catches is the spec that had a glyph before the declaration was added.
+
 **One implementation.** `facts.drop_batch`, reached only through `resolve`'s
 `shaped()`. It fires on whole activation shapes and not on `weight_shape` — a conv
 weight is `(out_ch, in_ch, k)` and has no batch axis to hide — and never on an

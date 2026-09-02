@@ -342,6 +342,35 @@ def check(spec: Spec, graph: Graph) -> Result:
                             "Hiding it would delete a number the reader needs — "
                             "drop the declaration, or do not draw this shape.")
 
+    # -- a glyph's axes shift under a batch declaration, and its labels cannot --
+    #
+    # `glyph.axes` is a positional index into a shape whose RANK depends on
+    # `batch_axis`, declared elsewhere in the same spec. U-Net's `axes: [1, 2]`
+    # with `labels: ["channels", "height"]` means (channels, height) on a
+    # four-axis shape and (height, width) once the batch is hidden -- every
+    # rectangle becomes a square, the constant-area finding the figure exists for
+    # disappears, and NOTHING ERRORS, because both indices are still in range.
+    # (Three-axis shapes fall off the end and raise, which is why cascade was
+    # safe and U-Net was not. Loud at rank three, silent at rank four.)
+    #
+    # Nothing here can verify the labels -- they are the agent's words and only
+    # they say what an axis means. What IS checkable is that NEGATIVE indices do
+    # not move: hiding a LEADING axis leaves every trailing position where it
+    # was, so `[-3, -2]` picks the same pair before and after. Positive indices
+    # into the drawn shape are legitimate, so this is a warning and not an error;
+    # what it catches is the spec that had a glyph BEFORE the declaration was
+    # added, where the indices silently came to mean something else.
+    if spec.batch_axis is not None:
+        for s_ in spec.stages:
+            if s_.glyph and any(i >= 0 for i in s_.glyph.axes):
+                warnings.append(
+                    f"stage {s_.id!r} declares batch_axis {spec.batch_axis} and "
+                    f"its glyph indexes axes {list(s_.glyph.axes)} positively. "
+                    "Those index the shape AS DRAWN, so if the declaration was "
+                    "added after the glyph they now name different axes and the "
+                    "labels no longer describe them. Negative indices count from "
+                    "the end and do not move when a leading axis is hidden.")
+
     # -- a traced constant may be an initialisation, and the trace cannot say ---
     #
     # `tube`'s max-pool width is `2 * kmin + 1` with kmin read off a TRAINED

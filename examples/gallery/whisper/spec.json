@@ -1,6 +1,7 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "Whisper tiny — encoder–decoder, two inputs",
   "subtitle": "{model.params} parameters · mel {model.input_shapes[0]} and tokens {model.input_shapes[1]} in, {node:n0834.out_shape} out",
   "stages": [

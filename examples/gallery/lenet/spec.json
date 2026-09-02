@@ -1,11 +1,12 @@
 {
   "draughtsman": "0",
   "graph": "graph.json",
+  "batch_axis": 0,
   "title": "LeNet — the canonical image CNN",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0067.out_shape} out",
   "stages": [
     {"id": "image", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}"]},
+     "detail": ["{stage.out_shape}", "channels × height × width"]},
     {"id": "conv1", "name": "conv + ReLU", "kind": "conv", "nodes": ["n0016", "n0017"],
      "detail": ["kernel {node:n0016.weight_shape[2]}, pad {node:n0016.constants.padding[0]}",
                 "{stage.out_shape}", "{stage.params} params"]},
