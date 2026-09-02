@@ -70,6 +70,17 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    use "linear" when the figure's range is narrow enough, and the legend will say
    which you chose. Every glyph in a figure must label its axes the same way.
 
+8. A REPEATED BLOCK IS COUNTED, NOT CLAIMED. Deep models are one block over and
+   over, and a stage whose name says "and three more like it" has put a number in
+   the figure that came from you. `repeat` fixes that the way `lanes` does: you
+   name the TEMPLATE — the ordered stage ids that draw ONE unit — and draughtsman
+   tiles that unit's operation sequence against this stage's nodes and supplies
+   the count. Write `{stage.repeat}` where the number goes. A template that does
+   not tile EXACTLY is an error, not a rounding: regroup until it does, or drop
+   the claim. If a stage will not tile, the usual cause is that it holds
+   something that enters ONCE — a mask, an initial state — which belongs
+   upstream, not in one of N identical blocks.
+
 Aim for six to twelve stages. Fewer and the figure says nothing; more and it is
 the trace again, which is already unreadable.
 """
@@ -84,6 +95,7 @@ REFERENCE GRAMMAR — resolved against graph.json at render time.
   {stage.out_shape[1]}           one axis of it — channels, here
   {stage.params}                 parameters summed over this stage's nodes
   {stage.nodes}                  how many nodes this stage collapses
+  {stage.repeat}                 verified copies of this stage's `repeat` template
   {node:n0031.out_shape}         any field of any node, by id
   {node:n0031.constants.dilation}
   {node:n0031.params}
@@ -110,6 +122,7 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "lanes": {"count_from": "{node:n0126.out_shape[1]}",
                 "labels": ["<one name per lane>"]},
       "meters": [{"value": "{stage.params}", "label": "params"}],
+      "repeat": {"template": ["<stage id>", "<stage id>"]},
       "glyph": {"of": "{stage.out_shape}", "axes": [1, 2],
                 "labels": ["channels", "frames"], "scale": "sqrt"}
     }

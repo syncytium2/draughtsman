@@ -4,56 +4,240 @@
   "title": "Transformer encoder — the case the market wants",
   "subtitle": "{model.params} parameters · {model.input_shape} tokens in, {node:n0201.out_shape} out",
   "stages": [
-    {"id": "tokens", "name": "token ids", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}"]},
-    {"id": "embed", "name": "token embedding", "kind": "op", "nodes": ["n0015"],
-     "detail": ["{stage.out_shape[2]}-dim", "{stage.params} params"]},
-    {"id": "pos", "name": "add learned positions", "kind": "concat",
-     "nodes": ["n0024", "n0028", "n0030"],
-     "detail": ["{stage.out_shape}", "{stage.params} params"],
-     "note": "The positional table is sliced to the sequence length, so its parameters are charged to the slice."},
-    {"id": "attn", "name": "self-attention", "kind": "kernel",
-     "nodes": ["n0046", "n0053"],
-     "detail": ["pre-norm, {stage.params} params", "{stage.out_shape}"],
-     "lanes": {"count_from": "{node:n0053.constants.num_head}",
-               "labels": ["h₁", "h₂", "h₃", "h₄"]},
-     "note": "The heads are NOT a fork in the traced graph — torch fuses the whole sublayer into one _native_multi_head_attention node, so the head count comes from that node's constants and the lanes are drawn, not derived from topology. Exactly tube's kernel-bank problem in a different architecture."},
-    {"id": "join1", "name": "residual add", "kind": "concat", "nodes": ["n0054"],
-     "detail": ["{stage.out_shape}"]},
-    {"id": "ff", "name": "feed-forward", "kind": "stack",
-     "nodes": ["n0058", "n0064", "n0065", "n0068"],
-     "detail": ["pre-norm, widen to {node:n0064.out_shape[2]}, GELU, project back",
-                "{stage.params} params"]},
-    {"id": "join2", "name": "residual add", "kind": "concat", "nodes": ["n0069"],
-     "detail": ["{stage.out_shape}"]},
-    {"id": "rest", "name": "three more identical blocks", "kind": "stack",
-     "nodes": ["n0085", "n0092", "n0093", "n0097", "n0103", "n0104", "n0107",
-               "n0108", "n0124", "n0131", "n0132", "n0136", "n0142", "n0143",
-               "n0146", "n0147", "n0163", "n0170", "n0171", "n0175", "n0181",
-               "n0182", "n0185", "n0186"],
-     "detail": ["{stage.nodes} ops", "{stage.params} params", "{stage.out_shape}"],
-     "note": "Structurally identical to the four stages before it. Collapsed into one box because the spec format cannot say 'the preceding block, three times' — the single largest gap this gallery found."},
-    {"id": "norm", "name": "final layer-norm", "kind": "op", "nodes": ["n0193"],
-     "detail": ["{stage.params} params"]},
-    {"id": "pool", "name": "mean over tokens", "kind": "reduce", "nodes": ["n0198"],
-     "detail": ["{stage.out_shape}"]},
-    {"id": "logits", "name": "class logits", "kind": "output", "nodes": ["n0201"],
-     "detail": ["{stage.out_shape[1]} classes", "{stage.params} params"]}
+    {
+      "id": "tokens",
+      "name": "token ids",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "embed",
+      "name": "token embedding",
+      "kind": "op",
+      "nodes": [
+        "n0015"
+      ],
+      "detail": [
+        "{stage.out_shape[2]}-dim",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "pos",
+      "name": "add learned positions",
+      "kind": "concat",
+      "nodes": [
+        "n0024",
+        "n0028",
+        "n0030"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "The positional table is sliced to the sequence length, so its parameters are charged to the slice."
+    },
+    {
+      "id": "attn",
+      "name": "self-attention",
+      "kind": "kernel",
+      "nodes": [
+        "n0046",
+        "n0053"
+      ],
+      "detail": [
+        "pre-norm, {stage.params} params",
+        "{stage.out_shape}"
+      ],
+      "lanes": {
+        "count_from": "{node:n0053.constants.num_head}",
+        "labels": [
+          "h₁",
+          "h₂",
+          "h₃",
+          "h₄"
+        ]
+      },
+      "note": "The heads are NOT a fork in the traced graph — torch fuses the whole sublayer into one _native_multi_head_attention node, so the head count comes from that node's constants and the lanes are drawn, not derived from topology. Exactly tube's kernel-bank problem in a different architecture."
+    },
+    {
+      "id": "join1",
+      "name": "residual add",
+      "kind": "concat",
+      "nodes": [
+        "n0054"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "ff",
+      "name": "feed-forward",
+      "kind": "stack",
+      "nodes": [
+        "n0058",
+        "n0064",
+        "n0065",
+        "n0068"
+      ],
+      "detail": [
+        "pre-norm, widen to {node:n0064.out_shape[2]}, GELU, project back",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "join2",
+      "name": "residual add",
+      "kind": "concat",
+      "nodes": [
+        "n0069"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "rest",
+      "name": "{stage.repeat} more identical blocks",
+      "kind": "stack",
+      "nodes": [
+        "n0085",
+        "n0092",
+        "n0093",
+        "n0097",
+        "n0103",
+        "n0104",
+        "n0107",
+        "n0108",
+        "n0124",
+        "n0131",
+        "n0132",
+        "n0136",
+        "n0142",
+        "n0143",
+        "n0146",
+        "n0147",
+        "n0163",
+        "n0170",
+        "n0171",
+        "n0175",
+        "n0181",
+        "n0182",
+        "n0185",
+        "n0186"
+      ],
+      "detail": [
+        "{stage.nodes} ops",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ],
+      "note": "Structurally identical to the four stages before it — not asserted, verified: the template's operation sequence tiles this stage's nodes exactly {stage.repeat} times, and a claim that did not tile would fail the check rather than draw.",
+      "repeat": {
+        "template": [
+          "attn",
+          "join1",
+          "ff",
+          "join2"
+        ]
+      }
+    },
+    {
+      "id": "norm",
+      "name": "final layer-norm",
+      "kind": "op",
+      "nodes": [
+        "n0193"
+      ],
+      "detail": [
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "pool",
+      "name": "mean over tokens",
+      "kind": "reduce",
+      "nodes": [
+        "n0198"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "logits",
+      "name": "class logits",
+      "kind": "output",
+      "nodes": [
+        "n0201"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} classes",
+        "{stage.params} params"
+      ]
+    }
   ],
   "edges": [
-    {"from": "tokens", "to": "embed"},
-    {"from": "embed", "to": "pos"},
-    {"from": "pos", "to": "join1", "label": "residual", "style": "dashed"},
-    {"from": "pos", "to": "attn"},
-    {"from": "attn", "to": "join1"},
-    {"from": "join1", "to": "join2", "label": "residual", "style": "dashed"},
-    {"from": "join1", "to": "ff"},
-    {"from": "ff", "to": "join2"},
-    {"from": "join2", "to": "rest"},
-    {"from": "rest", "to": "norm"},
-    {"from": "norm", "to": "pool"},
-    {"from": "pool", "to": "logits"}
+    {
+      "from": "tokens",
+      "to": "embed"
+    },
+    {
+      "from": "embed",
+      "to": "pos"
+    },
+    {
+      "from": "pos",
+      "to": "join1",
+      "label": "residual",
+      "style": "dashed"
+    },
+    {
+      "from": "pos",
+      "to": "attn"
+    },
+    {
+      "from": "attn",
+      "to": "join1"
+    },
+    {
+      "from": "join1",
+      "to": "join2",
+      "label": "residual",
+      "style": "dashed"
+    },
+    {
+      "from": "join1",
+      "to": "ff"
+    },
+    {
+      "from": "ff",
+      "to": "join2"
+    },
+    {
+      "from": "join2",
+      "to": "rest"
+    },
+    {
+      "from": "rest",
+      "to": "norm"
+    },
+    {
+      "from": "norm",
+      "to": "pool"
+    },
+    {
+      "from": "pool",
+      "to": "logits"
+    }
   ],
   "caption": "Block one is opened to show both residual streams; blocks two to four are one box. Attention's heads are lanes because the trace fuses them into a single operation.",
-  "layout": {"wrap": 760}
+  "layout": {
+    "wrap": 760
+  }
 }

@@ -174,21 +174,21 @@
       "nodes": [
         "n0352",
         "n0353",
-        "n0354"
+        "n0354",
+        "n0355",
+        "n0356"
       ],
       "detail": [
-        "{stage.out_shape}",
+        "{node:n0354.out_shape}",
         "{stage.params} params"
       ],
-      "note": "The embedding table is over half the model. It is drawn here, at the reader's first encounter with it, and not again at the output — the two uses share one tensor."
+      "note": "The embedding table is over half the model. It is drawn here, at the reader's first encounter with it, and not again at the output — the two uses share one tensor. The causal mask is sliced to the sequence length here too, once for every decoder block."
     },
     {
       "id": "dself",
       "name": "masked self-attention",
       "kind": "kernel",
       "nodes": [
-        "n0355",
-        "n0356",
         "n0366",
         "n0373",
         "n0375",
@@ -224,7 +224,7 @@
           "h₆"
         ]
       },
-      "note": "Text attends to text, backwards only. Includes the residual add."
+      "note": "Text attends to text, backwards only. Includes the residual add. The mask itself is built once, upstream, which is why it is not in this box: it enters the model once and this box is one of four identical blocks."
     },
     {
       "id": "dcross",
@@ -286,7 +286,7 @@
     },
     {
       "id": "drest",
-      "name": "three more decoder blocks",
+      "name": "{stage.repeat} more decoder blocks",
       "kind": "stack",
       "nodes": [
         "n0484",
@@ -418,7 +418,14 @@
         "{stage.params} params",
         "{stage.out_shape}"
       ],
-      "note": "Structurally identical to the three stages before it, each with its own cross-attention reading the same audio features. Collapsed for the same reason the encoder is."
+      "note": "Verified, not asserted: the operation sequence of the three stages before it tiles this stage's nodes exactly {stage.repeat} times. Each carries its own cross-attention reading the same audio features.",
+      "repeat": {
+        "template": [
+          "dself",
+          "dcross",
+          "dff"
+        ]
+      }
     },
     {
       "id": "logits",

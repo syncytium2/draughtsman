@@ -128,8 +128,34 @@ class Graph:
         return self.node_fact(self.stage_terminal(node_ids), path)
 
 
+def repeat_counts(spec_stages, graph: Graph) -> dict[str, int | None]:
+    """Every `repeat` stage's count, computed once, here.
+
+    ONE PLACE COUNTS A REPETITION, for the same reason one place counts coverage
+    (DECISIONS.md): the check that can fail and the figure that gets drawn must
+    never be reading two different numbers.
+    """
+    by_id = {s.id: s for s in spec_stages}
+    out: dict[str, int | None] = {}
+    for s in spec_stages:
+        if not s.repeat:
+            continue
+        try:
+            unit = [graph.nodes[n]["kind"]
+                    for sid in s.repeat.template
+                    for n in sorted(by_id[sid].nodes)]
+        except KeyError:
+            out[s.id] = None
+            continue
+        mine = [graph.nodes[n]["kind"] for n in sorted(s.nodes)
+                if n in graph.nodes]
+        out[s.id] = tiles(unit, mine)
+    return out
+
+
 def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
-            where: str = "") -> str:
+            where: str = "", stage_id: str | None = None,
+            repeats: dict | None = None) -> str:
     """Substitute every ``{reference}`` in *text*. Unresolvable -> FactError."""
 
     def sub(m: re.Match) -> str:
@@ -142,6 +168,12 @@ def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
             if head == "stage":
                 if node_ids is None:
                     raise FactError("'stage.' used outside a stage")
+                if path == ["repeat"]:
+                    n = (repeats or {}).get(stage_id)
+                    if n is None:
+                        raise FactError(
+                            "this stage has no verified repeat count")
+                    return Graph.fmt(n)
                 return Graph.fmt(graph.stage_fact(node_ids, path))
             if head.startswith("node:"):
                 return Graph.fmt(graph.node_fact(head[5:], path))
@@ -170,3 +202,24 @@ def bare_numbers(text: str) -> list[str]:
     """Digits in *text* that are not inside a ``{reference}``."""
     masked = REF_RE.sub(lambda m: " " * len(m.group(0)), text)
     return BARE_NUMBER_RE.findall(masked)
+
+
+def tiles(unit_kinds: list[str], node_kinds: list[str]) -> int | None:
+    """How many times *unit_kinds* tiles *node_kinds* exactly, or None.
+
+    THE ONLY THING THAT MAKES `repeat` A FACT. A stage saying "and three more like
+    it" is the agent's word for it; this is the graph's. Whole multiples only, and
+    every tile identical to the template -- a near-miss is a different structure
+    wearing the same label, and drawing it as a repetition would say the model
+    does something it does not.
+    """
+    if not unit_kinds or not node_kinds:
+        return None
+    n, rem = divmod(len(node_kinds), len(unit_kinds))
+    if rem or n < 1:
+        return None
+    step = len(unit_kinds)
+    for i in range(n):
+        if node_kinds[i * step:(i + 1) * step] != unit_kinds:
+            return None
+    return n

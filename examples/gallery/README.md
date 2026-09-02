@@ -103,12 +103,39 @@ half the input.
 
 ## Gaps still open
 
-**No `repeat` primitive — the largest.** ResNet has six identical blocks, the
-transformer four, Whisper four and four. Every one of those figures spends its
-width opening block one and collapses the rest into a box whose label says "three
-more identical blocks" in prose. Every deep modern architecture is a repeated
-block. A `repeat` field whose count resolves from `graph.json` — exactly like
-`lanes.count_from` — is the shape of the fix.
+**No `repeat` primitive — now closed, and a prediction made before the run held.**
+ResNet has six identical blocks, the transformer four, Whisper four and four, and
+every one of those figures spent its width opening block one and then collapsed
+the rest into a box whose name said "three more identical blocks" — a number the
+agent typed, spelled as a word so the bare-number heuristic could not see it.
+
+`repeat` counts it instead. The agent names a **template**: the ordered stages
+that draw one unit. draughtsman takes that unit's operation sequence and tiles it
+against the collapsed stage's nodes; the count is how many times it tiles, and a
+template that does not tile **exactly** is an error. It is `lanes` generalised —
+the agent says "this is a repetition of that", the tool says how many — and
+`{stage.repeat}` puts the verified number in the name.
+
+**The prediction, written down before it was run:** Whisper would not tile,
+because `dself` carried the two causal-mask slices and 123 does not divide by 43.
+It did not tile. The check refused the spec, and **the check was right and the
+grouping was wrong** — a causal mask enters the model once and has no business
+inside one of four identical blocks. Moving the two slices upstream to the
+embedding, where the sequence length is already being read, made 123 divide by 41
+exactly and `drest` verify as three copies. A spec that has to be regrouped to
+satisfy a check is the check doing its job.
+
+One thing the check could not catch, worth knowing: moving those two nodes changed
+which node the embedding stage exits through, so `{stage.out_shape}` silently
+began resolving to the mask's `12×12` instead of the embedding's `1×12×384`. Every
+reference still resolved, so nothing failed — it was caught by looking at the
+figure. `{stage.out_shape}` is convenient and it is only as stable as a stage's
+membership.
+
+**ResNet still cannot use it, honestly.** Its later blocks project their identity
+through a pointwise conv when the shape changes, so they are *not* copies of the
+first — the tiling refuses, and it is correct to. Six blocks that a reader calls
+identical are three pairs that differ.
 
 **Everything is a horizontal strip.** The transformer renders 1937×247, an 8:1
 ribbon; LeNet is 8:1 with nine stages. Layout is rank-by-longest-path with no

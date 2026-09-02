@@ -52,6 +52,24 @@ class Meter:
 
 
 @dataclass
+class Repeat:
+    """This stage stands for N copies of the stages that draw one unit.
+
+    THE AGENT NAMES THE UNIT; DRAUGHTSMAN COUNTS IT. No fact in graph.json says
+    "there are four blocks" -- not a constant, not a shape -- so a `count_from`
+    reference has nothing to point at. What the agent can supply is structure:
+    "this collapsed stage is a repetition of those stages." draughtsman then takes
+    the template's op-kind sequence and tiles it against this stage's nodes. The
+    count is how many times it tiles, and a template that does not tile EXACTLY
+    is an error.
+
+    So a spec claiming a repetition the graph does not contain fails instead of
+    drawing one, which is the whole reason the agent is allowed near the figure.
+    """
+    template: list[str]     # stage ids, in order, that draw one unit
+
+
+@dataclass
 class Glyph:
     """The stage's tensor, drawn to scale: one axis tall, another wide.
 
@@ -90,6 +108,7 @@ class Stage:
     lanes: Lanes | None = None
     meters: list[Meter] = field(default_factory=list)
     glyph: Glyph | None = None
+    repeat: Repeat | None = None
 
 
 @dataclass
@@ -160,6 +179,8 @@ def load(doc: dict) -> Spec:
             note=raw.get("note"), lanes=lanes,
             meters=[Meter(value=m["value"], label=m["label"])
                     for m in raw.get("meters", [])],
+            repeat=(Repeat(template=list(raw["repeat"]["template"]))
+                    if raw.get("repeat") else None),
             glyph=(Glyph(of=raw["glyph"]["of"],
                          axes=list(raw["glyph"]["axes"]),
                          labels=list(raw["glyph"]["labels"]),
@@ -198,6 +219,8 @@ def dump(spec: Spec) -> dict:
         if s.meters:
             rec["meters"] = [{"value": m.value, "label": m.label}
                              for m in s.meters]
+        if s.repeat:
+            rec["repeat"] = {"template": s.repeat.template}
         if s.glyph:
             rec["glyph"] = {"of": s.glyph.of, "axes": s.glyph.axes,
                             "labels": s.glyph.labels}

@@ -15,7 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from draughtsman.facts import (FactError, Graph, REF_RE, bare_numbers,
-                               resolve)
+                               repeat_counts, resolve)
 from draughtsman.spec import Spec
 
 
@@ -151,6 +151,38 @@ def check(spec: Spec, graph: Graph) -> Result:
                 "is a shape dependency a reader does not need, leave it; if it "
                 "is a data path, the figure is understating the model.")
 
+    # -- a claimed repetition must be one -------------------------------------
+    counts = repeat_counts(spec.stages, graph) if not errors else {}
+    ids = {s.id for s in spec.stages}
+    for s in spec.stages:
+        if not s.repeat:
+            continue
+        missing = [t for t in s.repeat.template if t not in ids]
+        if missing:
+            errors.append(f"stage {s.id!r}: repeat template names no stage: "
+                          + ", ".join(sorted(missing)))
+            continue
+        if s.id in s.repeat.template:
+            errors.append(f"stage {s.id!r}: repeat template includes itself")
+            continue
+        n = counts.get(s.id)
+        if n is None:
+            unit = sum(len(t.nodes) for t in spec.stages
+                       if t.id in s.repeat.template)
+            errors.append(
+                f"stage {s.id!r} claims to repeat "
+                f"{' + '.join(s.repeat.template)}, but its {len(s.nodes)} nodes "
+                f"are not a whole number of copies of that {unit}-node unit, or "
+                "the operations differ. A repetition the graph does not contain "
+                "must not be drawn as one — regroup, or drop the claim.")
+        elif n < 2:
+            warnings.append(
+                f"stage {s.id!r} repeats its template once, which is not a "
+                "repetition. Draw it like any other stage.")
+        else:
+            notes.append(f"stage {s.id!r} verified as {n} copies of "
+                         + " + ".join(s.repeat.template))
+
     # -- every reference resolves, and lane counts agree with the model -------
     for s in spec.stages:
         for text in [s.name, *(s.detail or []), s.note or ""]:
@@ -158,7 +190,8 @@ def check(spec: Spec, graph: Graph) -> Result:
                 continue
             try:
                 resolve(text, graph, node_ids=s.nodes, stages=stages,
-                        where=f"stage {s.id!r}")
+                        where=f"stage {s.id!r}", stage_id=s.id,
+                        repeats=counts)
             except FactError as exc:
                 errors.append(str(exc))
         bare = [b for text in [s.name, *(s.detail or [])] if text

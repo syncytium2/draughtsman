@@ -463,3 +463,36 @@ def test_glyphs_must_agree_on_labels_and_scale(spec_doc, tube_graph):
     result = check(_mutate(spec_doc, clash), tube_graph)
     assert not result.ok
     assert any("label their axes the same way" in e for e in result.errors)
+
+
+# -- repeat: the count is the graph's, not the agent's --------------------------
+
+
+def _repeating(doc, stage_id, template):
+    doc = copy.deepcopy(doc)
+    for stage in doc["stages"]:
+        if stage["id"] == stage_id:
+            stage["repeat"] = {"template": list(template)}
+    return load(doc)
+
+
+def test_a_repetition_the_graph_does_not_contain_is_an_error(spec_doc,
+                                                             tube_graph):
+    """`dog` is 26 kernel-construction ops and `head` is 12 conv/relu pairs. One
+    is not copies of the other, and a figure drawing it as a stack would say the
+    model does something it does not."""
+    result = check(_repeating(spec_doc, "head", ["dog"]), tube_graph)
+    assert not result.ok
+    assert any("not a whole number of copies" in e for e in result.errors)
+
+
+def test_a_template_naming_no_stage_is_an_error(spec_doc, tube_graph):
+    result = check(_repeating(spec_doc, "head", ["nosuch"]), tube_graph)
+    assert not result.ok
+    assert any("names no stage" in e for e in result.errors)
+
+
+def test_a_stage_cannot_repeat_itself(spec_doc, tube_graph):
+    result = check(_repeating(spec_doc, "head", ["head"]), tube_graph)
+    assert not result.ok
+    assert any("includes itself" in e for e in result.errors)

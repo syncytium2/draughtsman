@@ -22,7 +22,8 @@ from __future__ import annotations
 
 import math
 
-from draughtsman.facts import TIMES, FactError, Graph, resolve
+from draughtsman.facts import (TIMES, FactError, Graph, repeat_counts,
+                               resolve)
 from draughtsman.layout import build
 from draughtsman.spec import Spec
 from draughtsman.text import FONT_STACK, escape, width
@@ -154,13 +155,16 @@ def _fmt(v: float) -> str:
 class _Stage:
     """One stage, measured."""
 
-    def __init__(self, stage, graph: Graph, stages: dict[str, list[str]]):
+    def __init__(self, stage, graph: Graph, stages: dict[str, list[str]],
+                 repeats: dict | None = None):
         self.spec = stage
         where = f"stage {stage.id!r}"
+        self.repeat = (repeats or {}).get(stage.id) if stage.repeat else None
+        rkw = dict(stage_id=stage.id, repeats=repeats or {})
         self.name = resolve(stage.name, graph, node_ids=stage.nodes,
-                            stages=stages, where=where)
+                            stages=stages, where=where, **rkw)
         self.detail = [resolve(d, graph, node_ids=stage.nodes, stages=stages,
-                               where=where) for d in stage.detail]
+                               where=where, **rkw) for d in stage.detail]
         self.lane_labels: list[str] = []
         if stage.lanes:
             count = int(resolve(stage.lanes.count_from, graph,
@@ -197,7 +201,9 @@ class _Stage:
 
 def render(spec: Spec, graph: Graph) -> str:
     stages = {s.id: s.nodes for s in spec.stages}
-    measured = {s.id: _Stage(s, graph, stages) for s in spec.stages}
+    counts = repeat_counts(spec.stages, graph)
+    measured = {s.id: _Stage(s, graph, stages, counts)
+                for s in spec.stages}
 
     if not measured:
         # A spec with no stages yet — `draughtsman ui` starts here when there is a
@@ -516,11 +522,32 @@ def _box(box, m: _Stage, scales: dict[str, float],
     # stage in the spec, and it costs an embedding page nothing.
     parts = [f'<g class="ds-stage ds-kind-{escape(m.spec.kind)}" '
              f'data-stage="{escape(m.spec.id)}">']
+    # A REPEATED STAGE IS DRAWN AS A STACK, AND THE STACK IS THE COUNT. Up to
+    # three sheets behind the box, because past that they stop being countable and
+    # become texture; the exact number is on the badge and in the name, which is a
+    # {stage.repeat} reference rather than a word the agent chose.
+    if m.repeat and m.repeat > 1:
+        for i in range(min(m.repeat - 1, 3), 0, -1):
+            off = 3.0 * i
+            parts.append(
+                f'<rect class="ds-repeat-sheet" x="{_fmt(box.x + off)}" '
+                f'y="{_fmt(top - off)}" width="{_fmt(box.w)}" '
+                f'height="{_fmt(box.h)}" rx="4" '
+                f'style="fill:{fill};stroke:{stroke};stroke-width:1;'
+                f'stroke-opacity:0.55"/>'
+            )
     parts.append(
         f'<rect x="{_fmt(box.x)}" y="{_fmt(top)}" width="{_fmt(box.w)}" '
         f'height="{_fmt(box.h)}" rx="4" '
         f'style="fill:{fill};stroke:{stroke};stroke-width:1.2"/>'
     )
+    if m.repeat and m.repeat > 1:
+        parts.append(
+            f'<text class="ds-repeat-badge" x="{_fmt(box.x + box.w - 5)}" '
+            f'y="{_fmt(top + box.h - 5)}" text-anchor="end" '
+            f'style="font-family:{FONT_STACK};font-size:9px;font-weight:600;'
+            f'fill:{MUTED}">×{m.repeat}</text>'
+        )
     cx = box.x + box.w / 2.0
     y = top + PAD_Y + TITLE_SIZE
     parts.append(
