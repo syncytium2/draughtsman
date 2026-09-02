@@ -127,9 +127,12 @@ so `draughtsman-f0`'s if it is live, otherwise open.
 `draughtsman-nn` as of `0e2fa58`; the import package, the `draughtsman` command
 and this repository keep the spelling. `tests/test_dist_name.py` ties the places
 that state the name to `pyproject.toml`, the only executed one. The live defect
-it exposed: `cli.py` told a reader without torch to run
-`pip install 'draughtsman[trace]'`, which is not a stale promise but a working
-instruction that fetches Kyle Fuller's API Blueprint parser.
+it exposed: `cli.py` told a reader without torch to pip-install the old
+distribution name with a `trace` extra — not a stale promise but a working
+instruction that fetches Kyle Fuller's API Blueprint parser. The exact string is
+in `6814704`; it is deliberately not repeated here, because the guard in
+`tests/test_dist_name.py` greps every tracked file for it and this file is not
+exempt. Writing the defect down turned `main` red, which is the check working.
 
 Open, and optional: asking Kyle Fuller for the name. They are active (GitHub
 profile updated 2026-06-04) and `apiaryio/drafter`, the parser theirs wraps, is
