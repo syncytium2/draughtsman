@@ -11,12 +11,21 @@ silently dropped.
 > second, and before changing the trace layer.
 
 ```
-draughtsman trace    bugarach.learn.nets.tube:build_tube --input-shape 1,30,600 -o graph.json
-draughtsman abstract graph.json -o spec.json     # prints the prompt; an agent answers it
-draughtsman check    spec.json graph.json        # every traced node in exactly one stage
+export PYTHONPATH=examples/gallery                # the models are written out here
+draughtsman trace    models:build_resnet --input-shape 1,3,32,32 -o graph.json
+draughtsman abstract graph.json -o spec.json      # prints the prompt; an agent answers it
+draughtsman check    spec.json graph.json         # every traced node in exactly one stage
 draughtsman render   spec.json -o figure.svg
-draughtsman ui       spec.json                    # review and fix it in a browser
+draughtsman ui       examples/                    # review every model in a browser
 ```
+
+That runs against a clone with nothing else installed, and it reproduces the
+committed `graph.json` — byte for byte on the torch it was traced with, and fact
+for fact on any, which is the durable claim and the one the tests assert
+([`DECISIONS.md`](DECISIONS.md) correction 3). Every model in
+[`examples/gallery/`](examples/gallery/) is written out in full in this repo — no
+torchvision, no downloads, no pinned third-party version — so the whole pipeline
+reproduces from here.
 
 ## Installing
 
