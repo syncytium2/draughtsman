@@ -24,7 +24,22 @@ jobs:
         # nobody has run is a claim, not a fact.
         python: ["3.10", "3.11", "3.12", "3.13"]
     steps:
+      # fetch-depth: 0, AND THE REASON IS NOT HISTORY.
+      #
+      # The default is a shallow, single-branch fetch, which gives the checkout
+      # `main` and `origin/main` and nothing else. `tests/test_claims.py` resolves
+      # a claim's branch against the refs it can see, so under the default EVERY
+      # landed claim names a branch that "does not exist" and `main` goes red --
+      # run 33692848373, 2026-09-02 22:57, on the commit `Claim: marks on tube`.
+      # It went green again when the work landed, which is why nobody chased it.
+      #
+      # CLAIMS.md rule 2 says land the claim on `main` BEFORE the work. Following
+      # the rule was what broke the build, so the rule was unfollowable and the
+      # board's own check was the thing enforcing that. This is the environment
+      # the check needs in order to see what it checks.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}

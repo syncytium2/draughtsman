@@ -128,6 +128,42 @@ def test_the_board_parses_and_every_row_is_well_formed():
         assert r["paths"], f"claim by {r['session']} names no paths"
 
 
+def _is_shallow() -> bool:
+    """A truncated checkout cannot answer what branches exist."""
+    out = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
+                         cwd=ROOT, capture_output=True, text=True, check=True)
+    return out.stdout.strip() == "true"
+
+
+def test_this_checkout_can_see_the_branches_it_is_about_to_judge():
+    """THE CHECK MUST REFUSE TO RUN BLIND RATHER THAN PASS BLIND.
+
+    `actions/checkout` fetches shallow and single-branch by default, which leaves
+    the checkout holding `main` and `origin/main` and nothing else. Every
+    assertion in this file that resolves a branch was then answering from an empty
+    room: `test_every_claim_names_a_branch_that_exists` failed on `main` for every
+    claim ever landed, because rule 2 says to land the claim first. Run
+    33692848373, 2026-09-02 22:57, is the receipt -- and it reported a bad
+    checkout as a bad claim, which is the worst way for it to be wrong.
+
+    The workflow now passes `fetch-depth: 0`. THIS is what notices if that is ever
+    removed, because otherwise the blindness comes back silently.
+
+    UNCONDITIONAL, and the first version was not. It skipped when the board was
+    empty, on the reasoning that nothing then resolves a branch -- and
+    DRAUGHTSMAN_NO_SKIPS failed the run for it, correctly: this file's whole
+    subject is answering questions from git refs, and a shallow checkout answers
+    them wrong rather than not at all. An empty board is not a reason to permit
+    blindness; it is only a case where the blindness happens to cost nothing yet.
+    Give the test what it needs -- `git fetch --unshallow` -- or delete it.
+    """
+    assert not _is_shallow(), (
+        "this checkout is shallow, so it cannot see the branches the claims name, "
+        "and every branch assertion in this file would fail for the wrong reason. "
+        "In CI, give actions/checkout `fetch-depth: 0`. Locally, "
+        "`git fetch --unshallow`.")
+
+
 def test_every_claim_names_a_branch_that_exists():
     """A claim on a branch nobody can find is a claim nobody can hand back."""
     known = _branches()
