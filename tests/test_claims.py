@@ -155,6 +155,12 @@ def test_a_claim_covers_everything_its_branch_actually_touches():
         if touched is None:
             continue
         for path in touched:
+            # The board is unclaimable, so it is also un-nameable: requiring a row
+            # to list CLAIMS.md would force every session to claim the one file
+            # nobody may claim. The two rules have to agree about the exemption or
+            # they contradict each other, which is how this was found.
+            if path in UNCLAIMABLE:
+                continue
             if path not in r["paths"]:
                 escaped.append((r["session"], r["branch"], path))
     assert not escaped, (
