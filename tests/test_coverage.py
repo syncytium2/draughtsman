@@ -612,3 +612,45 @@ def test_the_title_is_checked_for_the_hidden_axis_too(tube_spec_doc, tube_graph)
     doc["subtitle"] = "{model.input_shape} in"
     result = check(load(doc), tube_graph)
     assert any("the title" in e and "not 1" in e for e in result.errors)
+
+
+def test_an_index_cannot_smuggle_the_hidden_axis_back(tube_spec_doc, tube_graph):
+    """`{stage.out_shape}` hid the batch and `{stage.out_shape[0]}` handed it
+    straight back, because 1 is a true number and nothing objected.
+
+    Found by draughtsman-f0 reading the first version of this feature. It is
+    DECISIONS.md correction 5's other half — not two implementations disagreeing,
+    but one claim with a path it did not reach. A spec that declares an axis
+    carries nothing has to mean it on every path.
+    """
+    import copy
+    from draughtsman.facts import FactError
+    from draughtsman.render import render
+    doc = copy.deepcopy(tube_spec_doc)
+    for stage in doc["stages"]:
+        if stage["id"] == "raster":
+            stage["detail"] = ["{stage.out_shape[0]}"]
+    with pytest.raises(FactError, match="carries nothing"):
+        render(load(doc), tube_graph)
+
+
+def test_a_negative_index_names_the_same_axis(tube_spec_doc, tube_graph):
+    """`[-3]` on a three-axis shape IS `[0]`. Comparing the literals would let
+    it walk past the rule."""
+    import copy
+    from draughtsman.facts import FactError
+    from draughtsman.render import render
+    doc = copy.deepcopy(tube_spec_doc)
+    for stage in doc["stages"]:
+        if stage["id"] == "raster":
+            stage["detail"] = ["{stage.out_shape[-3]}"]
+    with pytest.raises(FactError, match="carries nothing"):
+        render(load(doc), tube_graph)
+
+
+def test_every_other_index_still_addresses_the_traced_shape(tube_spec, tube_graph):
+    """Renumbering the survivors would silently move what index 1 means, which
+    is the trap this convention exists to avoid. The concat says '5 channels'
+    from `{stage.out_shape[1]}` against a traced [1, 5, 600]."""
+    from draughtsman.render import render
+    assert ">5 channels<" in render(tube_spec, tube_graph)

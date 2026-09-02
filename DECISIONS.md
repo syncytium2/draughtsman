@@ -228,16 +228,20 @@ thing the stage does — unnamed, it reads as a number that changed. Then `1×4�
 and `1×5×600` have their middle axis meaning **channels** rather than cells: the
 same position, counting something else, with nothing marking the change.
 
-**What was built.** A spec may declare `batch_axis`, and the figure stops drawing
-it. The batch axis is 1 throughout an architecture figure and carries nothing, so
-removing it takes a whole column of unexplained `1`s out and leaves two numbers
-against two names.
+**What was built, and the safety property first, because it is the whole design.**
+A spec may declare `batch_axis` and the figure stops drawing it — **and `check`
+refuses the declaration wherever the hidden number is not 1.** An axis that is not
+1 is carrying information, and hiding it would delete a number the reader needs.
 
-**The renderer never guesses which axis that is.** A traced `[1, 1, 28, 28]` has
-two axes of size one, and `tube` reshapes to `[30, 1, 600]` midway — cells folded
-*into* the batch — where dropping the leading axis would delete the cell count and
-say nothing. So it is a declaration, and `check` refuses it wherever the hidden
-number is not 1: an axis that is not 1 is carrying information.
+That is not hypothetical on the model this was built for. `tube` reshapes to
+`[30, 1, 600]` midway — cells folded *into* the batch — so a blanket "drop axis 0"
+would have deleted the cell count and said nothing about it. A traced
+`[1, 1, 28, 28]` has two axes of size one and only the spec's author knows which
+is which. **The renderer never guesses.** It is a declaration, checked against
+every shape the figure actually draws.
+
+With it declared, the batch column of unexplained `1`s goes and two numbers stand
+against two names: `30×600` → `1×600` → `4×600` → `5×600` → `8×600` → `600`.
 
 **Correction 5 caught two things here before they shipped, which is the first time
 it has been used as a checklist rather than a history.**
@@ -250,6 +254,15 @@ it has been used as a checklist rather than a history.**
 - The rule was checking stage text only, while `resolve` applied the hiding to the
   title as well. A claim nothing verifies is decoration; the title, subtitle and
   caption are checked too.
+- **And one it did not catch, found by a reader.** `{stage.out_shape}` hid the
+  batch; `{stage.out_shape[0]}` handed it straight back, and nothing objected
+  because `1` is a true number. Correction 5's other half — not two
+  implementations disagreeing, but one claim with a path it did not reach. An
+  indexed reference to a declared batch axis is now an error, `[-3]` on a
+  three-axis shape included, because comparing the literals would let the
+  negative form walk past the rule. Every other index still addresses the traced
+  shape: renumbering the survivors would silently move what index 1 means, which
+  is the trap the convention exists to avoid.
 
 **One implementation.** `facts.drop_batch`, reached only through `resolve`'s
 `shaped()`. It fires on whole activation shapes and not on `weight_shape` — a conv

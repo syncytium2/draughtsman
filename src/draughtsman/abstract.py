@@ -47,7 +47,14 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    when the model has one and the figure will stop drawing it -- the batch axis
    is 1 throughout an architecture figure and carries nothing -- then label the
    axes that remain. `check` refuses the declaration wherever the hidden number
-   is not 1, because an axis that is not 1 is carrying information. WATCH FOR AN
+   is not 1, because an axis that is not 1 is carrying information. THE CASE TO
+   GET RIGHT: a model that reshapes to fold a real axis INTO the batch. `tube`
+   traces [30, 1, 600] midway -- that leading 30 is CELLS, not a batch of 30 --
+   and a figure that dropped it would delete the cell count and say nothing. If
+   any shape you draw has something other than 1 there, do not declare the axis.
+   An indexed reference to a declared batch axis (`{stage.out_shape[0]}`) is an
+   error; every other index still addresses the TRACED shape, so
+   `{stage.out_shape[1]}` is the same axis it was before you declared. WATCH FOR AN
    AXIS THAT CHANGES MEANING: in a model that reduces over a spatial or ROI axis
    and then convolves, the same POSITION counts something different before and
    after, and only your labels can say so.

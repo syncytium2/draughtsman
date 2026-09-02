@@ -230,6 +230,30 @@ def drop_batch(value, path: list[str], batch_axis: int | None):
     return value[:batch_axis] + value[batch_axis + 1:]
 
 
+def _indexed_axis(path: list[str]) -> int | None:
+    """The index in ``out_shape[2]``, when the field is a batch-carrying shape."""
+    if not path:
+        return None
+    field, br, rest = path[-1].partition("[")
+    if not br or field not in BATCHED_SHAPE_FIELDS:
+        return None
+    try:
+        return int(rest.rstrip("]"))
+    except ValueError:
+        return None
+
+
+def _same_axis(a: int, b: int, rank: int) -> bool:
+    """Whether two indices name the same axis of a shape of *rank*.
+
+    Negative indices count from the end, so on a 3-axis shape ``[-3]`` and
+    ``[0]`` are one axis. Comparing the literals would let ``[-3]`` walk past
+    the rule that ``[0]`` is refused by.
+    """
+    norm = lambda i: i + rank if i < 0 else i
+    return norm(a) == norm(b)
+
+
 def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
             where: str = "", stage_id: str | None = None,
             repeats: dict | None = None, batch_axis: int | None = None) -> str:
@@ -240,12 +264,30 @@ def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
         head, _, rest = ref.partition(".")
         path = [p for p in rest.split(".") if p] if rest else []
 
-        def shaped(value):
+        def shaped(value, dig=None):
+            # A DECLARED BATCH AXIS MUST NOT COME BACK THROUGH AN INDEX.
+            #
+            # `{stage.out_shape}` hides it and `{stage.out_shape[0]}` handed it
+            # straight back, because 1 is a true number and nothing objected.
+            # That is a claim with a path it does not reach: the spec has said
+            # this axis carries nothing, so asking for it is an error rather than
+            # a fact. Every OTHER index still addresses the traced shape --
+            # renumbering them would silently move what index 1 means.
+            if batch_axis is not None and dig is not None:
+                axis = _indexed_axis(path)
+                if axis is not None:
+                    rank = len(dig(path[:-1] + [path[-1].partition("[")[0]]))
+                    if _same_axis(axis, batch_axis, rank):
+                        raise FactError(
+                            f"this spec declares axis {batch_axis} the batch and "
+                            f"does not draw it, so {{{ref}}} asks for a number "
+                            "the figure has said carries nothing. Use a named "
+                            "axis, or drop batch_axis if you need it shown")
             return Graph.fmt(drop_batch(value, path, batch_axis))
 
         try:
             if head == "model":
-                return shaped(graph.model_fact(path))
+                return shaped(graph.model_fact(path), graph.model_fact)
             if head == "stage":
                 if node_ids is None:
                     raise FactError("'stage.' used outside a stage")
@@ -255,13 +297,16 @@ def resolve(text: str, graph: Graph, *, node_ids=None, stages=None,
                         raise FactError(
                             "this stage has no verified repeat count")
                     return Graph.fmt(n)
-                return shaped(graph.stage_fact(node_ids, path))
+                return shaped(graph.stage_fact(node_ids, path),
+                              lambda q: graph.stage_fact(node_ids, q))
             if head.startswith("node:"):
-                return shaped(graph.node_fact(head[5:], path))
+                return shaped(graph.node_fact(head[5:], path),
+                              lambda q: graph.node_fact(head[5:], q))
             if head.startswith("stage:"):
                 if stages is None or head[6:] not in stages:
                     raise FactError(f"no stage {head[6:]!r}")
-                return shaped(graph.stage_fact(stages[head[6:]], path))
+                return shaped(graph.stage_fact(stages[head[6:]], path),
+                              lambda q: graph.stage_fact(stages[head[6:]], q))
         except FactError as exc:
             raise FactError(f"{where}: {{{ref}}} -> {exc}") from None
         raise FactError(
