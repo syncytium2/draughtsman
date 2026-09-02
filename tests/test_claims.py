@@ -34,7 +34,17 @@ def _rows() -> list[dict]:
     text = CLAIMS.read_text()
     body = text.split("## Open claims", 1)[1].split("## Queue", 1)[0]
     out = []
+    fenced = False
     for line in body.splitlines():
+        # A FENCED BLOCK IS DOCUMENTATION, NOT DATA. The board carries a worked
+        # row for the next session to copy, and reading it as a claim made the
+        # check demand a branch called `some-branch`. A parser that cannot tell an
+        # example from an entry turns the instructions into failures.
+        if line.strip().startswith("```"):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
         line = line.strip()
         if not line.startswith("|") or line.startswith("|---"):
             continue

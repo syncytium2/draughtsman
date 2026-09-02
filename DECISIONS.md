@@ -186,6 +186,7 @@ same kind of tidy-and-slightly-false this correction is about.
 | `{stage.out_shape}` guessed when a stage had two exits | the causal mask's `12×12` where the embedding's `1×12×384` belonged | green | shipped |
 | An indexed reference handed back the batch axis the figure declares it hides | `1`, in a figure showing `30×600` | green | **in review** |
 | A claim board's paths were typed by hand | *(not a figure — a session's row named three files while its branch touched nine, two of them files another session was editing)* | green | in review |
+| CI ran only after code was already on `main` | *(not a figure — the suite was red for six hours and two sessions pushed onto it)* | green on the last branch that ran | shipped, for six hours |
 
 **The sixth row is the only one that is evidence this write-up does anything.**
 The first five were found after they shipped, by someone tripping over a wrong
@@ -216,8 +217,18 @@ against the branches it described. A row naming three files was made on a branch
 touching nine, and two of the omitted files were being edited by someone else at
 the time. The board said both sessions were clear.
 
-That one is worth its row because it is the first instance found in the *process*
-rather than in the product, and it arrived in the file that cites this correction.
+Those are worth their rows because they are the first instances found in the
+*process* rather than in the product, and one of them arrived in the file that
+cites this correction.
+
+**The eighth is the sharpest of all of them, because the check existed.** The CI
+workflow ran `on: push: branches: [main]`, and sessions here push a branch and
+then fast-forward `main` onto it — so the first run always happened *after* the
+code was on `main`. It was a post-mortem attached to a branch nobody watched, not
+a gate, and it reported green from the last branch that had run while `main` was
+red for six hours. A check that cannot fail before the thing it guards is not a
+weaker check than none; it is worse, because its green is read as evidence. Now
+`on: push` unfiltered, so a branch is tested in the minute it is pushed.
 The fix is the same fix: `git diff --name-only origin/main...<branch>` is the list,
 computed, and the check now fails when the typed one has fallen behind it.
 

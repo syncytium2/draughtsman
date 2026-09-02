@@ -63,10 +63,23 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-fa` | `claim-board` | `tests/test_claims.py`, `README.md`, `DECISIONS.md` | 2026-09-02 | This file and its check |
 
-`draughtsman-f0` and `draughtsman-e9` hold no claims. `name-every-axis` landed as
-`cb7fc2a` and its row was removed by the check that noticed it had.
+No session holds a claim. The table is empty because the work is landed, which is
+the correct state and a legal one — an earlier version of the check required a row
+and would have gone red forever the moment the last session released, which is
+[`DECISIONS.md`](DECISIONS.md) correction 5 arriving in the check meant to enforce
+it.
+
+A real claim that was held and released, kept as the worked example — it is inside
+a fenced block, so the check reads it as documentation rather than as a live row:
+
+```
+| `draughtsman-e9` | `name-every-axis` | `src/draughtsman/facts.py`, `src/draughtsman/spec.py`, `DECISIONS.md` | 2026-09-02 | Naming shape axes so a reader can tell which is which |
+```
+
+**Expired**, and instructive twice over: it shows a claim naming its paths rather
+than an intention, which is rule 3 — and those three paths were not all of them.
+The branch touched nine files. Rule 5 exists because of this row.
 
 ## Queue — unclaimed, roughly in the order they are worth doing
 
@@ -85,21 +98,23 @@ parallelism, and nothing verifies that a lane count is attached to a single
 sublayer. Two sessions have agreed it should stay open and honest rather than get
 a heuristic — so the first move is a design, not a commit.
 
-**3. The glyph is still under consideration.** Tony has `block` and now `marks`
-in front of him and has not settled. Nothing should be built on top of the glyph
-until he does, and only CASCADE declares one, so the cost of a reversal is one
-spec file.
+**3. Meters and glyphs are used on one model out of eleven.** `block` and
+`marks` are not competing proposals waiting on a decision — they are styles
+**selected per figure**, the way `lanes` or `wrap` are, and a spec picks whichever
+suits its model. An earlier version of this queue listed "settle the glyph" as a
+blocker and stood another session down for it; there was never anything to settle.
+The open work is editorial and per-model: U-Net is the strongest candidate, since
+a glyph per stage would make it read as a U in channel space, which
+[`examples/gallery/README.md`](examples/gallery/README.md) notes a ranked layout
+cannot produce. `marks` suits models with countable axes; `block` suits wide
+ranges.
 
-**4. Meters and glyphs exist on one model out of eleven.** U-Net is the strongest
-candidate — a glyph per stage would make it read as a U in channel space, which
-`examples/gallery/README.md` notes a ranked layout cannot produce. Blocked on 3.
-
-**5. Public-readiness, remainder.** Install instructions, the zero-dependency
+**4. Public-readiness, remainder.** Install instructions, the zero-dependency
 claim and a friendly no-torch error are done. Not done: nothing states which
 Python versions are supported outside CI, and no `CONTRIBUTING` or issue template
 exists for a repo that may be read as a record of working with Claude Code.
 
-**6. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
+**5. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
 published artifact; none is in the estate's figure store, whose own README says a
 figure nobody can re-run, date or attribute is one the next session re-derives.
 `bugarach/net-figure-options/` — the regression suite `SPEC.md` §2 says to keep —
