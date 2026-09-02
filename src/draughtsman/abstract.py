@@ -81,6 +81,24 @@ LAYOUT SPEC for a figure a person can read. Read these four rules first.
    something that enters ONCE — a mask, an initial state — which belongs
    upstream, not in one of N identical blocks.
 
+9. A SMALL AXIS CAN BE COUNTED INSTEAD OF COMPARED. `glyph` defaults to
+   `"style": "block"` — one rectangle, scaled against the figure, which answers
+   "bigger or smaller than that one". `"style": "marks"` answers a different
+   question: HOW MANY. `axes[0]` becomes rows and `axes[1]` columns, so a 3x5
+   tensor draws three rows of five objects a reader can literally count, and a
+   single countable axis draws a column of that many.
+
+   Counting stops working around thirty. An axis past the limit is NOT drawn as
+   marks — it becomes a solid bar with its number beside it, so `1x30x600` is
+   thirty marks down the page with `600` written under them. That is automatic
+   and you cannot override it: marks nobody can count are a picture pretending to
+   be a number.
+
+   Use marks where the count is the point — channels, filters, heads, scales —
+   and block where the question is relative size. `axes` indexes the shape AS
+   DRAWN, so if the spec declares a `batch_axis` the hidden axis is not there to
+   be indexed.
+
 Aim for six to twelve stages. Fewer and the figure says nothing; more and it is
 the trace again, which is already unreadable.
 """
@@ -124,7 +142,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "meters": [{"value": "{stage.params}", "label": "params"}],
       "repeat": {"template": ["<stage id>", "<stage id>"]},
       "glyph": {"of": "{stage.out_shape}", "axes": [1, 2],
-                "labels": ["channels", "frames"], "scale": "sqrt"}
+                "labels": ["channels", "frames"], "scale": "sqrt",
+                "style": "block|marks"}
     }
   ],
   "edges": [

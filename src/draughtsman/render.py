@@ -46,6 +46,23 @@ METER_BAR_W = 54.0
 # The glyph's canvas. Constant for every stage in the figure, because the scale
 # is shared: two stages with the same tensor must draw the same rectangle.
 GLYPH_W, GLYPH_H, GLYPH_ROW, GLYPH_MIN = 46.0, 26.0, 32.0, 1.5
+# MARKS: the tensor drawn as objects a reader can count, rather than a rectangle
+# they can only compare. axes[0] is rows and axes[1] is columns, so a 3x5 tensor
+# is three rows of five and a single countable axis is a column of that many.
+#
+# MARK_MAX IS THE HONEST LIMIT AND IT IS LOW ON PURPOSE. Counting stops working
+# somewhere around thirty objects; past that the eye estimates, and marks it
+# cannot count are a picture pretending to be a number. An axis over the limit is
+# drawn as a solid bar with its count written beside it -- which is also what
+# those marks would look like at the pitch they would need, so it is the same
+# drawing continued rather than a different one.
+MARK_MAX = 32
+# PITCH IS SET BY COUNTABILITY, NOT BY FIT. At 3.2 the marks touched and thirty
+# of them read as a dotted line -- a picture of "many", which is the thing the
+# block already does better. They have to be separable to be countable, and if
+# that makes a thirty-element box tall then the box is tall: the height IS the
+# thirty, and shrinking it to fit would trade the only claim this style makes.
+MARK_PITCH, MARK_SIZE, MARK_BAR_H, MARK_BAR_ROW = 5.0, 3.0, 5.0, 11.0
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -152,6 +169,37 @@ def _fmt(v: float) -> str:
     return f"{round(v, 2):g}"
 
 
+class _Marks:
+    """The geometry of a countable glyph: what is drawn, and what is too big.
+
+    Each axis is countable or it is not, and the two cases are drawn differently
+    rather than blended: countable becomes that many marks, uncountable becomes a
+    bar with the number. A stage may have one of each — `1x30x600` draws thirty
+    marks down the page with `600` written under them, which is the shape a reader
+    was going to have to hold in their head anyway.
+    """
+
+    def __init__(self, shape: tuple[float, float], labels: list[str]):
+        self.rows, self.cols = int(shape[0]), int(shape[1])
+        self.labels = list(labels) + ["", ""]
+        self.rows_ok = 0 < self.rows <= MARK_MAX
+        self.cols_ok = 0 < self.cols <= MARK_MAX
+
+        grid_cols = self.cols if self.cols_ok else 1
+        grid_rows = self.rows if self.rows_ok else 1
+        self.grid_w = grid_cols * MARK_PITCH
+        self.grid_h = grid_rows * MARK_PITCH
+
+        # a bar per axis that could not be drawn, each on its own row underneath
+        self.bars = [(i, self.rows if i == 0 else self.cols)
+                     for i, ok in ((0, self.rows_ok), (1, self.cols_ok)) if not ok]
+        bar_text = max((width(f"{n}", METER_SIZE) for _, n in self.bars),
+                       default=0.0)
+        self.w = max(self.grid_w, METER_BAR_W + 4 + bar_text if self.bars else 0)
+        self.h = ((self.grid_h if self.rows_ok or self.cols_ok else 0)
+                  + MARK_BAR_ROW * len(self.bars))
+
+
 class _Stage:
     """One stage, measured."""
 
@@ -186,17 +234,23 @@ class _Stage:
         widths += [width(lbl, METER_SIZE) + 5 + METER_BAR_W
                    for lbl, _ in self.meters]
         self.glyph: tuple[float, float] | None = None
+        self.marks: _Marks | None = None
         if stage.glyph:
             shape = _shape_axes(
                 resolve(stage.glyph.of, graph, node_ids=stage.nodes,
                         stages=stages, where=where), stage.glyph, where)
             self.glyph = shape
-            widths.append(GLYPH_W)
+            if stage.glyph.style == "marks":
+                self.marks = _Marks(shape, stage.glyph.labels)
+                widths.append(self.marks.w)
+            else:
+                widths.append(GLYPH_W)
         self.w = max(MIN_W, max(widths) + 2 * PAD_X)
         self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
                   + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
                   + (METER_ROW * len(self.meters) + 4 if self.meters else 0)
-                  + (GLYPH_ROW if self.glyph else 0))
+                  + (self.marks.h + 6 if self.marks
+                     else GLYPH_ROW if self.glyph else 0))
 
 
 def render(spec: Spec, graph: Graph) -> str:
@@ -235,12 +289,19 @@ def render(spec: Spec, graph: Graph) -> str:
     glyphed = [m for m in measured.values() if m.spec.glyph]
     if glyphed:
         lbl = glyphed[0].spec.glyph.labels
-        rows.append(("__glyph__",
-                     f"{lbl[0]} × {lbl[1]}",
-                     f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
-                     + ("each edge ∝ value"
-                        if glyphed[0].spec.glyph.scale == "linear"
-                        else "each edge ∝ √value")))
+        if glyphed[0].spec.glyph.style == "marks":
+            # A different claim, so a different key. The block says "compare
+            # these areas"; marks say "count these". Stating the limit is part of
+            # it — a bar means the count was past counting, and a reader not told
+            # that will read the bar as an axis of one.
+            note = (f"one mark = one {lbl[0].rstrip('s') or 'element'} · "
+                    f"a bar means more than {MARK_MAX}, counted beside it")
+        else:
+            note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
+                    + ("each edge ∝ value"
+                       if glyphed[0].spec.glyph.scale == "linear"
+                       else "each edge ∝ √value"))
+        rows.append(("__glyph__", f"{lbl[0]} × {lbl[1]}", note))
     legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
                     + 6 + width(sh, LEGEND_SIZE) + 18
                     for _, lbl, sh in rows), default=0.0)
@@ -584,7 +645,10 @@ def _box(box, m: _Stage, scales: dict[str, float],
             )
             y += LANE_ROW
 
-    if m.glyph:
+    if m.marks:
+        y = _draw_marks(parts, m.marks, box, y, stroke)
+
+    elif m.glyph:
         tall, wide = m.glyph
         sc = m.spec.glyph.scale
         gh = _edge_px(tall, gscale[0], GLYPH_H, sc)
@@ -662,6 +726,52 @@ def _meter_scales(measured) -> dict[str, float]:
         for label, value in m.meters:
             scales[label] = max(scales.get(label, 0.0), value)
     return scales
+
+
+def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> float:
+    """Draw the countable axes as marks and the rest as bars with their numbers.
+
+    Marks are drawn at one mark per element, never scaled to fit: the whole claim
+    is that they can be counted, and a grid squeezed to fit its box would be a
+    picture of a number rather than the number. The box widened for this in
+    `_Stage` instead.
+    """
+    top = y + 3
+    if mk.rows_ok or mk.cols_ok:
+        gx = box.x + (box.w - mk.grid_w) / 2.0
+        rows = mk.rows if mk.rows_ok else 1
+        cols = mk.cols if mk.cols_ok else 1
+        pad = (MARK_PITCH - MARK_SIZE) / 2.0
+        for r in range(rows):
+            for c in range(cols):
+                parts.append(
+                    f'<rect class="ds-mark" '
+                    f'x="{_fmt(gx + c * MARK_PITCH + pad)}" '
+                    f'y="{_fmt(top + r * MARK_PITCH + pad)}" '
+                    f'width="{_fmt(MARK_SIZE)}" height="{_fmt(MARK_SIZE)}" '
+                    f'style="fill:{stroke};fill-opacity:0.75"/>'
+                )
+        top += mk.grid_h
+
+    for axis, n in mk.bars:
+        # Past counting. A solid bar and the number, which is what those marks
+        # would have looked like at the pitch they would have needed.
+        bx = box.x + (box.w - (METER_BAR_W + 4
+                               + width(f"{n}", METER_SIZE))) / 2.0
+        parts.append(
+            f'<rect class="ds-mark-bar" x="{_fmt(bx)}" '
+            f'y="{_fmt(top + (MARK_BAR_ROW - MARK_BAR_H) / 2)}" '
+            f'width="{_fmt(METER_BAR_W)}" height="{_fmt(MARK_BAR_H)}" rx="1" '
+            f'style="fill:{stroke};fill-opacity:0.75"/>'
+        )
+        parts.append(
+            f'<text class="ds-mark-count" x="{_fmt(bx + METER_BAR_W + 4)}" '
+            f'y="{_fmt(top + MARK_BAR_ROW - 3)}" '
+            f'style="font-family:{FONT_STACK};font-size:{METER_SIZE}px;'
+            f'fill:{MUTED}">{escape(str(n))}</text>'
+        )
+        top += MARK_BAR_ROW
+    return y + mk.h + 6
 
 
 def _shape_axes(text: str, glyph, where: str) -> tuple[float, float]:

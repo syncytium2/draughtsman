@@ -95,6 +95,14 @@ class Glyph:
     # pixel -- a figure showing "big" and "absent" rather than a range. Whichever
     # is chosen, the legend names it, so the compression is never silent.
     scale: str = "sqrt"
+    # "block" (default) draws one rectangle scaled against the whole figure.
+    # "marks" draws the axes as COUNTABLE OBJECTS instead -- axes[0] as rows,
+    # axes[1] as columns, so a 3x5 tensor is three rows of five and a lone
+    # countable axis is a column. It is the more literal encoding and the more
+    # limited one: a reader can count to about thirty and no further, so an axis
+    # past that is drawn as a solid bar with its number rather than as marks
+    # nobody could count. See MARK_MAX in render.py.
+    style: str = "block"
 
 
 @dataclass
@@ -184,7 +192,8 @@ def load(doc: dict) -> Spec:
             glyph=(Glyph(of=raw["glyph"]["of"],
                          axes=list(raw["glyph"]["axes"]),
                          labels=list(raw["glyph"]["labels"]),
-                         scale=raw["glyph"].get("scale", "sqrt"))
+                         scale=raw["glyph"].get("scale", "sqrt"),
+                         style=raw["glyph"].get("style", "block"))
                    if raw.get("glyph") else None),
         ))
     edges = [Edge(src=e["from"], dst=e["to"], label=e.get("label"),
@@ -226,6 +235,8 @@ def dump(spec: Spec) -> dict:
                             "labels": s.glyph.labels}
             if s.glyph.scale != "sqrt":
                 rec["glyph"]["scale"] = s.glyph.scale
+            if s.glyph.style != "block":
+                rec["glyph"]["style"] = s.glyph.style
         out["stages"].append(rec)
     out["edges"] = [
         {k: v for k, v in (("from", e.src), ("to", e.dst), ("label", e.label),
