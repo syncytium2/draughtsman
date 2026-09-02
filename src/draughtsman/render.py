@@ -278,8 +278,13 @@ def render(spec: Spec, graph: Graph) -> str:
     out.append(f'<g class="ds-body" '
                f'transform="translate({_fmt(shift)} {_fmt(head_h)})">')
 
+    # Every box is something an edge label must not land on, and so is every
+    # label already placed. Routes are walked in the spec's edge order, so which
+    # label gets the good spot is decided by the spec and not by chance.
+    occupied = [(b.x, b.y - b.h / 2, b.x + b.w, b.y + b.h / 2)
+                for b in drawing.boxes.values() if not b.dummy]
     for route in drawing.routes:
-        out.append(_edge(route, drawing.vertical))
+        out.append(_edge(route, drawing.vertical, occupied))
 
     for sid, m in measured.items():
         out.append(_box(drawing.boxes[sid], m, scales, gscale))
@@ -398,7 +403,76 @@ def _towards(frm, to, by):
             frm[1] + (to[1] - frm[1]) * by / length)
 
 
-def _edge(route, vertical: bool = False) -> str:
+EDGE_LABEL_SIZE = 9.0
+LABEL_GAP = 4.0
+# How far along the path to try, in order. The true middle first, then either
+# side of it — a label pushed off-centre still reads as belonging to its edge,
+# and a label on top of a box does not.
+LABEL_STOPS = (0.5, 0.42, 0.58, 0.34, 0.66, 0.26, 0.74)
+
+
+def _along(points, t: float) -> tuple[float, float]:
+    """The point *t* of the way along a polyline BY LENGTH.
+
+    Not `points[len(points) // 2]`, which was the bug this replaces: for a
+    two-point edge that index is the destination's entry point, so every short
+    labelled edge drew its label centred on the box it pointed at. Whisper is
+    where it was noticed, because its label was long enough to be obvious, but
+    every one of them was doing it.
+    """
+    spans = [_dist(a, b) for a, b in zip(points, points[1:])]
+    total = sum(spans)
+    if total <= 0:
+        return points[0]
+    want = total * t
+    for (ax, ay), (bx, by), span in zip(points, points[1:], spans):
+        if want > span:
+            want -= span
+            continue
+        f = want / span if span else 0.0
+        return (ax + (bx - ax) * f, ay + (by - ay) * f)
+    return points[-1]
+
+
+def _overlaps(a, b) -> bool:
+    return not (a[2] <= b[0] or b[2] <= a[0] or a[3] <= b[1] or b[3] <= a[1])
+
+
+def _label_rect(x: float, y: float, w: float) -> tuple[float, float, float, float]:
+    """`y` is a text baseline; the ink sits above it."""
+    return (x - w / 2, y - EDGE_LABEL_SIZE * 0.8, x + w / 2,
+            y + EDGE_LABEL_SIZE * 0.25)
+
+
+def _place_label(points, text: str, vertical: bool, occupied) -> tuple[float, float]:
+    """A spot on the path where the label lands on nothing.
+
+    Tries the middle first, then along the path, then further off it. Failing
+    everything it returns the least bad spot rather than refusing to draw: a
+    label that is hard to read still carries more than a label that is absent,
+    and absent is what the workaround for this bug had to do to Whisper's figure.
+    """
+    w = width(text, EDGE_LABEL_SIZE)
+    best, best_cost = None, None
+    for t in LABEL_STOPS:
+        cx, cy = _along(points, t)
+        for step in (0, 1, 2):
+            for sign in (-1, 1):
+                off = (LABEL_GAP + step * (EDGE_LABEL_SIZE + 3)) * sign
+                x, y = ((cx + off, cy + EDGE_LABEL_SIZE * 0.35) if vertical
+                        else (cx, cy + off - LABEL_GAP))
+                rect = _label_rect(x, y, w)
+                cost = sum(1 for o in occupied if _overlaps(rect, o))
+                if cost == 0:
+                    occupied.append(rect)
+                    return x, y
+                if best_cost is None or cost < best_cost:
+                    best, best_cost = (x, y), cost
+    occupied.append(_label_rect(best[0], best[1], w))
+    return best
+
+
+def _edge(route, vertical: bool = False, occupied=None) -> str:
     pts = route.points
     if route.wrapped:
         d = _ortho(pts)
@@ -423,11 +497,12 @@ def _edge(route, vertical: bool = False) -> str:
         f'marker-end="url(#ds-arrow)"/>'
     ]
     if route.label:
-        mid = pts[len(pts) // 2]
+        lx, ly = _place_label(pts, route.label, vertical,
+                              [] if occupied is None else occupied)
         parts.append(
-            f'<text class="ds-edge-label" x="{_fmt(mid[0])}" '
-            f'y="{_fmt(mid[1] - 5)}" text-anchor="middle" '
-            f'style="font-family:{FONT_STACK};font-size:9px;'
+            f'<text class="ds-edge-label" x="{_fmt(lx)}" '
+            f'y="{_fmt(ly)}" text-anchor="middle" '
+            f'style="font-family:{FONT_STACK};font-size:{EDGE_LABEL_SIZE}px;'
             f'fill:{PAGE_MUTED}">{escape(route.label)}</text>'
         )
     return "".join(parts)
