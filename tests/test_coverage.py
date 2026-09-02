@@ -665,6 +665,7 @@ def test_a_positively_indexed_glyph_is_warned_about_under_a_batch_axis(
     import copy
     doc = copy.deepcopy(tube_spec_doc)
     for stage in doc["stages"]:
+        stage.pop("glyph", None)      # tube carries its own; this test owns none
         if stage["id"] == "raster":
             stage["glyph"] = {"of": "{stage.out_shape}", "axes": [0, 1],
                               "labels": ["cells", "frames"]}
@@ -680,6 +681,7 @@ def test_a_negatively_indexed_glyph_is_not_warned_about(tube_spec_doc, tube_grap
     import copy
     doc = copy.deepcopy(tube_spec_doc)
     for stage in doc["stages"]:
+        stage.pop("glyph", None)
         if stage["id"] == "raster":
             stage["glyph"] = {"of": "{stage.out_shape}", "axes": [-2, -1],
                               "labels": ["cells", "frames"]}

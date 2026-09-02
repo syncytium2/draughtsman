@@ -11,7 +11,9 @@
       "kind": "input",
       "nodes": ["in1"],
       "detail": ["{stage.out_shape}", "cells × frames, binary"]
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "widen",
       "name": "widen each onset",
@@ -19,7 +21,9 @@
       "nodes": ["n0017", "n0021", "n0031", "n0033"],
       "detail": ["max-pool, width fitted", "{stage.out_shape}"],
       "note": "Per cell. The raster is already binary, so this widens rather than caps. The width is 2·kmin+1 and kmin is read from a trained parameter, so the traced 3 belongs to an untrained instantiation and is not drawn."
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "mean",
       "name": "mean over cells",
@@ -27,7 +31,9 @@
       "nodes": ["n0038", "n0039"],
       "detail": ["{stage.out_shape}", "all cells → one trace"],
       "note": "Cells are summed, so the model never sees which cell is which."
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "dog",
       "name": "difference-of-Gaussian bank",
@@ -48,14 +54,18 @@
         "labels": ["σ₁", "σ₂", "σ₃", "σ₄"]
       },
       "note": "Centre minus surround, integrating to zero, so a uniform rate change cancels. The widths are fitted, not set — the labels are indices, not measurements."
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "concat",
       "name": "concatenate",
       "kind": "concat",
       "nodes": ["n0119"],
       "detail": ["{stage.out_shape[1]} channels", "{stage.out_shape}"]
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "head",
       "name": "dilated conv stack",
@@ -69,7 +79,9 @@
         "{stage.params} params",
         "{stage.out_shape}"
       ]
-    },
+    ,
+     "glyph": {"of": "{stage.out_shape}", "axes": [-2, -1],
+               "labels": ["channels", "frames"], "style": "marks"}},
     {
       "id": "score",
       "name": "per-frame score",

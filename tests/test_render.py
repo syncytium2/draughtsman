@@ -180,10 +180,30 @@ def test_the_legend_is_off_unless_the_spec_asks(tube_spec, tube_graph):
     """Adding this field changed no committed figure but tube's."""
     import copy
     from draughtsman.render import render
+    # Stripped of glyphs on both sides: a glyph carries its own legend row
+    # whatever the flag says, because an unexplained rectangle is worse than a
+    # legend nobody asked for. The flag governs the colour families, and that is
+    # what this test is about.
+    bare = copy.deepcopy(tube_spec)
+    for st in bare.stages:
+        st.glyph = None
+    off = copy.deepcopy(bare)
+    off.layout.legend = False
+    bare.layout.legend = True
+    assert "ds-legend" not in render(off, tube_graph)
+    assert "ds-legend" in render(bare, tube_graph)
+
+
+def test_a_glyph_carries_its_key_even_with_the_legend_off(tube_spec, tube_graph):
+    """`tube` draws marks and sets no legend flag. The key still appears, and it
+    has to: "one mark = one channel, a bar means more than 32" is the difference
+    between a countable drawing and a decorative one."""
+    import copy
+    from draughtsman.render import render
     off = copy.deepcopy(tube_spec)
     off.layout.legend = False
-    assert "ds-legend" not in render(off, tube_graph)
-    assert "ds-legend" in render(tube_spec, tube_graph)
+    assert any(st.glyph for st in off.stages), "tube lost its glyphs"
+    assert "one mark = one" in render(off, tube_graph)
 
 
 def test_meters_scale_against_the_largest_in_their_series(tube_spec_doc,
@@ -234,6 +254,14 @@ def _glyphed(doc, ids, **over):
     """
     import copy
     d = copy.deepcopy(doc)
+    # `tube` now carries glyphs of its own, and these tests use its spec as a
+    # blank canvas. A test that builds a scenario on a committed spec has to
+    # neutralise what it does not control, or it fails the day the corpus gains
+    # a feature -- which is what happened here. Stripped from the COPY: the first
+    # version of this stripped `doc`, which is the session-scoped fixture, and
+    # would have corrupted every test that ran after it.
+    for s in d["stages"]:
+        s.pop("glyph", None)
     drop = 1 if d.get("batch_axis") is not None else 0
     for stage in d["stages"]:
         if stage["id"] in ids:
@@ -251,8 +279,16 @@ def test_the_glyph_scales_both_edges_and_never_resizes_the_box(tube_spec_doc,
     from draughtsman.spec import load
     from draughtsman.render import GLYPH_H, GLYPH_W
 
-    plain = render(load(tube_spec_doc), tube_graph)
-    doc = _glyphed(tube_spec_doc, {"dog", "head", "concat"}, scale="linear")
+    # Both sides from the same glyph-free baseline. `tube` draws MARKS, which
+    # widen a box on purpose — that is the one glyph style whose size is its
+    # claim — so comparing against the committed spec would be comparing marks
+    # with blocks and calling it a regression.
+    import copy
+    bare = copy.deepcopy(tube_spec_doc)
+    for st in bare["stages"]:
+        st.pop("glyph", None)
+    plain = render(load(bare), tube_graph)
+    doc = _glyphed(bare, {"dog", "head", "concat"}, scale="linear")
     svg = render(load(doc), tube_graph)
 
     boxes = lambda s: re.findall(r'<rect x="([\d.]+)" y="[\d.]+" '

@@ -32,6 +32,12 @@ COUNT = re.compile(r'class="ds-mark-count"[^>]*>([^<]*)<')
 #: reader sees; see DECISIONS.md correction 6.
 def _with_glyph(doc, stage_id, **glyph):
     doc = copy.deepcopy(doc)
+    # `tube` now carries glyphs of its own, and these tests use its spec as a
+    # blank canvas. A test that builds a scenario on a committed spec has to
+    # neutralise what it does not control, or it fails the day the corpus gains
+    # a feature -- which is what happened here.
+    for s in doc["stages"]:
+        s.pop("glyph", None)
     stage = next(s for s in doc["stages"] if s["id"] == stage_id)
     stage["glyph"] = {"labels": ["rows", "cols"], "style": "marks", **glyph}
     return doc
@@ -117,7 +123,11 @@ def test_the_box_grows_for_its_marks(tube_graph, tube_spec_doc):
     """Marks are drawn at a fixed pitch and the box widens to hold them. The
     alternative — scaling the grid into the box it was given — would make two
     stages with different counts draw the same picture."""
-    plain = render(load(tube_spec_doc), tube_graph)
+    import copy
+    bare = copy.deepcopy(tube_spec_doc)
+    for st in bare["stages"]:
+        st.pop("glyph", None)
+    plain = render(load(bare), tube_graph)
     marked = render(load(_with_glyph(tube_spec_doc, "raster",
                                      of="{stage.out_shape}", axes=[0, 1],
                                      labels=["cells", "frames"])), tube_graph)
