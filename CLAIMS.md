@@ -123,12 +123,24 @@ the type**; `check` fails when the effective point size falls under the floor. O
 quantity, one implementation, something that fails. `render.py` and `layout.py`,
 so `draughtsman-f0`'s if it is live, otherwise open.
 
-**4. `pip install draughtsman` INSTALLS SOMEONE ELSE'S PACKAGE.** PyPI
-`draughtsman` is Kyle Fuller's API Blueprint parser, 0.2.0, last released
-2020-03-26 — verified against the PyPI JSON API, not assumed. `pyproject.toml`
-declares `name = "draughtsman"`, which cannot be uploaded. Needs a distribution
-name that is free, or a PEP 541 name transfer, and transfers take weeks. **Start
-before any publish, not after.** Found by `draughtsman-65`.
+**4. The PyPI name — done, with one optional remainder.** The distribution is
+`draughtsman-nn` as of `0e2fa58`; the import package, the `draughtsman` command
+and this repository keep the spelling. `tests/test_dist_name.py` ties the places
+that state the name to `pyproject.toml`, the only executed one. The live defect
+it exposed: `cli.py` told a reader without torch to run
+`pip install 'draughtsman[trace]'`, which is not a stale promise but a working
+instruction that fetches Kyle Fuller's API Blueprint parser.
+
+Open, and optional: asking Kyle Fuller for the name. They are active (GitHub
+profile updated 2026-06-04) and `apiaryio/drafter`, the parser theirs wraps, is
+archived — so the upstream that gave it its purpose is gone, which is the
+argument to make. Owner consent is routine where a PEP 541 dispute over a package
+that shipped releases usually fails. Not a blocker: nothing waits on it.
+
+**Do not "simplify" this to `draftsman`.** The distribution name is free and the
+import name is not: `factorio-draftsman` installs a top-level `draftsman/` and
+released 2026-06-13. It trades a collision with a package abandoned in 2020 for
+one with a package that ships. Checked by pulling the wheel.
 
 **5. Public-readiness, remainder.** Install instructions, the zero-dependency
 claim, a friendly no-torch error and the supported-Python range are done — the
