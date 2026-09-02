@@ -102,30 +102,79 @@ class Graph:
     def stage_params(self, node_ids) -> int:
         return sum(self.nodes[n]["params"] for n in node_ids if n in self.nodes)
 
-    def stage_terminal(self, node_ids) -> str:
-        """The node a stage exits through.
+    def stage_exits(self, node_ids) -> list[str]:
+        """Every member of a stage whose output leaves it, in trace order.
 
-        The last stage member in trace order whose output is consumed outside the
-        stage, or simply the last member. Trace order is topological, so for any
-        grouping that is contiguous in the computation this is the exit.
+        USUALLY THERE IS ONE. When there are several, `{stage.out_shape}` has no
+        single answer, and the old code silently returned the last — see
+        :meth:`stage_fact` for why that is worth an error rather than a guess.
         """
         members = [n for n in self.order if n in set(node_ids)]
         if not members:
             raise FactError("stage has no nodes in graph.json")
         inside = set(members)
-        for nid in reversed(members):
+        exits = []
+        for nid in members:
             consumers = [m for m in self.order
                          if nid in self.nodes[m].get("tensor_inputs", [])]
-            if any(c not in inside for c in consumers) or not consumers:
-                return nid
-        return members[-1]
+            if not consumers or any(c not in inside for c in consumers):
+                exits.append(nid)
+        return exits or [members[-1]]
+
+    def stage_terminal(self, node_ids) -> str:
+        """The node a stage exits through, when that is not in doubt."""
+        return self.stage_exits(node_ids)[-1]
 
     def stage_fact(self, node_ids, path: list[str]):
+        """A fact about the stage as a whole.
+
+        `params` and `nodes` are properties of the membership, so they are
+        summed. Everything else is a property of the node the stage EXITS
+        THROUGH, and that is where this got dangerous.
+
+        WHAT HAPPENED. Whisper's embedding stage carried two causal-mask slices.
+        They were moved upstream — correctly, a mask enters once and does not
+        belong inside one of four repeated blocks — and that changed which member
+        was last out. `{stage.out_shape}` silently stopped meaning the embedding's
+        1x12x384 and started meaning the mask's 12x12. Every reference still
+        resolved. Coverage was green, the edge assertion was green, the repeat
+        verified, and the figure stated the wrong shape. It was caught by a person
+        looking at the picture, which is the one check SPEC.md §5 admits it cannot
+        make.
+
+        So: when a stage has several exits, ask each of them. If they agree there
+        was never any ambiguity and the answer stands. If they disagree, REFUSE —
+        naming the candidates and what each would have said. A figure with a
+        missing number beats one with a wrong one, and this module already
+        declines to guess everywhere else.
+
+        Note what is NOT offered: a way to declare which exit is meant. The
+        reference to name one node already exists — `{node:n0123.out_shape}` — and
+        adding a second spelling for it would be two ways to say one thing.
+        """
         if path and path[0] == "params":
             return self._dig({"params": self.stage_params(node_ids)}, path, "stage")
         if path and path[0] == "nodes":
             return len(node_ids)
-        return self.node_fact(self.stage_terminal(node_ids), path)
+
+        exits = self.stage_exits(node_ids)
+        answers = {}
+        for nid in exits:
+            try:
+                answers[nid] = self.fmt(self.node_fact(nid, path))
+            except FactError:
+                answers[nid] = None
+        distinct = {v for v in answers.values() if v is not None}
+        if len(distinct) > 1:
+            said = ", ".join(f"{nid} would say {v}" for nid, v in answers.items()
+                             if v is not None)
+            raise FactError(
+                f"this stage exits through {len(exits)} nodes and they do not "
+                f"agree ({said}). Name the one you mean — "
+                f"{{node:{exits[-1]}.{'.'.join(path)}}} — rather than letting the "
+                "grouping decide it"
+            )
+        return self.node_fact(exits[-1], path)
 
 
 def repeat_counts(spec_stages, graph: Graph) -> dict[str, int | None]:

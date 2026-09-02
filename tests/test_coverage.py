@@ -91,16 +91,40 @@ def test_elision_needs_a_reason(spec_doc, tube_graph):
 
 
 def test_elision_with_a_reason_passes(spec_doc, tube_graph):
-    # An INTERIOR node of the kernel bank. This used to pop the last node of
-    # `widen`, which is the one `mean` consumes -- so eliding it severed the
-    # widen -> mean arrow, and once the edge assertion existed this test failed
-    # for a reason that had nothing to do with elision. Naming the node keeps the
-    # test about the thing it is named after.
+    # An interior node of the DILATED STACK, whose members all carry the same
+    # shape. Eliding anything interior necessarily gives its stage a second exit
+    # -- whatever fed the elided node now feeds something outside -- so the node
+    # has to be one where the two exits AGREE, or `{stage.out_shape}` is genuinely
+    # ambiguous and refuses. See test_elision_can_make_a_stage_ambiguous below.
+    #
+    # This is the third node this test has had to name. It popped `widen`'s last
+    # node until the edge assertion landed, then an interior node of the kernel
+    # bank until the exit check landed. Each move was the test being told
+    # something true about the elision it was performing.
+    def drop(d):
+        head = next(s for s in d["stages"] if s["id"] == "head")
+        head["nodes"].remove("n0150")
+        d["elided"] = [{"nodes": ["n0150"], "reason": "activation, not structure"}]
+    result = check(_mutate(spec_doc, drop), tube_graph)
+    assert result.errors == []
+
+
+def test_elision_can_make_a_stage_ambiguous(spec_doc, tube_graph):
+    """The other half, and the reason the test above had to move.
+
+    Eliding an interior node of the kernel bank orphans the `arange` that built
+    the kernel window, so the stage exits through both it and the convolution —
+    257 against 1x4x600. `{stage.out_shape}` then has no single answer, and the
+    old code silently returned the last one.
+    """
     def drop(d):
         dog = next(s for s in d["stages"] if s["id"] == "dog")
         dog["nodes"].remove("n0050")
         d["elided"] = [{"nodes": ["n0050"], "reason": "shape bookkeeping"}]
-    assert check(_mutate(spec_doc, drop), tube_graph).ok
+    result = check(_mutate(spec_doc, drop), tube_graph)
+    assert any("do not agree" in e for e in result.errors), result.errors
+    # and it names both candidates, so the author can pick one
+    assert any("n0046" in e and "n0116" in e for e in result.errors)
 
 
 def test_unknown_node_id_is_an_error(spec_doc, tube_graph):
