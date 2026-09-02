@@ -105,6 +105,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "kind": "input|pool|reduce|kernel|conv|stack|concat|output|op",
       "nodes": ["n0021", "n0031"],
       "detail": ["{stage.out_shape}", "{stage.params} params"],
+      "note": "<optional: kept in the spec, never drawn. Why this grouping is"
+              " the right one, or what a reader should not conclude from it>",
       "lanes": {"count_from": "{node:n0126.out_shape[1]}",
                 "labels": ["<one name per lane>"]},
       "meters": [{"value": "{stage.params}", "label": "params"}],
@@ -114,16 +116,45 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
   ],
   "edges": [
     {"from": "<stage id>", "to": "<stage id>",
-     "label": "<optional, e.g. 'bypass'>", "style": "solid|dashed"}
+     "label": "<optional, e.g. 'bypass'>", "style": "solid|dashed",
+     "untraced": "<only if graph.json has no path here: why you drew it anyway>"}
   ],
   "elided": [{"nodes": ["n0017"], "reason": "<why a reader does not need this>"}],
   "constants": {"n0149.constants.dilation": "<why this traced constant is an"
                 " architectural quantity and not an initialisation>"},
+  "layout": {"orientation": "lr|tb", "wrap": 760, "legend": false},
   "caption": "<optional one line>"
 }
 
 Edge declaration order sets lane order top to bottom, so declare the branch you
 want uppermost first.
+"""
+
+ARRANGEMENT = """\
+ARRANGEMENT — `layout`, and why you have to think about it.
+
+Stages are ranked by depth and laid left to right, so a deep model turns its
+depth directly into width. Left alone, a nine-stage figure comes out around 8:1 —
+a ribbon a page cannot show and a reader cannot follow. That is the exact defect
+this tool exists to beat: it is what torchview produced, and arriving at it more
+slowly is not an improvement.
+
+Nothing catches this for you. Coverage is about operations dropped, not about
+pictures that do not read, so a figure can be 8:1 with every check green.
+
+  "wrap": 760          break the spine into rows at that width. For anything
+                       past about six stages in a line, set it. A row break is
+                       refused where a long edge is still in flight, so a model
+                       webbed with skips will wrap little or not at all — that
+                       is the tool declining to cut an edge, not a failure.
+  "orientation": "tb"  run the figure top to bottom instead. Better for a deep
+                       stack in a single column, and for a page taller than wide.
+  "legend": true       a key naming each colour family, with its share of the
+                       traced ops and parameters counted off graph.json.
+
+Both default to off and both are judgement, which is why they live here rather
+than in a render flag: the committed spec has to produce the same figure on any
+machine.
 """
 
 
@@ -135,7 +166,7 @@ def payload(graph: Graph, *, out_path: str = "spec.json") -> str:
 
     shapes = model.get("input_shapes") or [model["input_shape"]]
     described = ", ".join(_shape(s) for s in shapes)
-    lines = [RULES, "", GRAMMAR, "", SCHEMA, "", "-" * 78, "",
+    lines = [RULES, "", GRAMMAR, "", SCHEMA, "", ARRANGEMENT, "", "-" * 78, "",
              f"MODEL: {model['target']}",
              f"  input{'s' if len(shapes) > 1 else ''} {described}, "
              f"{model['params']} parameters",
