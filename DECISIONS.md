@@ -1,10 +1,16 @@
-# Decisions — what SPEC.md left open, and four things it had wrong
+# Decisions — what SPEC.md left open, and where it was wrong
 
-> **Written 2026-09-01, building the spec.** SPEC.md §8 says *"decide before
-> building, not during"*. These are the decisions, and the measurements behind
-> them. It also records four places where building found the spec mistaken;
-> those are first, because they are the ones that would cost someone a day. The
-> fourth was found by a reader of the first figure, after it was drawn.
+> **Written 2026-09-01, building the spec, and added to since.** SPEC.md §8 says
+> *"decide before building, not during"*. These are the decisions, and the
+> measurements behind them. It also records the places where building found the
+> spec mistaken; those are first, because they are the ones that would cost
+> someone a day. The later ones were found by readers of the first figure, after
+> it was drawn.
+>
+> **The count is deliberately not stated here.** It said "three", then "four",
+> and stood at "four" with seven below it — a hand-maintained number going stale
+> in the document whose §5 is about hand-maintained numbers going stale. The
+> corrections are numbered where they are written; that is the one place.
 >
 > **Not murderboarded** — internal, like the spec it answers.
 
