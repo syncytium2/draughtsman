@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-65` | `dist-name` | `pyproject.toml`, `src/draughtsman/cli.py`, `README.md`, `tests/test_dist_name.py`, `tests/test_ui.py` | 2026-09-02 | `pip install draughtsman` fetches someone else's package, and `cli.py` tells a reader to run it |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
