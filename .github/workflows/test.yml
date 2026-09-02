@@ -1,8 +1,16 @@
 name: tests
 
 on:
+  # EVERY BRANCH, NOT JUST main — otherwise this is a post-mortem, not a gate.
+  #
+  # Sessions here push a branch and then fast-forward main onto it, so a filter
+  # of [main] means the first run happens after the code is already on main.
+  # `f7540b0` broke main at 13:16 and it stayed broken for six hours, through two
+  # further pushes by two sessions, because nobody's local run could see it: the
+  # failure was a missing numpy that every machine here happens to have. Running
+  # on the branch push means the session that broke it sees it before promoting
+  # it, in the same minute as the change.
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
