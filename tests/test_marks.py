@@ -23,6 +23,13 @@ BAR = re.compile(r'class="ds-mark-bar"')
 COUNT = re.compile(r'class="ds-mark-count"[^>]*>([^<]*)<')
 
 
+#: `axes` INDEXES THE SHAPE AS DRAWN, not the traced one. tube declares
+#: `batch_axis: 0`, so `{stage.out_shape}` presents (cells, frames) and the axes
+#: naming them are 0 and 1 -- asking for 2 is an error naming the rank. A
+#: `weight_shape` is different and the test above uses [0, 1] for its own
+#: reason: a conv weight is (out_ch, in_ch, k) with no batch axis to hide, so
+#: `drop_batch` never touches it. One numbering per spec, and it is the one the
+#: reader sees; see DECISIONS.md correction 6.
 def _with_glyph(doc, stage_id, **glyph):
     doc = copy.deepcopy(doc)
     stage = next(s for s in doc["stages"] if s["id"] == stage_id)
@@ -78,7 +85,7 @@ def test_a_small_shape_draws_one_mark_per_element(tube_graph, tube_spec_doc):
 
 def test_a_large_axis_becomes_a_bar_with_its_number(tube_graph, tube_spec_doc):
     doc = _with_glyph(tube_spec_doc, "raster", of="{stage.out_shape}",
-                      axes=[1, 2], labels=["cells", "frames"])
+                      axes=[0, 1], labels=["cells", "frames"])
     svg = render(load(doc), tube_graph)
     assert len(MARK.findall(svg)) == 30        # the countable axis, drawn
     assert len(BAR.findall(svg)) == 1          # the frame axis, not drawn
@@ -89,7 +96,7 @@ def test_the_count_beside_the_bar_is_the_graph_s_number(tube_graph,
                                                         tube_spec_doc):
     """It is a fact like every other number in a figure, not a label."""
     doc = _with_glyph(tube_spec_doc, "raster", of="{stage.out_shape}",
-                      axes=[1, 2], labels=["cells", "frames"])
+                      axes=[0, 1], labels=["cells", "frames"])
     svg = render(load(doc), tube_graph)
     assert tube_graph.nodes["in1"]["out_shape"] == [1, 30, 600]
     assert COUNT.findall(svg) == ["600"]
@@ -98,7 +105,7 @@ def test_the_count_beside_the_bar_is_the_graph_s_number(tube_graph,
 def test_the_legend_states_the_claim_and_its_limit(tube_graph, tube_spec_doc):
     """A bar a reader is not told about reads as an axis of one."""
     doc = _with_glyph(tube_spec_doc, "raster", of="{stage.out_shape}",
-                      axes=[1, 2], labels=["cells", "frames"])
+                      axes=[0, 1], labels=["cells", "frames"])
     doc["layout"] = {"legend": True}
     svg = render(load(doc), tube_graph)
     assert "one mark = one cell" in svg
@@ -112,7 +119,7 @@ def test_the_box_grows_for_its_marks(tube_graph, tube_spec_doc):
     stages with different counts draw the same picture."""
     plain = render(load(tube_spec_doc), tube_graph)
     marked = render(load(_with_glyph(tube_spec_doc, "raster",
-                                     of="{stage.out_shape}", axes=[1, 2],
+                                     of="{stage.out_shape}", axes=[0, 1],
                                      labels=["cells", "frames"])), tube_graph)
     def height(svg):
         return float(re.search(r'viewBox="0 0 [\d.]+ ([\d.]+)"', svg)[1])
@@ -123,11 +130,11 @@ def test_the_box_grows_for_its_marks(tube_graph, tube_spec_doc):
 
 def test_style_round_trips_and_block_stays_the_default(tube_spec):
     spec = copy.deepcopy(tube_spec)
-    spec.stages[0].glyph = Glyph(of="{stage.out_shape}", axes=[1, 2],
+    spec.stages[0].glyph = Glyph(of="{stage.out_shape}", axes=[0, 1],
                                  labels=["a", "b"], style="marks")
     assert load(dump(spec)).stages[0].glyph.style == "marks"
 
-    spec.stages[0].glyph = Glyph(of="{stage.out_shape}", axes=[1, 2],
+    spec.stages[0].glyph = Glyph(of="{stage.out_shape}", axes=[0, 1],
                                  labels=["a", "b"])
     assert "style" not in dump(spec)["stages"][0]["glyph"]
     assert load(dump(spec)).stages[0].glyph.style == "block"
