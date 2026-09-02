@@ -35,6 +35,11 @@ pip install -e ".[trace]"         # ... and read a PyTorch model
 pip install -e ".[dev]"           # ... and run the tests
 ```
 
+Runs on Python 3.10 through 3.13, and CI runs the whole suite on every one of
+them — a range stated in three files and checked in `tests/test_versions.py`, so
+the floor in `pyproject.toml`, the matrix in the workflow and this sentence
+cannot drift apart.
+
 **The first line installs nothing but draughtsman.** No torch, no graphviz, no
 system binary, no CDN at runtime — the layout engine and the SVG emitter are in
 this repo. A machine that only draws figures needs none of it, which is why the
