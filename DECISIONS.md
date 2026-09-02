@@ -170,7 +170,12 @@ for letting an agent into the pipeline." `README.md` repeats it and `check.py`
 says it twice. It was true of the failure §2 measured, and five separate incidents
 have now shown it is not true in general.
 
-**Every one of these had green checks and a wrong figure.**
+**Every one of these passed every check there was.** Three of them put a false
+statement in the figure. One left the figure true but shaped so a reader could not
+follow it. One was the indicator rather than the figure — which is worse than it
+sounds, because the indicator is what tells you whether to trust the other four.
+The distinction is kept because a summary that flattened it would be the same kind
+of tidy-and-slightly-false this correction is about.
 
 | what was wrong | the figure said | coverage said |
 |---|---|---|

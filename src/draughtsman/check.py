@@ -5,12 +5,14 @@ zero, not two. It is precisely what pytorch-graph lacked: it dropped five whole
 stages and reported success.
 
 IT IS THE FIRST ASSERTION HERE, NOT THE ONLY ONE. Coverage answers "was an
-operation dropped" and nothing else, and five separate failures have now been
-green under it while the figure was wrong -- a parameter counted twice, an arrow
+operation dropped" and nothing else. Five failures have now passed it while
+something was wrong that it does not look at: a parameter counted twice, an arrow
 nobody checked, a reference with two answers, a format the agent was never told
-about. The others live beside it in this module and in facts.py. DECISIONS.md
-correction 5 names the pattern; do not restore the claim that this one is
-sufficient.
+about, and this very count derived a second time in the browser. Three of those
+put a false statement in a figure; the others left it true and unreadable, or
+misreported the check itself. The rest of the assertions live beside this one in
+this module and in facts.py. DECISIONS.md correction 5 names the pattern; do not
+restore the claim that this one is sufficient.
 
 What this does NOT verify: that the names are good, the grouping is natural, or
 the figure is legible. Those need a human, and :func:`report` says so out loud so
