@@ -10,6 +10,75 @@ silently dropped.
 > spec left open and records three places building found it mistaken — read that
 > second, and before changing the trace layer.
 
+## Why this exists
+
+A 1,149-parameter model was drawn by five existing tools. Every one of them
+failed, and they failed in two families:
+
+| tool | what it did |
+|---|---|
+| **torchview** | Traced the true op graph. **Correct** — and forty nodes of `exp`/`clamp`/`div` in a strip one pixel tall at page width. |
+| **pytorch-graph** (`research_paper` style) | Clean, styled, **and wrong** — see below. |
+| **visualtorch** | 993 × **13 pixels**. Its renderers scale block height by channel count; this model has ≤ 8. |
+| **nn-SVG** | Browser-only, no API. FCNN / LeNet / AlexNet styles, all linear stacks, aimed at 2D image CNNs. No branching. |
+| **Model Explorer** (Google AI Edge) | Ingests PyTorch *ExportedProgram*. `torch.export` **cannot export this model** — data-dependent control flow. Doubly unavailable, and it is an interactive debugging viewer rather than a figure generator. |
+
+**The pytorch-graph result is the one that matters.** It produced a clean
+publication-styled figure of `head.0` … `head.12` and silently omitted the
+max-pool, the mean over cells, the four difference-of-Gaussian kernels, the
+bypass and the concat — which is to say, the architecture. Every shape field read
+`Input: ()`. The summary box asserted *"Output Classes: Variable · End-to-end
+trainable · GPU compatible."*
+
+![torchview's output: a horizontal strip of about forty nodes, one pixel tall at page width, individual operations unreadable](examples/2-torchview-traced.png)
+
+*torchview, 2419 × 123 px. **Correct and unreadable** — every operation is there,
+including forty nodes of kernel construction, and none of it can be seen.*
+
+![pytorch-graph's output: a clean vertically-stacked publication-styled figure of thirteen numbered layers, with empty shape fields](examples/4-pytorchgraph-paper.png)
+
+*pytorch-graph, `research_paper` style. **Readable and wrong** — a tidy thirteen-layer
+stack that omits the pooling, the mean, all four kernels, the bypass and the concat.
+Every shape field reads `Input: ()`. This is the failure the repository is named for.*
+
+It enumerates registered `nn.Module` children. That model's architecture lives in
+`forward()`. So the tool drew a plain thirteen-layer conv stack and called it the
+model, and a reader would come away confident and wrong.
+
+
+## The gap, stated once
+
+Tools either **trace the computation graph** — complete, unreadable — or
+**enumerate registered modules** — readable, and blind to everything a `forward()`
+does. Neither can decide *which operations matter*, because that is a judgement
+about what a reader needs, not a fact about the graph.
+
+That judgement is the only missing piece, and it is now cheap. Tony, 2026-09-01:
+
+> *"except now we have very powerful coding agents. i'm fine with putting an agent
+> in there for internal use."*
+
+So: trace for the facts, agent for the abstraction, and a mechanical check that
+the abstraction did not lose anything — because losing the architecture quietly is
+exactly what the existing tools do.
+
+
+## What it produces
+
+![A draughtsman figure of a ResNet: nine named stages wrapped across three rows, with the residual identity drawn as a dashed arc around one opened-up block](examples/gallery/resnet/figure.svg)
+
+Nine stages over 52 traced operations. Every quantity — `464 params`, `kernel 3`,
+`16×32×32`, `10 classes` — is looked up from `graph.json` by node id at render
+time; none of it is typed into the spec. The residual identity is a dashed arc
+because it is a real fork in the traced graph. The other five blocks are
+collapsed into two boxes, and the caption says so rather than letting the figure
+imply the model is nine layers deep.
+
+That figure and one for every other model are in [`examples/`](examples/), each with the
+`graph.json` it was measured from and the `spec.json` that arranged it.
+
+## Running it
+
 ```
 export PYTHONPATH=examples/gallery                # the models are written out here
 draughtsman trace    models:build_resnet --input-shape 1,3,32,32 -o graph.json
@@ -61,59 +130,6 @@ torch, and without it says so in a sentence rather than a stack trace.
 See [`examples/tube/`](examples/tube/) for the result on the model below, and for
 where every number in it comes from.
 
-## What it produces
-
-![A draughtsman figure of a ResNet: nine named stages wrapped across three rows, with the residual identity drawn as a dashed arc around one opened-up block](examples/gallery/resnet/figure.svg)
-
-Nine stages over 52 traced operations. Every quantity — `464 params`, `kernel 3`,
-`1×16×32×32`, `10 classes` — is looked up from `graph.json` by node id at render
-time; none of it is typed into the spec. The residual identity is a dashed arc
-because it is a real fork in the traced graph. The other five blocks are
-collapsed into two boxes, and the caption says so rather than letting the figure
-imply the model is nine layers deep.
-
-That figure and one for every other model are in [`examples/`](examples/), each with the
-`graph.json` it was measured from and the `spec.json` that arranged it.
-
-## Why this exists
-
-A 1,149-parameter model was drawn by five existing tools. Every one of them
-failed, and they failed in two families:
-
-| tool | what it did |
-|---|---|
-| **torchview** | Traced the true op graph. **Correct** — and forty nodes of `exp`/`clamp`/`div` in a strip one pixel tall at page width. |
-| **pytorch-graph** (`research_paper` style) | Clean, styled, **and wrong** — see below. |
-| **visualtorch** | 993 × **13 pixels**. Its renderers scale block height by channel count; this model has ≤ 8. |
-| **nn-SVG** | Browser-only, no API. FCNN / LeNet / AlexNet styles, all linear stacks, aimed at 2D image CNNs. No branching. |
-| **Model Explorer** (Google AI Edge) | Ingests PyTorch *ExportedProgram*. `torch.export` **cannot export this model** — data-dependent control flow. Doubly unavailable, and it is an interactive debugging viewer rather than a figure generator. |
-
-**The pytorch-graph result is the one that matters.** It produced a clean
-publication-styled figure of `head.0` … `head.12` and silently omitted the
-max-pool, the mean over cells, the four difference-of-Gaussian kernels, the
-bypass and the concat — which is to say, the architecture. Every shape field read
-`Input: ()`. The summary box asserted *"Output Classes: Variable · End-to-end
-trainable · GPU compatible."*
-
-It enumerates registered `nn.Module` children. That model's architecture lives in
-`forward()`. So the tool drew a plain thirteen-layer conv stack and called it the
-model, and a reader would come away confident and wrong.
-
-## The gap, stated once
-
-Tools either **trace the computation graph** — complete, unreadable — or
-**enumerate registered modules** — readable, and blind to everything a `forward()`
-does. Neither can decide *which operations matter*, because that is a judgement
-about what a reader needs, not a fact about the graph.
-
-That judgement is the only missing piece, and it is now cheap. Tony, 2026-09-01:
-
-> *"except now we have very powerful coding agents. i'm fine with putting an agent
-> in there for internal use."*
-
-So: trace for the facts, agent for the abstraction, and a mechanical check that
-the abstraction did not lose anything — because losing the architecture quietly is
-exactly what the existing tools do.
 
 ## The three stages, and why the split is the design
 
