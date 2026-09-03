@@ -106,10 +106,13 @@ list is what stands between here and that flip, in order:
 - [x] **Stop counting the models in prose.** Done. The gallery table is the
   list, `tests/test_counts.py` compares it with the directories both ways, and
   a prose count of models is now refused rather than remembered.
-- [ ] **The editorial pass.** `SPEC.md` and `DECISIONS.md` both open by saying
-  they are not for outside readers. Replace the disclaimer rather than honour it:
-  one line saying what the document is and who wrote it, jargon removed, contents
-  untouched. The candour is the value; the apology for it is not.
+- [x] **The editorial pass.** Done for `README.md` and `SPEC.md`, by running the
+  murderboard (`syncytium2/murderboard`) rather than by editing to taste — process
+  read in place, roster derived, every role accounted for, coverage gate green,
+  nothing vendored. Vendoring was considered and declined: it is eight files of
+  another project's harness in a repository whose pitch is that it has almost
+  none, and the value was the review, not the harness. `DECISIONS.md` is still
+  outstanding — it is held on `volume-glyph`, and its two findings are below.
 - [ ] **`CONTRIBUTING.md`.** One page: this is a record of a working method as
   much as a tool. Worth more here than an issue template.
 - [ ] **Two stories into the README**, where a reader reaches them: the CI
@@ -126,6 +129,42 @@ list is what stands between here and that flip, in order:
 
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
+
+**0b. What the murderboard found and nobody has fixed.** The run records lived in
+a session scratchpad, which dies with the session; this is what survived it.
+
+**On `DECISIONS.md`, and it is `draughtsman-c9`'s** — that file is on their row:
+- The wrap table is **two rows stale**. It claims resnet 1.6:1 and unet 4.1:1;
+  they render 1.3:1 and 5.2:1. Axis naming moved them and nothing recomputes the
+  table. It cannot be recomputed in full — the "was" column describes figures that
+  no longer exist — so **date it as a measurement** rather than repair it.
+- **U-Net's caption asserts a shape the figure cannot show.** It offers channels ×
+  height staying constant as the glyphs carrying the U. That product is pinned at
+  1024 across all four encoder stages *by construction* — channels double as
+  height halves — and the U lives in channels × height × width, which the two-axis
+  glyph projects away. The figure reports a constant. Measured by `draughtsman-c9`
+  and confirmed here.
+
+**On the argument, and it is Tony's call:**
+- **The agent's own quality is stated nowhere.** The README says an agent supplies
+  the abstraction and that coverage proves nothing was dropped, but never how good
+  the groupings were or how many specs needed correcting. For a reader evaluating
+  agent-assisted work that is the number they will want, and it is the one number
+  this repository does not have.
+- `SPEC.md` §2 is still an argument carried by a table. The two images now in the
+  README would serve it too.
+
+**Residual `⚠`, carried by both runs and recorded in `SPEC.md`'s header:**
+- §2's measurements were taken on a model that is not in this repository, so a
+  stranger cannot verify them from a clone.
+- Role 2 ran **single-pass**, which the process says is the one role that may never
+  be collapsed for a deliverable claiming novelty — a self-review inherits the
+  drafter's search history and stops in the same place. It still surfaced one gap:
+  the claim that the judgement step is "the only missing piece" ships without
+  acknowledging that LLM-in-the-loop diagram generation is published work
+  (Paper2SysArch, arXiv 2511.18036). CHI/VIS were not searched.
+- **Nobody has asked any of the five tools' authors anything.** The process calls
+  correspondence the cheapest check in the document. It has not been run.
 
 **1. The outside-reader pass.** *Tony's call, not a session's.* `SPEC.md` and
 `DECISIONS.md` both carry "not murderboarded — an internal spec, not a document
