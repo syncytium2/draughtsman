@@ -400,6 +400,59 @@ something *about* a number, prefer `{stage:<id>.…}` over `{node:<id>.…}`. A 
 id is the thing the sentence talks about and is stable; a node id is a positional
 artifact of the trace, and getting it wrong looks exactly like getting it right.
 
+### 8. A check that cannot see reports the thing it checks as wrong
+
+The first seven corrections are all one shape: a quantity with one correct value,
+computed twice and allowed to disagree, or computed once and never checked. This
+one is a different shape and it is worth separating, because the habit that
+catches the first seven does not catch it.
+
+`CLAIMS.md` rule 2 says land the claim on `main` **before** the work, so that a
+claim is visible to sessions that cannot read your branch.
+`tests/test_claims.py` enforces the board, and one of its assertions resolves each
+claim's branch against the refs the checkout can see.
+
+`actions/checkout` fetches shallow and single-branch by default. The CI checkout
+therefore held `main` and `origin/main` and nothing else, so **every claim ever
+landed named a branch that did not exist**, and `main` went red every time anyone
+followed rule 2. Run `33692848373`, 2026-09-02 22:57, on the commit
+`Claim: marks on tube, block on resnet`, is the receipt: that assertion failing on
+`main` while the identical tree passed on the branch. It went green again when the
+work landed and the row came off, which is why it survived a full day of use.
+
+**The failure is not that the check was wrong. It is what it said while being
+wrong.** It reported a bad checkout as a bad claim. A session reading `main` would
+have concluded the board was mistaken about its own contents — and a board that
+appears mistaken about itself is one people route around, which is the failure the
+board exists to prevent, arriving through the check meant to enforce it.
+
+Fixed at `4849393` in two halves, because either alone rots:
+
+- the workflow passes `fetch-depth: 0`, giving the checkout the refs;
+- `test_this_checkout_can_see_the_branches_it_is_about_to_judge` fails when the
+  checkout is shallow, so the next truncation says *the checkout cannot see*
+  rather than *the claim is wrong*.
+
+The first half is configuration and will not travel with the file. The second is
+the part that makes the instrument honest wherever it lands, and if the board is
+ever vendored into another repository it is the half that must go with it.
+
+**The rule, stated so it generalises: a portable check must assert its
+preconditions rather than assume them.** Ask what the check needs in order to see,
+and make the absence of it a failure with its own message. Otherwise the check
+does not go quiet — which would at least be visible — it goes confidently wrong
+about its subject.
+
+Two smaller things from the same commit, both worth keeping. The guard was
+conditional in its first draft, skipping when the board was empty, and
+`DRAUGHTSMAN_NO_SKIPS` failed the run for it: an empty board is not a reason to
+permit blindness, only a case where the blindness costs nothing yet. And writing
+this correction's own subject into `CLAIMS.md` — quoting the wrong install string
+while describing it — turned `main` red inside four minutes, caught by the grep
+guard in `tests/test_dist_name.py`. Both are instruments that fire without being
+invoked, and on this commit two of them caught the session that was writing the
+third.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**

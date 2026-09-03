@@ -107,16 +107,27 @@ a heuristic — so the first move is a design, not a commit.
 
 **3. NO FIGURE IS LEGIBLE AT A JOURNAL COLUMN WIDTH.** Measured by
 `draughtsman-65` and reproduced independently. Detail text is 9.5 units; figures
-are 646–1737 units wide, so placing one in a 3.5in column scales the type to
-between 1.4pt and 3.7pt. **Nothing clears 6pt at 3.5in.** At the full 7in text
-width only cascade, lenet and resnet do. To clear 6pt in a column a figure must
-come in at **≤399 units**, and the narrowest today is 646.
+are 750–1737 units wide, so placing one in a 3.5in column scales the type to
+between 1.4pt and 3.2pt. **Nothing clears 6pt at 3.5in.** At the full 7in text
+width only resnet and lenet do. To clear 6pt in a column a figure must come in at
+**≤399 units**, and the narrowest today is 750.
+
+**These numbers moved when CASCADE left**, and the direction is the wrong one:
+at 646 units it was the narrowest figure in the repository, so removing it took
+the floor up to `resnet` at 750 and the best 7in result down from 7.4pt to 6.4pt.
+The licence reason for removing it stands on its own; this is the cost. Flagged by
+`draughtsman-d8` reading the gallery, and it is the third time the queue would
+have gone stale about work done in the same day.
 
 The correction-5 half: naming every axis at `14cfa91` made **six of eleven**
 figures wider and none narrower, +50 to +55 units each, and no test noticed.
 Every gain in honesty is paid for in width, the budget is never stated, and
 nothing fails when it is overspent. `layout.wrap` is the right lever with no
 target to solve against.
+
+Nothing asserts the width of a committed figure. `tests/test_layout_shape.py`
+passes `wrap=400` into synthetic layouts and reads as though it covers this; it
+never touches the committed SVGs. A stranger finds out by putting one in a paper.
 
 Shape of a fix, unbuilt: the spec states an output width and a minimum type size;
 layout solves for it — wrap harder, drop detail lines, shrink the graph, **never
@@ -146,33 +157,31 @@ import name is not: `factorio-draftsman` installs a top-level `draftsman/` and
 released 2026-06-13. It trades a collision with a package abandoned in 2020 for
 one with a package that ships. Checked by pulling the wheel.
 
-**5. Email Peter Rupprecht about CASCADE.** *Tony's, drafted 2026-09-03.*
-`examples/gallery/cascade.py` transcribes CascadeTorch's `define_model` at the
-shipped config defaults. CascadeTorch and upstream Cascade are **GPL-3.0**; this
-repo is BSD-3. Obligations trigger on distribution, so this becomes real the
-moment the repo goes public and is latent until then.
+**5. Email Peter Rupprecht about CASCADE.** *Tony's. The licence question is now
+moot here; the email is worth sending anyway.*
 
-The ask, in one line: would he be happy for that file to sit in a BSD-3 repo with
-attribution? Lead with the offer, not the licence — attach two renderings of his
-network (34,381 parameters, 14 substantive operations, a 64-frame ΔF/F window in,
-one spike rate out, every number read from the trace) and ask whether either is
-useful for the repo or the docs. Worth telling him that every pretrained CASCADE
-model is this same architecture and they differ only in training set, resampling
-rate and target smoothing — he may not have seen it put that way. Tony has
-corresponded with him; reported friendly and prompt. Check whether he goes by
-Peter or Petr before sending.
+CASCADE has left this repository — `examples/gallery/cascade*` removed, and the
+model placed in `haruspex`, which is private and is itself a CASCADE
+reimplementation, so GPL-3 never engages. That was the fallback and it is done, so
+nothing is blocked on a reply.
 
-**Upside-only, and nothing waits on it.** If he says yes the question closes,
-including the copy in `171210d`. If he says no or is slow, the fallback is
-unchanged: CASCADE goes to `haruspex`, which is private, so GPL never engages.
-Deleting the file here does NOT clean it — a public repo publishes its history —
-and excising it would rewrite every hash after `171210d`, which `CLAIMS.md`,
-`DECISIONS.md`, the site's claim ledger and the handoff all cite. Do not rewrite
-history for this.
+What remains is an offer rather than an ask: two renderings of his network (34,381
+parameters, 14 substantive operations, a 64-frame ΔF/F window in, one spike rate
+out, every number read from the trace rather than typed) and the question of
+whether either is useful for the repo or the docs. Worth telling him that every
+pretrained CASCADE model is the same architecture and they differ only in training
+set, resampling rate and target smoothing — a figure's caption makes a claim about
+scope, and that one is easy to get wrong. If he is happy for the transcription to
+sit under BSD-3 with attribution, the model can come back; if he never replies,
+nothing changes. Tony has corresponded with him and reports him friendly and
+prompt. Check whether he goes by Peter or Petr before sending.
 
-Re-deriving from Rupprecht et al. 2022 instead is a real option and was
-deliberately deferred: verify the paper carries the layer sizes first, since the
-file names `config.py` as the authority for them.
+**Do not rewrite history for this.** A public repo publishes its history, so the
+file remains in `171210d` — and excising it would rewrite every hash after that
+commit, which this file, `DECISIONS.md`, the site's claim ledger and the handoff
+all cite. Re-deriving from Rupprecht et al. 2022 instead is a real option,
+deliberately deferred: verify the paper carries the layer sizes first, since
+`cascade.py` named `config.py` as the authority for them.
 
 **6. Public-readiness, remainder.** Install instructions, the zero-dependency
 claim, a friendly no-torch error and the supported-Python range are done — the

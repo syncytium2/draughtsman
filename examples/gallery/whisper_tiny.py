@@ -1,9 +1,8 @@
 """Whisper-tiny, written out at its published dimensions.
 
-WHY THIS ONE. Deepgram publishes nothing about Nova's architecture beyond
-marketing prose, so the ASR net that can actually be drawn is OpenAI's Whisper
-(Radford et al., 2022, *Robust Speech Recognition via Large-Scale Weak
-Supervision*). It is the encoder--decoder family the other nine models in this
+WHY THIS ONE. Most production ASR architectures are unpublished, so the one that
+can be drawn from a public description is OpenAI's Whisper (Radford et al., 2022,
+*Robust Speech Recognition via Large-Scale Weak Supervision*). It is the encoder--decoder family the other nine models in this
 gallery do not cover, and it is the one architecture that draughtsman could not
 trace at all until `trace` learned to take more than one input: `forward` needs
 the mel spectrogram AND the token ids.

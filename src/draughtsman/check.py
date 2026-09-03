@@ -221,6 +221,17 @@ def check(spec: Spec, graph: Graph) -> Result:
                 errors.append(
                     f"stage {s.id!r}: glyph scale {s.glyph.scale!r} is neither "
                     "'sqrt' nor 'linear'.")
+            # A STYLE NOBODY IMPLEMENTS RENDERS AS A BLOCK AND PASSES. `scale`
+            # was validated here from the start and `style` never was, so
+            # `"blcok"` -- or a style proposed in a design and not yet built --
+            # draws the default silently and `check` calls it correct. That is a
+            # figure disagreeing with its spec while every assertion is green,
+            # which is the one thing this file exists to prevent.
+            if s.glyph.style not in ("block", "marks"):
+                errors.append(
+                    f"stage {s.id!r}: glyph style {s.glyph.style!r} is not one "
+                    "of 'block' or 'marks'. An unknown style would be drawn as "
+                    "a block, and the figure would not be the spec.")
             if len(s.glyph.axes) != 2 or len(s.glyph.labels) != 2:
                 errors.append(
                     f"stage {s.id!r}: a glyph needs exactly two axes and two "
@@ -350,8 +361,8 @@ def check(spec: Spec, graph: Graph) -> Result:
     # four-axis shape and (height, width) once the batch is hidden -- every
     # rectangle becomes a square, the constant-area finding the figure exists for
     # disappears, and NOTHING ERRORS, because both indices are still in range.
-    # (Three-axis shapes fall off the end and raise, which is why cascade was
-    # safe and U-Net was not. Loud at rank three, silent at rank four.)
+    # (Three-axis shapes fall off the end and raise, which is why a rank-three
+    # model was safe and U-Net was not. Loud at rank three, silent at rank four.)
     #
     # Nothing here can verify the labels -- they are the agent's words and only
     # they say what an axis means. What IS checkable is that NEGATIVE indices do
@@ -561,8 +572,8 @@ def _traced_edges(spec: Spec, graph: Graph) -> set[tuple[str, str]]:
 
     # AN ELIDED NODE IS TRANSPARENT, NOT ABSENT. Eliding says a reader does not
     # need to see an operation; it does not say the data stopped flowing through
-    # it. CASCADE elides both permutes, and treating them as gaps reported its
-    # входной arrow as unbacked -- the check calling a correct figure wrong, which
+    # it. A model that elides both of its permutes had its input arrow reported
+    # as unbacked -- the check calling a correct figure wrong, which
     # is how a check gets switched off. So resolve through them to the stages
     # behind, the way `tensor_inputs` already sees through structural nodes.
     def sources(nid: str, seen: frozenset[str]) -> set[str]:

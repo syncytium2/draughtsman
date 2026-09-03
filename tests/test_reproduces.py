@@ -91,10 +91,27 @@ def test_nothing_drops_out_of_this_check_silently():
     anything excluded must be excluded for the one stated reason.
     """
     assert len(REPRODUCIBLE) + len(EXTERNAL) == len(EXAMPLES)
-    assert len(REPRODUCIBLE) >= 10, (
-        "models have dropped out of re-tracing. Either a folder lost its "
-        "models.py entry, or examples/gallery is no longer on the path"
-    )
+
+    # DERIVED FROM THE DIRECTORY, AND IT USED TO BE A LITERAL.
+    #
+    # This read `>= 10`, a number typed when the gallery held ten. Removing
+    # CASCADE made it nine and turned the branch red — the fourth hand-maintained
+    # count that removal exposed, and the ONLY one that failed loudly, because it
+    # is the only one that is executed. The other six were prose and went stale in
+    # silence for a day. That is the argument for `tests/test_counts.py`, made by
+    # the repository rather than by anyone reading it.
+    #
+    # What the floor was really guarding is that the gallery has not quietly
+    # stopped being importable — a broken PYTHONPATH would move every model into
+    # EXTERNAL and the partition above would still balance. So state that: every
+    # model written out in this repository must re-trace, and `tube` is the only
+    # thing allowed to sit outside, for the one reason checked below.
+    gallery = {d.name for d in EXAMPLES if d.parent.name == "gallery"}
+    reproduced = {d.name for d, _ in REPRODUCIBLE}
+    assert gallery <= reproduced, (
+        f"models written out in this repo dropped out of re-tracing: "
+        f"{sorted(gallery - reproduced)}. Either a folder lost its models.py "
+        "entry, or examples/gallery is no longer on the path")
     for d, target in EXTERNAL:
         assert not _importable(target)
         assert d.name == "tube", (

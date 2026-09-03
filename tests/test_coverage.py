@@ -418,8 +418,8 @@ def test_an_elided_node_does_not_sever_the_path_through_it(spec_doc, tube_graph)
     """ELIDING SAYS A READER DOES NOT NEED TO SEE AN OPERATION. It does not say
     the data stopped flowing through it.
 
-    CASCADE elides both of its permutes, which sit between stages. Treating them
-    as gaps made the edge assertion report two correct arrows as unbacked — a
+    A model that elides both of its permutes -- they sit between stages -- had two
+    correct arrows reported as unbacked when those elisions were treated as gaps — a
     check calling a right figure wrong, which is how a check gets switched off.
     """
     def elide_the_join(d):

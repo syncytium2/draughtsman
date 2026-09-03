@@ -28,37 +28,31 @@ random. These draw architectures, not trained models.
 | 8 | [`lstm`](lstm/) | fused recurrent op | gap: nothing to abstract |
 | 9 | [`whisper`](whisper/) | encoder–decoder, cross-attention | **broke two things** |
 | — | [`../tube/`](../tube/) | filter bank, bypass, dilated stack | the control |
-| — | [`cascade`](cascade/) | published spike-inference net | not a probe — see below |
 
-Totals: 2,167 traced nodes, 520 substantive, eleven specs, eleven green coverage
-checks, zero trace failures.
+Totals: 2,078 traced nodes, 506 substantive, ten specs, ten green coverage
+checks, zero trace failures. These are computed from the committed graphs by
+`tests/test_counts.py`, not typed here — they were typed here once, and adding a
+model made every count in three READMEs wrong for a day.
 
-## CASCADE, which is not a probe
+## CASCADE, which was here and is not
 
-Every other model here was written to break draughtsman in a particular way.
-[`cascade/`](cascade/) is a tool in use: it turns a calcium ΔF/F trace into a
-spike rate, and the figure is wanted for its own sake rather than as a test case.
-It is the first thing in this repo drawn because someone needed the drawing.
+For a day this gallery held an eleventh model: CASCADE, the calcium-to-spike-rate
+network of Rupprecht et al., *Nature Neuroscience* 25:1471-1481 (2022). It was the
+only one not written to break draughtsman — a tool in use, whose figure was wanted
+for its own sake, and the first thing in this repo drawn because someone needed
+the drawing.
 
-Transcribed in [`cascade.py`](cascade.py) from
-[CascadeTorch](https://github.com/PTRRupprecht/CascadeTorch)'s `define_model` at
-the shipped `config.py` defaults — the PyTorch re-implementation of
-[Cascade](https://github.com/HelmchenLabSoftware/Cascade) (Rupprecht et al.,
-*Nature Neuroscience* 25:1471-1481, 2022). Random weights: this draws the
-architecture, not a trained model.
+It has moved to the project it was drawn for. Two reasons, and the second is the
+one that decided it: CascadeTorch is GPL-3.0 and this repository is BSD-3, which
+is latent while a repo is private and real on the day it is not.
 
-**The point worth putting in the caption.** CASCADE ships dozens of pretrained
-models and they do not differ in architecture. Every one is this same network —
-what differs is the ground-truth set, the frame rate the data was resampled to,
-and the smoothing applied to the target. So one figure serves all of them, and a
-caption naming a single model would be wrong about the rest.
-
-It traced clean at fourteen substantive nodes with every parameter attributed,
-and it exercised `layout.wrap` on a model nobody wrote to exercise anything: at
-`lr` with no wrap it is 1198×157, a 7.6:1 strip, and the committed spec wraps it
-into two rows. The two permutes are elided with a reason — the network is handed
-frame-major data, convolves channel-major, and goes back so the projection acts
-per frame, and neither permute moves a value.
+One observation from it is worth keeping even though the model has gone, because
+it is about how to caption a figure rather than about that network. CASCADE ships
+dozens of pretrained models and **they do not differ in architecture** — what
+differs is the ground-truth set, the frame rate the data was resampled to, and
+the smoothing applied to the target. One figure serves all of them, and a caption
+naming a single model would have been wrong about the rest. A figure's caption
+makes a claim about scope, and scope is not something the trace can check.
 
 ## What broke, and what it cost
 

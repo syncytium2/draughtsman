@@ -178,12 +178,26 @@ def test_every_claim_names_a_branch_that_exists():
 def test_every_claimed_path_exists():
     """A claim on a deleted file is stale, and a stale board is worse than none:
     it is read as current."""
-    missing = [(r["session"], p) for r in _rows() for p in r["paths"]
+    missing = [(r["session"], r["branch"], p) for r in _rows() for p in r["paths"]
                if not (ROOT / p).exists()]
-    # A claim may legitimately name a file the claimant is about to create, so
-    # this reports rather than fails when the branch itself is what is new.
-    unexpected = [(s, p) for s, p in missing if not p.startswith("tests/")]
-    assert not unexpected, f"claims point at paths that are not there: {unexpected}"
+    # A CLAIMED PATH MAY BE ABSENT FOR TWO GOOD REASONS: the branch is about to
+    # create it, or the branch has deleted it. Rule 5 requires the row to name
+    # every path the branch touches, so a branch that deletes a file MUST name a
+    # path that no longer exists -- and the first version of this test failed it,
+    # exempting only `tests/` on the guess that new files are tests. That guess
+    # made the board unable to express a deletion at all, found by
+    # `public-cleanup` removing four files and being unable to write a legal row.
+    #
+    # The honest question is not "does this path exist" but "is this path one the
+    # branch is responsible for", and `git diff` already answers it.
+    unexpected = []
+    for session, branch, path in missing:
+        touched = _touched(branch)
+        if touched is None or path not in touched:
+            unexpected.append((session, path))
+    assert not unexpected, (
+        f"claims point at paths that are not there and that their branch does "
+        f"not touch: {unexpected}")
 
 
 def test_no_two_open_claims_name_the_same_path():
