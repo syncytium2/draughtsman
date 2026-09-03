@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-65` | `spec-review` | `SPEC.md`, `DECISIONS.md`, `examples/tube/README.md`, `tests/test_docs.py` | 2026-09-03 | Murderboard findings on the spec pair, fixed so they cannot go stale again |
 | `draughtsman-c9` | `volume-glyph` | `DECISIONS.md`, `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/layout.py`, `src/draughtsman/check.py`, `tests/test_render.py`, `examples/gallery/unet/spec.json`, `examples/gallery/unet/figure.svg`, `examples/gallery/resnet/spec.json`, `examples/gallery/resnet/figure.svg`, `examples/gallery/lenet/spec.json`, `examples/gallery/lenet/figure.svg`, `src/draughtsman/abstract.py`, `tests/test_edge_labels.py` | 2026-09-03 | The U-Net glyph reports a constant by construction; whether a third axis earns its way past the two-axis rule |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
