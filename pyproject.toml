@@ -28,6 +28,30 @@ dependencies = []
 #
 # This is what lets the staleness test of SPEC.md §6 be an unconditional assertion
 # instead of one that skips when a tool is absent.
+# THE URLS PyPI SHOWS, AND THE ONE THAT MAKES THE README WORK THERE.
+#
+# PyPI renders `readme` as a standalone page with no repository around it, so
+# every RELATIVE link in README.md — nine documents and three images — resolved
+# against pypi.org and died. They are absolute now, and `Repository` below is the
+# base they are built from. That makes the repository URL a quantity kept in two
+# places, so `tests/test_readme_links.py` ties them: a link that does not use
+# this URL, or that points at a file this repository does not have, fails.
+[project.urls]
+Homepage = "https://github.com/syncytium2/draughtsman"
+Repository = "https://github.com/syncytium2/draughtsman"
+Issues = "https://github.com/syncytium2/draughtsman/issues"
+Changelog = "https://github.com/syncytium2/draughtsman/commits/main"
+
+# VERSION POLICY, STATED SO IT IS NOT INVENTED LATER.
+#
+# 0.x: the `graph.json` and `spec.json` shapes may change, and a change to either
+# is a MINOR bump with the migration written in the commit message. Committed
+# specs in `examples/` are re-rendered in the same commit, so the gallery is the
+# migration test rather than a document about one.
+#
+# The three verbs (`trace`, `abstract`, `render`) and their file contract are what
+# 1.0 will freeze. Nothing is frozen before it.
+
 [project.optional-dependencies]
 trace = ["torch>=2.0"]
 dev = ["pytest>=8", "torch>=2.0"]

@@ -5,8 +5,8 @@ facts, an agent supplies the abstraction, and a coverage check proves nothing wa
 silently dropped.
 
 > **Status: the three stages work end to end on the model that prompted them.**
-> [`SPEC.md`](SPEC.md) carries the design, the measurements behind it, and the
-> failure it exists to prevent. [`DECISIONS.md`](DECISIONS.md) answers what the
+> [`SPEC.md`](https://github.com/syncytium2/draughtsman/blob/main/SPEC.md) carries the design, the measurements behind it, and the
+> failure it exists to prevent. [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) answers what the
 > spec left open and records three places building found it mistaken — read that
 > second, and before changing the trace layer.
 
@@ -30,12 +30,12 @@ bypass and the concat — which is to say, the architecture. Every shape field r
 `Input: ()`. The summary box asserted *"Output Classes: Variable · End-to-end
 trainable · GPU compatible."*
 
-![torchview's output: a horizontal strip of about forty nodes, one pixel tall at page width, individual operations unreadable](examples/2-torchview-traced.png)
+![torchview's output: a horizontal strip of about forty nodes, one pixel tall at page width, individual operations unreadable](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/2-torchview-traced.png)
 
 *torchview, 2419 × 123 px. **Correct and unreadable** — every operation is there,
 including forty nodes of kernel construction, and none of it can be seen.*
 
-![pytorch-graph's output: a clean vertically-stacked publication-styled figure of thirteen numbered layers, with empty shape fields](examples/4-pytorchgraph-paper.png)
+![pytorch-graph's output: a clean vertically-stacked publication-styled figure of thirteen numbered layers, with empty shape fields](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/4-pytorchgraph-paper.png)
 
 *pytorch-graph, `research_paper` style. **Readable and wrong** — a tidy thirteen-layer
 stack that omits the pooling, the mean, all four kernels, the bypass and the concat.
@@ -65,7 +65,7 @@ exactly what the existing tools do.
 
 ## What it produces
 
-![A draughtsman figure of a ResNet: nine named stages wrapped across three rows, with the residual identity drawn as a dashed arc around one opened-up block](examples/gallery/resnet/figure.svg)
+![A draughtsman figure of a ResNet: nine named stages wrapped across three rows, with the residual identity drawn as a dashed arc around one opened-up block](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/gallery/resnet/figure.svg)
 
 Nine stages over 52 traced operations. Every quantity — `464 params`, `kernel 3`,
 `16×32×32`, `10 classes` — is looked up from `graph.json` by node id at render
@@ -74,7 +74,7 @@ because it is a real fork in the traced graph. The other five blocks are
 collapsed into two boxes, and the caption says so rather than letting the figure
 imply the model is nine layers deep.
 
-That figure and one for every other model are in [`examples/`](examples/), each with the
+That figure and one for every other model are in [`examples/`](https://github.com/syncytium2/draughtsman/blob/main/examples/), each with the
 `graph.json` it was measured from and the `spec.json` that arranged it.
 
 ## Running it
@@ -91,8 +91,8 @@ draughtsman ui       examples/                    # review every model in a brow
 That runs against a clone with nothing else installed, and it reproduces the
 committed `graph.json` — byte for byte on the torch it was traced with, and fact
 for fact on any, which is the durable claim and the one the tests assert
-([`DECISIONS.md`](DECISIONS.md) correction 3). Every model in
-[`examples/gallery/`](examples/gallery/) is written out in full in this repo — no
+([`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 3). Every model in
+[`examples/gallery/`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/) is written out in full in this repo — no
 torchvision, no downloads, no pinned third-party version — so the whole pipeline
 reproduces from here.
 
@@ -127,7 +127,7 @@ then `draughtsman render examples/gallery/resnet/spec.json`, produces a file
 byte-identical to the committed `figure.svg`. `trace` is the only verb that wants
 torch, and without it says so in a sentence rather than a stack trace.
 
-See [`examples/tube/`](examples/tube/) for the result on the model below, and for
+See [`examples/tube/`](https://github.com/syncytium2/draughtsman/blob/main/examples/tube/) for the result on the model below, and for
 where every number in it comes from.
 
 
@@ -152,7 +152,7 @@ two. A node may be marked `elided` explicitly, with a reason — a decision in a
 diff, not a silent loss. It is precisely what pytorch-graph lacked — and it is the
 FIRST of the assertions that make an agent safe here, not the only one. Four more
 things have since been caught being confidently wrong while coverage was green:
-see [`DECISIONS.md`](DECISIONS.md) correction 5.
+see [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 5.
 
 Coverage passing says nothing about whether the figure is any good. `check` says
 so in its own output, so a green check is never read as a good figure.
@@ -220,12 +220,44 @@ the UI never becomes the only way to edit it: there is a raw-JSON escape hatch,
 and hand edits survive, because `abstract` refuses to overwrite a spec without
 `--force`.
 
+## Two things this got wrong, and how they were caught
+
+The value of this repository is not that its checks pass. It is that twice they
+passed while the thing they checked was wrong, and both times something else
+caught it. Both are worth a minute before you trust any figure it draws.
+
+**A check that ran where it could not see.** `tests/test_claims.py` resolves each
+claim against the branches it can find. GitHub Actions checks out shallow and
+single-branch by default, so on CI every branch a claim named "did not exist" and
+the board went red — for a reason that had nothing to do with the board. The
+green runs before it were worse than the red one: the check could not see what it
+was checking, and reported that as a failure of the subject rather than of
+itself. **A gate has to distinguish *checked and wrong* from *could not check*,
+and this one could not.** The fix is `fetch-depth: 0` and it is three characters;
+the finding is that nothing would have told us. See [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md)
+correction 8.
+
+**A figure that disagreed with its own spec, silently.** `check` validated a
+glyph's `scale` against the two legal values and raised on anything else. It
+validated the `style` field against nothing at all — so a spec asking for a style
+that did not exist, or carrying a typo, rendered as the default block and passed
+every assertion. The figure was not the spec, and the spec was not wrong enough
+for anything to notice. Found by reading the schema, not by a test. The check now
+names both valid styles and says what goes wrong: *an unknown style would be
+drawn as a block, and the figure would not be the spec.*
+
+Nine such corrections are written up in [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md), and they are one
+shape: **a quantity with a single correct value, computed in two places and
+allowed to disagree, or computed in one place and never checked.** Coverage
+cannot see any of them, because coverage answers a different question — was an
+operation dropped.
+
 ## Working on this
 
 Several Claude Code sessions have worked this repository at once.
-[`CLAIMS.md`](CLAIMS.md) records who holds which files and what is queued, and
+[`CLAIMS.md`](https://github.com/syncytium2/draughtsman/blob/main/CLAIMS.md) records who holds which files and what is queued, and
 `tests/test_claims.py` fails when it goes stale — a claim board nothing checks is
-decoration, which is [`DECISIONS.md`](DECISIONS.md) correction 5 applied to the
+decoration, which is [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 5 applied to the
 sessions themselves.
 
 ## Licence
