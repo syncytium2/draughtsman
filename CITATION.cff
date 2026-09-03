@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+title: >-
+  draughtsman: readable architecture figures for PyTorch
+  models, with a coverage check
+message: >-
+  If you use a figure this produced, cite the software. The
+  figure itself is not the citable claim — every number in it
+  is read from a trace of your model, and the abstraction is
+  a judgement recorded in a spec file that travels with the
+  figure. Cite that spec alongside the figure if the grouping
+  matters to your argument.
+type: software
+authors:
+  - family-names: DeFazio
+    given-names: Richard
+license: BSD-3-Clause
+repository-code: 'https://github.com/syncytium2/draughtsman'
+abstract: >-
+  A three-stage tool for drawing neural network architecture
+  figures. `trace` records facts from torch.jit.trace — every
+  shape, parameter count and operation, with nothing inferred.
+  `abstract` asks an agent for a layout spec: which operations
+  collapse into a stage, what to call it, and where the graph
+  forks and rejoins — groupings and human names, never a
+  quantity. `render` turns the two into SVG deterministically,
+  looking every number up from the trace by node id, so an
+  agent cannot put a figure's parameter count in a figure.
+  A coverage check then proves no traced operation was
+  silently dropped, and further checks refuse an arrow the
+  graph does not contain, a parameter counted twice through a
+  tied weight, a repetition count that does not tile, and a
+  glyph whose axes do not come from one tensor. It has no
+  runtime dependencies: layout is implemented here rather than
+  delegated, so drawing a figure needs neither torch nor a
+  system binary.
+keywords:
+  - neural network visualisation
+  - architecture diagram
+  - PyTorch
+  - research software
+  - reproducible figures
