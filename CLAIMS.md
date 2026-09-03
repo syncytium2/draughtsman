@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c9` | `measure-type` | `README.md` | 2026-09-03 | A tool that reports the size a figure's type will actually render at, for print or a page |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
