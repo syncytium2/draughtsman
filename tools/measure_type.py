@@ -325,6 +325,43 @@ def selftest() -> int:
         ok(broken == [], "mutating the scale did not change the result, so the "
                          "cases above are not testing the arithmetic they claim")
 
+        # DISTINCT CAUSES MUST PRODUCE DISTINCT REFUSALS.
+        #
+        # The failure this guards is one no gate can catch: a check that fires
+        # correctly and says the wrong thing. Both of today's defects were that
+        # shape — a binary file and a missing path shared one arm and one
+        # sentence, so a mistyped filename was told to go and fix its image
+        # format. Every word true, and it sends the reader confidently in the
+        # wrong direction, which is worse than saying nothing useful at all.
+        #
+        # Nothing here can verify a message is RIGHT. What it can do is refuse
+        # to let two causes share one wording, which is the visible half of the
+        # defect. armory-98's proxy, after I had written the whole thing off as
+        # uncheckable.
+        import io
+        import contextlib
+        causes = {}
+        for name, fn in (
+            ("binary",   lambda: measure(b, 400.0, 6.0)),
+            ("missing",  lambda: measure(missing, 400.0, 6.0)),
+            ("no type",  lambda: measure(q, 400.0, 6.0)),
+            ("no viewBox", lambda: measure(n, 400.0, 6.0)),
+        ):
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                fn()
+            line = next((l.strip() for l in buf.getvalue().splitlines()
+                         if "CANNOT DETERMINE" in l), "")
+            ok(line, f"the {name} refusal printed no CANNOT DETERMINE line")
+            causes[name] = line
+        seen: dict[str, str] = {}
+        for name, line in causes.items():
+            if line in seen:
+                failures.append(
+                    f"{name!r} and {seen[line]!r} refuse with the same sentence, "
+                    f"so one of them names a cause that is not theirs: {line}")
+            seen[line] = name
+
     for f in failures:
         print(f"  FAIL: {f}")
     print(f"selftest: {'FAILED' if failures else 'ok'} "
