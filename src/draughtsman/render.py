@@ -93,6 +93,19 @@ SHEET_SKEW = 0.5          # rise per unit run of the offset
 # makes at MARK_MAX, and it is what keeps the shape readable: the slab is still
 # drawn to scale, so a stack too deep to count is still the right size.
 SHEET_MAX = 12
+# AND A CEILING ON THE NUMBER IS ONLY HALF OF COUNTABILITY. `marks` learned this
+# first: at a pitch of 3.2 its marks touched and thirty of them read as a dotted
+# line, so MARK_PITCH is set by separability and never by fit. Sheets have the
+# same failure at the other end of the range. Depth is scaled against the
+# DEEPEST stack in the figure, so in a model whose channels reach 128 a 3-channel
+# input is allotted 40·√(3/128) ≈ 6 units of depth to spread three sheets
+# across — a 3-unit stagger, which is not a count anybody can read. Three sheets
+# nobody can separate are exactly the "picture pretending to be a number" that
+# MARK_MAX exists to refuse, arriving from below instead of above.
+#
+# So countability is a test on the DRAWN pitch, not only on n, and both ends
+# fall back the same way: one slab, drawn to the same depth, count printed.
+SHEET_MIN_PITCH = 4.0
 # WHEN THERE IS NO BOX, THE GLYPH IS THE STAGE, so it is drawn at this size
 # instead. A box sets its own width from the longest label and the glyph then
 # sits in whatever is left; with the box gone the drawing is the subject and the
@@ -396,8 +409,9 @@ def render(spec: Spec, graph: Graph) -> str:
                     + ("each edge ∝ value"
                        if glyphed[0].spec.glyph.scale == "linear"
                        else "each edge ∝ √value")
-                    + f" · a slab means more than {SHEET_MAX} sheets, counted "
-                      "beside it")
+                    + " · a slab is a stack that could not be counted as "
+                      "drawn — too many sheets, or too little depth to separate "
+                      "them — so its number is printed instead")
         else:
             note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
                     + ("each edge ∝ value"
@@ -961,6 +975,23 @@ def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> flo
     return y + mk.h + 6
 
 
+def _countable(n: int, depth: float) -> bool:
+    """Can a reader actually count this stack as drawn?
+
+    TWO WAYS TO FAIL AND THEY ARE THE SAME FAILURE. Too many sheets and they
+    occlude into texture; too little depth and they collapse into one edge. Both
+    produce a drawing that looks like a count and cannot be read as one, and both
+    fall back to the slab, which states the number instead of implying it.
+    """
+    if n <= 0:
+        return False
+    if n > SHEET_MAX:
+        return False
+    if n == 1:
+        return True
+    return depth / (n - 1) >= SHEET_MIN_PITCH
+
+
 def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
                  gscale: tuple[float, ...], fill: str | None = None) -> float:
     """n x m x p as n flat sheets of m x p, offset up and to the right.
@@ -997,7 +1028,7 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
 
     if fill is None:
         fill = f'fill:{stroke};fill-opacity:0.32;stroke:{stroke};stroke-width:0.55'
-    if 0 < n <= SHEET_MAX:
+    if _countable(n, dx):
         # Back to front, so nearer sheets occlude further ones.
         for k in range(n - 1, -1, -1):
             frac = k / (n - 1) if n > 1 else 0.0
