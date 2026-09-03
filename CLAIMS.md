@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-65` | `lists-not-counts` | `README.md`, `examples/README.md`, `examples/gallery/README.md`, `tests/test_counts.py` | 2026-09-03 | Stop counting the models in prose; name them, and assert the names against the directories |
 | `draughtsman-c9` | `volume-glyph` | `DECISIONS.md`, `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/layout.py`, `src/draughtsman/check.py`, `tests/test_render.py` | 2026-09-03 | The U-Net glyph reports a constant by construction; whether a third axis earns its way past the two-axis rule |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
@@ -104,7 +103,9 @@ list is what stands between here and that flip, in order:
 - [x] **The things a stranger hits first.** The name that installed someone
   else's package, a Cyrillic word in an English comment, a jab at a named
   company, a numbering gap that looked like a mistake.
-- [ ] **Stop counting the models in prose.** In flight on `lists-not-counts`.
+- [x] **Stop counting the models in prose.** Done. The gallery table is the
+  list, `tests/test_counts.py` compares it with the directories both ways, and
+  a prose count of models is now refused rather than remembered.
 - [ ] **The editorial pass.** `SPEC.md` and `DECISIONS.md` both open by saying
   they are not for outside readers. Replace the disclaimer rather than honour it:
   one line saying what the document is and who wrote it, jargon removed, contents
