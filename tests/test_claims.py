@@ -128,6 +128,14 @@ def test_the_board_parses_and_every_row_is_well_formed():
         assert r["paths"], f"claim by {r['session']} names no paths"
 
 
+def _on_main(path: str) -> bool:
+    """Does this path exist on origin/main? A claimed path that does not is one the
+    branch has yet to create, which rule 2 requires the row to name in advance."""
+    out = subprocess.run(["git", "cat-file", "-e", f"origin/main:{path}"],
+                         cwd=ROOT, capture_output=True)
+    return out.returncode == 0
+
+
 def _is_shallow() -> bool:
     """A truncated checkout cannot answer what branches exist."""
     out = subprocess.run(["git", "rev-parse", "--is-shallow-repository"],
@@ -180,21 +188,30 @@ def test_every_claimed_path_exists():
     it is read as current."""
     missing = [(r["session"], r["branch"], p) for r in _rows() for p in r["paths"]
                if not (ROOT / p).exists()]
-    # A CLAIMED PATH MAY BE ABSENT FOR TWO GOOD REASONS: the branch is about to
-    # create it, or the branch has deleted it. Rule 5 requires the row to name
-    # every path the branch touches, so a branch that deletes a file MUST name a
-    # path that no longer exists -- and the first version of this test failed it,
-    # exempting only `tests/` on the guess that new files are tests. That guess
-    # made the board unable to express a deletion at all, found by
-    # `public-cleanup` removing four files and being unable to write a legal row.
+    # A CLAIMED PATH MAY BE ABSENT FOR TWO GOOD REASONS, AND BOTH ARE REQUIRED BY
+    # THE RULES ABOVE. Rule 5 says the row names every path its branch touches, so
+    # a branch that DELETES a file must name one that is gone. Rule 2 says claim
+    # before you write, so a branch that CREATES a file must name one that does not
+    # exist yet. A test that demands every claimed path exist forbids both.
     #
-    # The honest question is not "does this path exist" but "is this path one the
-    # branch is responsible for", and `git diff` already answers it.
+    # It has now been wrong in each direction. The first version exempted paths
+    # under `tests/`, guessing that new files are tests -- which allowed creations,
+    # forbade deletions, and was found by `public-cleanup` removing four files and
+    # being unable to write a legal row. The fix for that demanded the branch touch
+    # the path, which allowed deletions and forbade creations, and was found one
+    # branch later by a row naming a test that had not been written yet.
+    #
+    # So ask the question the rules actually ask -- is this path one the branch is
+    # responsible for -- and answer it from git in both directions: the branch
+    # touches it, or it is not on `main` for the branch to have touched.
     unexpected = []
     for session, branch, path in missing:
         touched = _touched(branch)
-        if touched is None or path not in touched:
-            unexpected.append((session, path))
+        if touched is not None and path in touched:
+            continue                      # the branch deleted it -- rule 5 requires the row to say so
+        if not _on_main(path):
+            continue                      # the branch is about to create it -- rule 2 requires the row first
+        unexpected.append((session, path))
     assert not unexpected, (
         f"claims point at paths that are not there and that their branch does "
         f"not touch: {unexpected}")
