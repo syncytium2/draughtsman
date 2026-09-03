@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-65` | `lists-not-counts` | `README.md`, `examples/README.md`, `examples/gallery/README.md`, `tests/test_counts.py` | 2026-09-03 | Stop counting the models in prose; name them, and assert the names against the directories |
 | `draughtsman-c9` | `volume-glyph` | `DECISIONS.md`, `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/layout.py`, `src/draughtsman/check.py`, `tests/test_render.py` | 2026-09-03 | The U-Net glyph reports a constant by construction; whether a third axis earns its way past the two-axis rule |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
@@ -91,6 +92,39 @@ The branch touched nine files. Rule 5 exists because of this row.
 ## Queue — unclaimed, roughly in the order they are worth doing
 
 Take one by adding a row above and saying so. Nothing here is assigned.
+
+**0. THE PATH TO PUBLIC — the standing list.** *Tony's, and it is the goal
+everything below is sequenced against.* The repository is private; the
+tonydefazio.com tile is built, is the first card, and its deploy gate is
+`gh repo view syncytium2/draughtsman --json visibility` returning PUBLIC. So this
+list is what stands between here and that flip, in order:
+
+- [x] **The licence blocker.** CASCADE was GPL-3.0 against this repo's BSD-3.
+  Moved to `haruspex` at its `8520125`; gone from here at `3652d81`.
+- [x] **The things a stranger hits first.** The name that installed someone
+  else's package, a Cyrillic word in an English comment, a jab at a named
+  company, a numbering gap that looked like a mistake.
+- [ ] **Stop counting the models in prose.** In flight on `lists-not-counts`.
+- [ ] **The editorial pass.** `SPEC.md` and `DECISIONS.md` both open by saying
+  they are not for outside readers. Replace the disclaimer rather than honour it:
+  one line saying what the document is and who wrote it, jargon removed, contents
+  untouched. The candour is the value; the apology for it is not.
+- [ ] **`CONTRIBUTING.md`.** One page: this is a record of a working method as
+  much as a tool. Worth more here than an issue template.
+- [ ] **Two stories into the README**, where a reader reaches them: the CI
+  blindness (a gate that knew the difference between *checked and wrong* and
+  *could not check*) and the `glyph.style` gap (a figure disagreeing with its spec
+  while every assertion was green). Both are currently only in `DECISIONS.md`
+  correction 8 and a commit message.
+- [ ] **PyPI prep.** `project.urls`, a version policy, and the one that bites:
+  every relative link in `README.md` renders dead on the PyPI project page.
+  That is a claim kept in two places, so it needs a check.
+- [ ] **Prune the merged branches.** Eleven on `origin`, all verified fully in
+  `main`. A public repo carrying them reads as unmaintained.
+- [ ] **The flip**, then Zenodo for a DOI.
+
+Not on this path and deliberately after it: JOSS, the publication-grade output
+work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
 
 **1. The outside-reader pass.** *Tony's call, not a session's.* `SPEC.md` and
 `DECISIONS.md` both carry "not murderboarded — an internal spec, not a document
