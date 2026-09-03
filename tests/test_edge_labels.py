@@ -22,6 +22,12 @@ from draughtsman.text import width
 EDGE_LABEL_SIZE = 9.0
 
 STAGE_RE = re.compile(r'<g class="ds-stage.*?</g>', re.S)
+# THE FOOTPRINT IS READ FROM THE FACT THE RENDERER STATES, not from the first
+# rectangle in the group. The rect version worked only for figures that draw a
+# box: `layout.chrome: "none"` draws sheets and text and no stage rect, so this
+# helper parsed nothing and the assertion below went vacuous rather than red.
+# The guard caught it, which is the only reason it was noticed.
+BOX_RE = re.compile(r'data-box="([-\d.]+) ([-\d.]+) ([\d.]+) ([\d.]+)"')
 RECT_RE = re.compile(r'<rect x="([-\d.]+)" y="([-\d.]+)" '
                      r'width="([\d.]+)" height="([\d.]+)"')
 LABEL_RE = re.compile(r'<text class="ds-edge-label" x="([-\d.]+)" '
@@ -31,7 +37,7 @@ LABEL_RE = re.compile(r'<text class="ds-edge-label" x="([-\d.]+)" '
 def _boxes(svg: str):
     out = []
     for group in STAGE_RE.findall(svg):
-        m = RECT_RE.search(group)          # the stage's own rect comes first
+        m = BOX_RE.search(group) or RECT_RE.search(group)
         if m:
             x, y, w, h = (float(v) for v in m.groups())
             out.append((x, y, x + w, y + h))

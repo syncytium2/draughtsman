@@ -93,6 +93,18 @@ SHEET_SKEW = 0.5          # rise per unit run of the offset
 # makes at MARK_MAX, and it is what keeps the shape readable: the slab is still
 # drawn to scale, so a stack too deep to count is still the right size.
 SHEET_MAX = 12
+# WHEN THERE IS NO BOX, THE GLYPH IS THE STAGE, so it is drawn at this size
+# instead. A box sets its own width from the longest label and the glyph then
+# sits in whatever is left; with the box gone the drawing is the subject and the
+# labels arrange around it. Same scale rules, same cap, just a bigger canvas —
+# and still narrower than the titles it sits under, so the figure does not widen.
+BARE_FACE_W, BARE_FACE_H, BARE_DEPTH = 84.0, 58.0, 40.0
+BARE_ROW = 92.0
+# The name overlaps the top of the stack rather than clearing it. The stack is
+# offset UP AND RIGHT, so its top-left is empty by construction and a centred
+# name lands mostly on page ground -- the overlap reads as depth, and the
+# alternative is a band of white between a title and the thing it titles.
+BARE_TITLE_DROP = 11.0
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -256,8 +268,10 @@ class _Stage:
     """One stage, measured."""
 
     def __init__(self, stage, graph: Graph, stages: dict[str, list[str]],
-                 repeats: dict | None = None, batch_axis: int | None = None):
+                 repeats: dict | None = None, batch_axis: int | None = None,
+                 chrome: str = "box"):
         self.spec = stage
+        self.chrome = chrome
         where = f"stage {stage.id!r}"
         self.repeat = (repeats or {}).get(stage.id) if stage.repeat else None
         # ONE AXIS NUMBERING PER SPEC. `lanes.count_from` and `meters` resolve to
@@ -309,10 +323,17 @@ class _Stage:
                 # A sheet stack is face + depth = GLYPH_W by construction, so
                 # both styles cost a box exactly the same width. Only the row
                 # height differs, and height is the cheap axis.
-                widths.append(GLYPH_W)
                 if stage.glyph.style == "sheets":
-                    self.glyph_row = SHEET_ROW
-        self.w = max(MIN_W, max(widths) + 2 * PAD_X)
+                    bare = chrome == "none"
+                    widths.append(BARE_FACE_W + BARE_DEPTH if bare else GLYPH_W)
+                    self.glyph_row = BARE_ROW if bare else SHEET_ROW
+                else:
+                    widths.append(GLYPH_W)
+        # PADDING EXISTED TO KEEP TEXT OFF A BORDER. With no border there is no
+        # border to clear, and the gutter between stages already separates them —
+        # so an unboxed figure buys back most of what the bigger glyph spends.
+        pad = 4.0 if chrome == "none" else PAD_X
+        self.w = max(MIN_W, max(widths) + 2 * pad)
         self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
                   + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
                   + (METER_ROW * len(self.meters) + 4 if self.meters else 0)
@@ -323,7 +344,8 @@ class _Stage:
 def render(spec: Spec, graph: Graph) -> str:
     stages = {s.id: s.nodes for s in spec.stages}
     counts = repeat_counts(spec.stages, graph)
-    measured = {s.id: _Stage(s, graph, stages, counts, spec.batch_axis)
+    measured = {s.id: _Stage(s, graph, stages, counts, spec.batch_axis,
+                             spec.layout.chrome)
                 for s in spec.stages}
 
     if not measured:
@@ -666,8 +688,79 @@ def _edge(route, vertical: bool = False, occupied=None) -> str:
     return "".join(parts)
 
 
+def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
+    """A stage with no box: the tensor IS the stage.
+
+    Draw order is the whole point. The stack goes down first and the name is
+    painted over it, so the name reads as a caption ON the drawing rather than a
+    heading above a container. Detail sits under the stack on the page ground.
+
+    The colour family moves onto the glyph. In the boxed figure the fill carries
+    the family and the glyph is a translucent mark inside it; with the box gone
+    there is nothing else to carry it, so the sheets take the fill and the stroke
+    and the reader still sees convolution green against join purple.
+    """
+    fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
+    top = box.y - box.h / 2.0
+    cx = box.x + box.w / 2.0
+    # THE FOOTPRINT IS STATED ONLY WHERE THE INK NO LONGER ANSWERS IT. A boxed
+    # stage draws a rect any consumer can measure; this one draws sheets and text
+    # and has no single rectangle, though the layout engine knows the area just
+    # the same. So the fact is emitted here and not in `_box` — putting it on
+    # both would restate what the boxed figure already says and would make every
+    # committed figure in the gallery stale to add an attribute nobody reads.
+    parts = [f'<g class="ds-stage ds-bare ds-kind-{escape(m.spec.kind)}" '
+             f'data-stage="{escape(m.spec.id)}" '
+             f'data-box="{_fmt(box.x)} {_fmt(top)} {_fmt(box.w)} '
+             f'{_fmt(box.h)}">']
+
+    y = top + PAD_Y
+    drew = False
+    if m.glyph and m.spec.glyph.style == "sheets":
+        sheet_fill = (f'fill:{fill};fill-opacity:0.94;stroke:{stroke};'
+                      f'stroke-width:0.9;stroke-linejoin:round')
+        y = _draw_sheets(parts, m, box, y, stroke, gscale, fill=sheet_fill)
+        drew = True
+    else:
+        # NOTHING DRAWN MEANS NOTHING TO FLOAT OVER, so the name takes its own
+        # line and the detail starts below it. Without this the two share a
+        # baseline: a stage with no tensor to draw -- `flatten`, `class logits`,
+        # every dense layer in LeNet -- printed its name straight through its
+        # first detail line.
+        y = top + PAD_Y + TITLE_LINE
+
+    # The name, over the stack. PAGE_INK because with no box behind it this text
+    # sits on whatever ground the embedding page provides, which is §4's rule and
+    # the reason a pinned dark ink went invisible on GitHub's dark theme.
+    parts.append(
+        f'<text x="{_fmt(cx)}" y="{_fmt(top + PAD_Y + BARE_TITLE_DROP)}" '
+        f'text-anchor="middle" '
+        f'style="font-family:{FONT_STACK};font-size:{TITLE_SIZE}px;'
+        f'font-weight:600;fill:{PAGE_INK}">{escape(m.name)}</text>'
+    )
+    if m.repeat and m.repeat > 1:
+        parts.append(
+            f'<text class="ds-repeat-badge" x="{_fmt(box.x + box.w)}" '
+            f'y="{_fmt(top + PAD_Y + BARE_TITLE_DROP)}" text-anchor="end" '
+            f'style="font-family:{FONT_STACK};font-size:9px;font-weight:600;'
+            f'fill:{PAGE_MUTED}">×{m.repeat}</text>'
+        )
+    for line in m.detail:
+        y += DETAIL_SIZE
+        parts.append(
+            f'<text x="{_fmt(cx)}" y="{_fmt(y)}" text-anchor="middle" '
+            f'style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;'
+            f'fill:{PAGE_MUTED}">{escape(line)}</text>'
+        )
+        y += DETAIL_LINE - DETAIL_SIZE
+    parts.append("</g>")
+    return "".join(parts)
+
+
 def _box(box, m: _Stage, scales: dict[str, float],
          gscale: tuple[float, float]) -> str:
+    if m.chrome == "none":
+        return _bare(box, m, gscale)
     fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
     top = box.y - box.h / 2.0
     # data-stage is how `draughtsman ui` binds a click in the figure back to the
@@ -869,7 +962,7 @@ def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> flo
 
 
 def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
-                 gscale: tuple[float, ...]) -> float:
+                 gscale: tuple[float, ...], fill: str | None = None) -> float:
     """n x m x p as n flat sheets of m x p, offset up and to the right.
 
     THREE EDGES, ONE SCALE EACH, AND THE VOLUME IS THE CLAIM. Face height comes
@@ -885,20 +978,25 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
     of the model survives; only the countability is given up, and the number is
     printed rather than implied. This is `marks`' bar at MARK_MAX, one rank up.
     """
+    bare = m.chrome == "none"
+    face_w, face_h = (BARE_FACE_W, BARE_FACE_H) if bare else (SHEET_FACE_W,
+                                                              SHEET_FACE_H)
+    max_dep = BARE_DEPTH if bare else SHEET_DEPTH
     depth_v, tall_v, wide_v = m.glyph
     sc = m.spec.glyph.scale
-    fh = _edge_px(tall_v, gscale[1], SHEET_FACE_H, sc)
-    fw = _edge_px(wide_v, gscale[2], SHEET_FACE_W, sc)
-    dep = _edge_px(depth_v, gscale[0], SHEET_DEPTH, sc)
+    fh = _edge_px(tall_v, gscale[1], face_h, sc)
+    fw = _edge_px(wide_v, gscale[2], face_w, sc)
+    dep = _edge_px(depth_v, gscale[0], max_dep, sc)
     dx, dy = dep, dep * SHEET_SKEW
     n = int(depth_v)
 
     # The whole stack, so it can be centred as one object.
     total_w, total_h = fw + dx, fh + dy
     ox = box.x + (box.w - total_w) / 2.0
-    base = y + 3 + (SHEET_FACE_H + SHEET_DEPTH * SHEET_SKEW - total_h)
+    base = y + 3 + (face_h + max_dep * SHEET_SKEW - total_h)
 
-    fill = f'fill:{stroke};fill-opacity:0.32;stroke:{stroke};stroke-width:0.55'
+    if fill is None:
+        fill = f'fill:{stroke};fill-opacity:0.32;stroke:{stroke};stroke-width:0.55'
     if 0 < n <= SHEET_MAX:
         # Back to front, so nearer sheets occlude further ones.
         for k in range(n - 1, -1, -1):
@@ -922,7 +1020,7 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
             f'style="font-family:{FONT_STACK};font-size:{MARK_SIZE + 4}px;'
             f'fill:{MUTED}">×{n}</text>'
         )
-    return y + SHEET_ROW
+    return y + (BARE_ROW if bare else SHEET_ROW)
 
 
 def _shape_axes(text: str, glyph, where: str) -> tuple[float, ...]:

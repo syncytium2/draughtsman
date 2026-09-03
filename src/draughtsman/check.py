@@ -289,6 +289,11 @@ def check(spec: Spec, graph: Graph) -> Result:
         errors.append(
             "glyphs in one figure must use one scale; found "
             + " and ".join(sorted(repr(x) for x in scaling)))
+    if spec.layout.chrome not in ("box", "none"):
+        errors.append(
+            f"layout chrome {spec.layout.chrome!r} is neither 'box' nor 'none'. "
+            "An unknown value would draw the boxed figure, and the figure would "
+            "not be the spec.")
     # AND ONE STYLE, for the same reason one rank. A figure mixing `sheets` with
     # `block` would put a rectangle and a volume on one ruler, and the styles do
     # not even agree on how many axes they read — so the shared scale would be

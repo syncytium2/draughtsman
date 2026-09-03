@@ -185,7 +185,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
   "elided": [{"nodes": ["n0017"], "reason": "<why a reader does not need this>"}],
   "constants": {"n0149.constants.dilation": "<why this traced constant is an"
                 " architectural quantity and not an initialisation>"},
-  "layout": {"orientation": "lr|tb", "wrap": 760, "legend": false},
+  "layout": {"orientation": "lr|tb", "wrap": 760, "legend": false,
+             "chrome": "box|none"},
   "caption": "<optional one line>"
 }
 
@@ -214,8 +215,18 @@ pictures that do not read, so a figure can be 8:1 with every check green.
                        stack in a single column, and for a page taller than wide.
   "legend": true       a key naming each colour family, with its share of the
                        traced ops and parameters counted off graph.json.
+  "chrome": "none"     drop the box around every stage and let the TENSOR be the
+                       stage: the glyph is drawn large, the name floats over it,
+                       the detail sits underneath. Use it when every substantive
+                       stage carries a glyph — otherwise stages with nothing to
+                       draw become bare labels floating between drawings.
+                       A box is the right container when a stage's content is
+                       WORDS; it is the wrong one when the content is a picture
+                       of the tensor, because then it is a rectangle drawn
+                       around a rectangle and the eye settles on the bigger one.
+                       With "sheets" this is usually what you want.
 
-Both default to off and both are judgement, which is why they live here rather
+These default to off and all are judgement, which is why they live here rather
 than in a render flag: the committed spec has to produce the same figure on any
 machine.
 """

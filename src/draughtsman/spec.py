@@ -167,6 +167,23 @@ class Layout:
     # colour family does not need one, and turning it on for every committed spec
     # would change every committed figure.
     legend: bool = False
+    # "box" (default) draws a filled, stroked rectangle per stage and sets the
+    # text inside it. "none" removes it and lets the TENSOR be the stage: the
+    # glyph is drawn large, the name floats over it, and the detail sits
+    # underneath on the page.
+    #
+    # WHY THIS IS A CHOICE AND NOT A DEFAULT. A box is the right container when
+    # the stage's content is words — a name, three detail lines, a lane stack —
+    # because it groups them and its fill carries the colour family. It is the
+    # wrong one when the content is a DRAWING of the tensor: the box is then a
+    # second rectangle around a rectangle, competing for the same reading, and
+    # the eye settles on the larger one. Every glyph in this gallery was drawn
+    # inside a box eight times its area, so the figure was a row of boxes with a
+    # small mark inside rather than a row of tensors.
+    #
+    # With no box the colour family moves onto the glyph itself, which is where
+    # it belonged once the glyph became the subject.
+    chrome: str = "box"
 
 
 @dataclass
@@ -232,7 +249,8 @@ def load(doc: dict) -> Spec:
                 caption=doc.get("caption"), graph=doc.get("graph", "graph.json"),
                 layout=Layout(orientation=lay.get("orientation", "lr"),
                               wrap=lay.get("wrap"),
-                              legend=bool(lay.get("legend", False))),
+                              legend=bool(lay.get("legend", False)),
+                              chrome=lay.get("chrome", "box")),
                 constants=dict(doc.get("constants") or {}),
                 batch_axis=doc.get("batch_axis"))
 
@@ -282,12 +300,14 @@ def dump(spec: Spec) -> dict:
     # Omitted entirely when it is the default, so adding this field changes no
     # existing spec and no existing figure.
     if (spec.layout.orientation != "lr" or spec.layout.wrap
-            or spec.layout.legend):
+            or spec.layout.legend or spec.layout.chrome != "box"):
         out["layout"] = {"orientation": spec.layout.orientation}
         if spec.layout.wrap:
             out["layout"]["wrap"] = spec.layout.wrap
         if spec.layout.legend:
             out["layout"]["legend"] = True
+        if spec.layout.chrome != "box":
+            out["layout"]["chrome"] = spec.layout.chrome
     return out
 
 
