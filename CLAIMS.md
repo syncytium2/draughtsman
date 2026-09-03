@@ -149,6 +149,56 @@ list is what stands between here and that flip, in order:
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
 
+**0c. HANDOFF — denser figures for the web page, without losing legibility.**
+*Written 2026-09-03 by `draughtsman-c9` at the end of a long session. Everything
+below is measured, not estimated.*
+
+**Where this came from.** The project site draws the gallery figures at the scale
+their own labels require, so a figure's body type matches the page's body type.
+That works, and it made the next problem obvious: the figures are mostly empty.
+
+    boxes cover 16-23% of the canvas   (dual 23.3%, whisper 20.1%, vae 16.7%)
+
+Three of the ten measure 0.0% there, and that is the metric failing rather than
+the figures being emptier: `lenet`, `resnet` and `unet` set `layout.chrome:
+"none"` and draw no box rectangles for it to find. **Fix the metric before
+trusting it** — it should measure drawn ink, not `<rect>` elements.
+
+**The levers, and what each is worth.** `layout.build` takes `hgap=54`,
+`vgap=26`, and `render` pads boxes at `PAD_X=12`, `PAD_Y=9`. Measured by
+rendering the gallery with them changed:
+
+    model        now   hgap36/vgap18   + pad 8/6
+    dual         560            506         482     -14%
+    lstm         653            581         557     -15%
+    whisper     1647           1521        1457     -12%
+    unet        1595           1451        1451      -9%
+    mlp          493            679         655     +33%   <-- got WORSE
+
+**Read the mlp row before starting.** Tighter gaps change what the wrap solver
+chooses, so a figure can come out *wider*. Any change here has to be measured
+across all ten, not on the one being looked at — and `tests/test_layout_shape.py`
+already pins aspect ratios that will move.
+
+**What it does not fix.** 10-15% is not the 2x `unet` needs to reach the 684-unit
+budget at 6in. Density is worth doing for the page and for slides; it is not the
+answer to queue item 3. That answer is fewer detail lines, more collapsing, or a
+second orientation.
+
+**Do not trade legibility for it.** `tools/measure_type.py` reports what type
+actually renders at, for any width, and exits 1 under a floor:
+
+    tools/measure_type.py --print 6in --floor 6pt examples/gallery/*/figure.svg
+
+Run it before and after. The type size is the fixed quantity — that is
+`DECISIONS.md` correction 10, and three separate failures this evening came from
+believing an eye over that arithmetic.
+
+**One loose end.** The SVG declares `width="6in"` for print, and a browser
+honours it at 576px — so a web page must override with its own width or the
+figure renders at 1.03x and the labels come out at 9.8px. The site does this; any
+other consumer will hit it. Worth a line in the README.
+
 **0b. What the murderboard found and nobody has fixed.** The run records lived in
 a session scratchpad, which dies with the session; this is what survived it.
 
