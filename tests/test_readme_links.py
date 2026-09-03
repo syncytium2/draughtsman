@@ -22,7 +22,6 @@ Three things, and the third is the one a human would not notice:
 """
 
 import re
-import tomllib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,8 +30,17 @@ LINK_RE = re.compile(r'!?\[[^\]]*\]\(([^)]+)\)')
 
 
 def _repository() -> str:
-    with (ROOT / "pyproject.toml").open("rb") as fh:
-        return tomllib.load(fh)["project"]["urls"]["Repository"].rstrip("/")
+    """Read `Repository` out of pyproject without tomllib.
+
+    `tomllib` is 3.11+, and this project supports 3.10 — a floor
+    `tests/test_versions.py` ties to the pyproject and the CI matrix, so a test
+    that quietly needs 3.11 breaks a promise the repository makes elsewhere. The
+    first version of this file imported it and went red on the 3.10 job.
+    """
+    text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    m = re.search(r'^\s*Repository\s*=\s*"([^"]+)"', text, re.M)
+    assert m, "pyproject.toml declares no [project.urls] Repository"
+    return m.group(1).rstrip("/")
 
 
 def _links() -> list[str]:
