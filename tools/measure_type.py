@@ -47,6 +47,10 @@ _UNIT_PX = {"px": 1.0, "in": CSS_PX_PER_IN, "pt": CSS_PX_PER_IN / PT_PER_IN,
             "mm": CSS_PX_PER_IN / 25.4, "cm": CSS_PX_PER_IN / 2.54}
 
 
+class Undeterminable(Exception):
+    """The type size cannot be computed from this file."""
+
+
 def length_px(text: str) -> float:
     m = re.fullmatch(r"\s*([0-9]*\.?[0-9]+)\s*(px|in|pt|mm|cm)?\s*", str(text))
     if not m:
@@ -57,7 +61,8 @@ def length_px(text: str) -> float:
 def viewbox_width(svg: str) -> float:
     m = re.search(r'viewBox="\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)', svg)
     if not m:
-        raise SystemExit("no viewBox: this does not look like a draughtsman figure")
+        raise Undeterminable("no viewBox, so the figure states no coordinate "
+                             "system and nothing can be scaled against it")
     return float(m.group(1))
 
 
@@ -83,10 +88,6 @@ _TO_USER = {None: 1.0, "px": 1.0, "pt": 96.0 / 72.0, "pc": 16.0,
             "mm": 96.0 / 25.4, "cm": 96.0 / 2.54, "in": 96.0}
 
 
-class Undeterminable(Exception):
-    """The type size cannot be computed from this file."""
-
-
 def type_sizes(svg: str) -> list[float]:
     """Every distinct font-size in the file, in user units."""
     out = set()
@@ -101,8 +102,34 @@ def type_sizes(svg: str) -> list[float]:
 
 
 def measure(path: Path, display_px: float | None, floor_px: float | None):
-    svg = path.read_text(encoding="utf-8")
-    units = viewbox_width(svg)
+    # THE FORMAT LIMIT IS ENFORCED HERE, NOT BY AN EXCEPTION ESCAPING.
+    #
+    # This gate reads SVG and says so. Before this, a PNG or a binary PDF died in
+    # `read_text` with a UnicodeDecodeError: exit 1, which was the right status
+    # for the wrong reason. Three costs, and the first is the one that would have
+    # bitten later — nothing pinned it, so `errors="replace"` on this read would
+    # have turned every PNG into a silent pass with no test noticing. An
+    # ASCII-clean PDF meanwhile decoded fine and got a named refusal, so one
+    # declared limit had two behaviours depending on whether the bytes happened
+    # to be UTF-8. And in CI a traceback reads as a broken tool rather than as
+    # the gate declining a file that is out of scope.
+    #
+    # Found by murderboard-7a, running it on files this repository did not write,
+    # after I claimed in writing that this branch already handled them.
+    try:
+        svg = path.read_text(encoding="utf-8")
+    except (UnicodeDecodeError, OSError) as exc:
+        kind = "not a text file" if isinstance(exc, UnicodeDecodeError) else "unreadable"
+        print(f"\n{path}")
+        print(f"  CANNOT DETERMINE: {kind}. This gate reads SVG; a PNG or PDF "
+              "figure has to be measured by something else.")
+        return [(0.0, 0.0)]
+    try:
+        units = viewbox_width(svg)
+    except Undeterminable as exc:
+        print(f"\n{path}")
+        print(f"  CANNOT DETERMINE: {exc}")
+        return [(0.0, 0.0)]
     declared = declared_width(svg)
     intrinsic = length_px(declared) if declared else None
     shown = display_px if display_px is not None else intrinsic
@@ -212,6 +239,28 @@ def selftest() -> int:
            "and an unparseable one must not look the same from here")
         ok(main([str(q), "--width", "400px", "--floor", "6pt"]) == 1,
            "a figure with no readable type exited 0")
+
+        # NON-TEXT AND NON-SVG, which every earlier fixture here was not.
+        #
+        # The declared limit is "this gate reads SVG". Until these existed it was
+        # enforced by a UnicodeDecodeError escaping — exit 1 for the wrong
+        # reason, unpinned, and reading as a broken tool in CI. Every fixture
+        # above is a text file, so the branch that handles bytes had never once
+        # been run. That is the mirror again, one level down: a selftest is only
+        # as wide as the inputs someone thought to write.
+        b = Path(td) / "figure.png"
+        b.write_bytes(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR")
+        ok(measure(b, 400.0, 6.0) != [],
+           "a binary file did not refuse — the SVG-only limit is not enforced")
+        ok(main([str(b), "--width", "400px", "--floor", "6pt"]) == 1,
+           "a binary file exited 0")
+
+        n = Path(td) / "noviewbox.svg"
+        n.write_text('<svg width="400"><text font-size="9">x</text></svg>',
+                     encoding="utf-8")
+        ok(measure(n, 400.0, 6.0) != [],
+           "an SVG with no viewBox did not refuse; there is no scale to measure "
+           "against and a number here would be invented")
 
         # units -> px, the one expression this tool exists for
         ok(abs(length_px("6in") - 576.0) < 1e-9, "6in is 576 CSS px")
