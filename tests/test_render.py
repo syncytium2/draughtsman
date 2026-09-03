@@ -19,6 +19,7 @@ from conftest import EXAMPLES, IDS
 from draughtsman.facts import Graph
 from draughtsman.render import render
 from draughtsman.spec import load
+from draughtsman.text import width
 
 
 @pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
@@ -376,3 +377,84 @@ def test_no_committed_caption_overflows(d):
     for line in re.findall(r'class="ds-caption"[^>]*>([^<]*)<', svg):
         assert 12 + text_width(line, CAPTION_SIZE) <= total - 12 + 0.01, (
             f"{d.name}: caption line runs past the canvas — {line!r}")
+
+
+# --- text on line art -------------------------------------------------------
+#
+# interface2 ships `tools/pdf_overlap_check.py` for this class and states its own
+# blind spot in the docstring: it compares text against TEXT, so "a label sitting
+# on a trace with NO background box would be invisible to this tool." That is
+# exactly the defect this file asserts against — a stage name painted over the
+# sheets it names, which is what `layout.chrome: "none"` produced on every LeNet
+# stage whose stack reached the title line.
+#
+# The tool is in `armory` as `origin/interface2/tools/pdf_overlap_check.py`,
+# status `stranded` — committed there, never merged anywhere. It reads PDFs, so
+# it could not have run on an SVG even if it had travelled. Here the geometry is
+# generated rather than measured, so the assertion is cheap and exact.
+
+_TITLE_RE = re.compile(
+    r'<text x="([-\d.]+)" y="([-\d.]+)" text-anchor="middle" '
+    r'style="[^"]*font-size:12\.0px;font-weight:600[^"]*">([^<]*)</text>')
+_SHEET_RECT_RE = re.compile(
+    r'<rect class="ds-sheet" x="([-\d.]+)" y="([-\d.]+)" '
+    r'width="([\d.]+)" height="([\d.]+)"')
+_SHEET_POLY_RE = re.compile(r'<polygon class="ds-sheet" points="([^"]+)"')
+
+TITLE_SIZE_PX = 12.0
+
+
+def _ink_boxes(group: str):
+    """Every piece of glyph ink in one stage, as (x0, y0, x1, y1)."""
+    out = []
+    for x, y, w, h in _SHEET_RECT_RE.findall(group):
+        x, y, w, h = float(x), float(y), float(w), float(h)
+        out.append((x, y, x + w, y + h))
+    for pts in _SHEET_POLY_RE.findall(group):
+        xs, ys = [], []
+        for pair in pts.split():
+            px, py = pair.split(",")
+            xs.append(float(px))
+            ys.append(float(py))
+        out.append((min(xs), min(ys), max(xs), max(ys)))
+    return out
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_no_stage_name_is_painted_over_its_own_glyph(d):
+    """A name on top of the drawing it names is never intentional."""
+    svg = (d / "figure.svg").read_text()
+    hits = []
+    checked = 0
+    for group in re.findall(r'<g class="ds-stage.*?</g>', svg, re.S):
+        ink = _ink_boxes(group)
+        if not ink:
+            continue
+        m = _TITLE_RE.search(group)
+        if not m:
+            continue
+        checked += 1
+        cx, base, text = float(m.group(1)), float(m.group(2)), m.group(3)
+        w = width(text, TITLE_SIZE_PX, bold=True)
+        # A text baseline sits under the glyphs; the cap height is what can
+        # collide, and a descender below the baseline is not part of a title.
+        t = (cx - w / 2.0, base - TITLE_SIZE_PX * 0.72, cx + w / 2.0, base)
+        for b in ink:
+            if t[0] < b[2] and b[0] < t[2] and t[1] < b[3] and b[1] < t[3]:
+                hits.append((d.name, text))
+                break
+    # THE GUARD, and it is not decoration. `tests/test_edge_labels.py` found its
+    # stage footprints by parsing ink that stopped being drawn, so it quietly
+    # had nothing to check; it caught that only because it asserted it had
+    # parsed something. A figure with no glyphs legitimately checks nothing, so
+    # the guard is on the SUITE rather than on each figure.
+    assert checked or 'class="ds-sheet"' not in svg, (
+        f"{d.name}: the figure draws sheets but this parsed no titled stage "
+        "with ink, so the comparison below had nothing to make and would pass "
+        "vacuously")
+    assert not hits, (
+        "stage names are painted over their own glyph ink: "
+        + ", ".join(f"{fig}:{name!r}" for fig, name in hits)
+        + ". Text on line art is the collision class that is never intentional, "
+          "and it is the one interface2's overlap checker states it cannot see."
+    )

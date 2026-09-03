@@ -113,11 +113,9 @@ SHEET_MIN_PITCH = 4.0
 # and still narrower than the titles it sits under, so the figure does not widen.
 BARE_FACE_W, BARE_FACE_H, BARE_DEPTH = 84.0, 58.0, 40.0
 BARE_ROW = 92.0
-# The name overlaps the top of the stack rather than clearing it. The stack is
-# offset UP AND RIGHT, so its top-left is empty by construction and a centred
-# name lands mostly on page ground -- the overlap reads as depth, and the
-# alternative is a band of white between a title and the thing it titles.
-BARE_TITLE_DROP = 11.0
+# How far above the stack's top edge the name sits. Small, so the name still
+# reads as belonging to that drawing rather than floating over the figure.
+TITLE_GAP = 4.0
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -728,26 +726,40 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
              f'data-box="{_fmt(box.x)} {_fmt(top)} {_fmt(box.w)} '
              f'{_fmt(box.h)}">']
 
-    y = top + PAD_Y
+    # THE NAME CLEARS THE DRAWING. It was set at a fixed drop from the top of the
+    # stage and painted after the sheets, so on any stage whose stack reached
+    # that high the two occupied the same pixels -- "conv + ReLU" sitting on
+    # LeNet's six sheets. Text over line art is the one collision class that is
+    # never intentional, and it is also the class interface2's overlap checker
+    # says it cannot see, because it looks for text on TEXT.
+    #
+    # So the stack is drawn into a band that starts below a reserved title line,
+    # and the name is placed at whichever is lower: that reserved line, or just
+    # above the stack's actual top edge. Tall stacks get a title on the common
+    # line; short ones get a title that hugs the drawing instead of floating.
+    title_y = top + PAD_Y + TITLE_SIZE
+    y = top + PAD_Y + TITLE_LINE
     drew = False
     if m.glyph and m.spec.glyph.style == "sheets":
         sheet_fill = (f'fill:{fill};fill-opacity:0.94;stroke:{stroke};'
                       f'stroke-width:0.9;stroke-linejoin:round')
-        y = _draw_sheets(parts, m, box, y, stroke, gscale, fill=sheet_fill)
+        y, ink_top = _draw_sheets(parts, m, box, y, stroke, gscale,
+                                  fill=sheet_fill)
+        title_y = max(title_y, ink_top - TITLE_GAP)
         drew = True
     else:
-        # NOTHING DRAWN MEANS NOTHING TO FLOAT OVER, so the name takes its own
-        # line and the detail starts below it. Without this the two share a
+        # NOTHING DRAWN MEANS NOTHING TO CLEAR, so the name keeps the reserved
+        # line and the detail starts below it. Without this the two shared a
         # baseline: a stage with no tensor to draw -- `flatten`, `class logits`,
         # every dense layer in LeNet -- printed its name straight through its
         # first detail line.
-        y = top + PAD_Y + TITLE_LINE
+        pass
 
     # The name, over the stack. PAGE_INK because with no box behind it this text
     # sits on whatever ground the embedding page provides, which is §4's rule and
     # the reason a pinned dark ink went invisible on GitHub's dark theme.
     parts.append(
-        f'<text x="{_fmt(cx)}" y="{_fmt(top + PAD_Y + BARE_TITLE_DROP)}" '
+        f'<text x="{_fmt(cx)}" y="{_fmt(title_y)}" '
         f'text-anchor="middle" '
         f'style="font-family:{FONT_STACK};font-size:{TITLE_SIZE}px;'
         f'font-weight:600;fill:{PAGE_INK}">{escape(m.name)}</text>'
@@ -755,7 +767,7 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
     if m.repeat and m.repeat > 1:
         parts.append(
             f'<text class="ds-repeat-badge" x="{_fmt(box.x + box.w)}" '
-            f'y="{_fmt(top + PAD_Y + BARE_TITLE_DROP)}" text-anchor="end" '
+            f'y="{_fmt(title_y)}" text-anchor="end" '
             f'style="font-family:{FONT_STACK};font-size:9px;font-weight:600;'
             f'fill:{PAGE_MUTED}">×{m.repeat}</text>'
         )
@@ -847,7 +859,7 @@ def _box(box, m: _Stage, scales: dict[str, float],
         y = _draw_marks(parts, m.marks, box, y, stroke)
 
     elif m.glyph and m.spec.glyph.style == "sheets":
-        y = _draw_sheets(parts, m, box, y, stroke, gscale)
+        y, _ = _draw_sheets(parts, m, box, y, stroke, gscale)
 
     elif m.glyph:
         tall, wide = m.glyph
@@ -1051,7 +1063,7 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
             f'style="font-family:{FONT_STACK};font-size:{MARK_SIZE + 4}px;'
             f'fill:{MUTED}">×{n}</text>'
         )
-    return y + (BARE_ROW if bare else SHEET_ROW)
+    return y + (BARE_ROW if bare else SHEET_ROW), base
 
 
 def _shape_axes(text: str, glyph, where: str) -> tuple[float, ...]:
