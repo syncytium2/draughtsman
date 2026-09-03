@@ -458,3 +458,62 @@ def test_no_stage_name_is_painted_over_its_own_glyph(d):
         + ". Text on line art is the collision class that is never intentional, "
           "and it is the one interface2's overlap checker states it cannot see."
     )
+
+
+# --- sheet geometry ---------------------------------------------------------
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_equal_axis_values_draw_equal_lengths(d):
+    """THE ASPECT A READER SEES MUST BE THE TENSOR'S, NOT THE CANVAS'S.
+
+    Each axis once had its own canvas and its own maximum, so a 64×64 map — the
+    same number twice — drew 44 wide and 28 tall and every square tensor in the
+    gallery came out at 1.45:1. One span fixed it; this is what keeps it fixed.
+
+    Checked on the drawn SVG rather than on the constants, because the constants
+    agreeing proves nothing about what was rendered.
+    """
+    spec_raw = json.loads((d / "spec.json").read_text())
+    sheets = [s for s in spec_raw["stages"]
+              if (s.get("glyph") or {}).get("style") == "sheets"]
+    if not sheets:
+        pytest.skip("no sheet glyphs in this figure")
+    svg = (d / "figure.svg").read_text()
+    nodes = {n["id"]: n
+             for n in json.loads((d / "graph.json").read_text())["nodes"]}
+
+    bad, checked = [], 0
+    for st in sheets:
+        shaped = [n for n in st["nodes"]
+                  if n in nodes and nodes[n].get("out_shape")]
+        if not shaped:
+            continue
+        shape = nodes[shaped[-1]]["out_shape"]
+        if len(shape) != 4 or shape[2] != shape[3]:
+            continue                      # only square maps prove the point
+        group = re.search(
+            r'<g class="ds-stage[^>]*data-stage="%s".*?</g>' % re.escape(st["id"]),
+            svg, re.S)
+        if not group:
+            continue
+        m = re.search(r'<rect class="ds-sheet" x="[-\d.]+" y="[-\d.]+" '
+                      r'width="([\d.]+)" height="([\d.]+)"', group.group(0))
+        if not m:
+            continue
+        w, h = float(m.group(1)), float(m.group(2))
+        checked += 1
+        if abs(w - h) > 0.05:
+            bad.append((st["id"], shape[2], shape[3], w, h))
+    # The guard, for the reason `test_edge_labels` needed one: a figure that
+    # stopped drawing what this parses would make the assertion vacuous rather
+    # than red.
+    assert checked, (
+        f"{d.name}: has sheet glyphs but no square map was measured, so this "
+        "assertion had nothing to compare")
+    assert not bad, (
+        "square spatial maps are not drawn square: "
+        + ", ".join(f"{sid} is {a}×{b} drawn {w:.2f}×{h:.2f}"
+                    for sid, a, b, w, h in bad)
+        + ". Equal axis values must draw equal lengths, or the aspect the reader "
+          "sees belongs to the canvas rather than to the tensor."
+    )

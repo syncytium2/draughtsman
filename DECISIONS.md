@@ -453,6 +453,76 @@ guard in `tests/test_dist_name.py`. Both are instruments that fire without being
 invoked, and on this commit two of them caught the session that was writing the
 third.
 
+### 9. A projection is a claim, and nothing was checking what it dropped
+
+U-Net's glyph declared `axes: [-3, -2]` — channels and height — and reported the
+architecture as **unchanging**. Channels double at exactly the rate height halves,
+so the product is pinned by construction: C·H is 1024 at `enc1`, `enc2`, `enc3`
+and `bottom`, and the rendered rectangles came out at area 149.50 to the last
+digit, rotating wide-flat to tall-narrow and back.
+
+Every check was green. Coverage complete, every drawn edge traced, every number
+resolved from `graph.json`, no reference unanswerable. The figure was still
+telling a reader that nothing about the tensor changed between full resolution
+and the bottleneck.
+
+The dropped axis halves too. Put it back and the volume runs **65536, 32768,
+16384, 8192 and back to 65536** — the U the network is named for, and it is
+invisible in *any two* of its three axes.
+
+This is correction 5's family with one new member. There, a quantity had one
+correct value and was either computed twice or never checked. Here the quantity
+was computed correctly and then **projected**, and nothing asked whether the
+projection kept what the reader was being shown. A glyph choosing two axes of
+four is a claim about which two matter, made by the agent, checked by nothing.
+
+**What followed.** `style: "sheets"` draws n×m×p as n flat sheets of m×p, and it
+is the only style permitted a third axis. The two-axis rule was not relaxed: it
+exists because the eye reads a rectangle's AREA whether or not you meant it to,
+so both edges must come from one tensor — and an offset stack is read the same
+way one rank up, as a VOLUME. Three axes of one tensor multiply to something real
+exactly as two do. Every other style stays at two, because nothing in a rectangle
+carries a third.
+
+**Four things the build got wrong first, each caught by looking rather than by a
+test, and each now checked.**
+
+*The ceiling was stated twice.* `SHEET_MAX = 12` sat beside a minimum separable
+pitch, as though a stack could fail two ways — too many sheets, or too little
+depth. It cannot: a count ceiling is the pitch rule evaluated at the largest depth
+the canvas allows, so the count never binds first. Measured in both canvases,
+every n the cap refused the pitch had already refused; `SHEET_MAX` was unreachable
+code, and it disagreed with the real ceiling by one in one canvas and by six in
+the other. **Correction 5, inside a rule written to enforce correction 5.** The
+pitch is now the rule and `sheet_ceiling()` derives the number the legend prints.
+
+*The scale lied about aspect.* Each axis had its own canvas and its own maximum,
+so a 64×64 map — the same number twice — drew 44 wide and 28 tall, and every
+square tensor in the gallery came out at 1.45:1. One span replaced the three.
+Equal values now draw equal lengths, and the widest figure in the gallery lost 142
+units doing it.
+
+*A name was painted over the drawing it named.* Text on line art is the one
+collision class that is never intentional. `interface2` ships a checker for this
+family and its docstring excludes exactly this case — it compares text against
+TEXT, so "a label sitting on a trace with NO background box would be invisible to
+this tool." Here the geometry is generated rather than measured off a raster, so
+`test_no_stage_name_is_painted_over_its_own_glyph` is exact and cheap.
+
+*And a new style was invisible to the agent.* `tests/test_payload.py` went red on
+`layout.chrome`: a spec field the prompt never mentions is one no agent can
+produce. That test exists because the gallery run found `wrap` in the schema and
+absent from the payload. It caught the identical defect on a field added the same
+afternoon, which is the argument for keeping it.
+
+**The habit this adds.** Correction 5 says one quantity, one implementation,
+something that fails. This adds: **when a figure shows fewer axes than the tensor
+has, the choice of which to drop is part of the claim.** It cannot be checked
+automatically — only the agent knows what a reader needs — but it can be *seen*,
+by running the acceptance test against the figure that already exists rather than
+building the thing that would replace it. The U-Net finding cost one afternoon of
+arithmetic and no code at all.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**
