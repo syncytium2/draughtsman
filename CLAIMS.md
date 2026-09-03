@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c9` | `path-to-public` | `README.md`, `pyproject.toml` | 2026-09-03 | The remaining path-to-public items: CONTRIBUTING, two stories into the README, PyPI prep with a link check, and pruning the merged branches |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
