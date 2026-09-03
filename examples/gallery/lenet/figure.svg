@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="LeNet — the canonical image CNN" viewBox="0 0 979.86 484.5" width="979.86" height="484.5">
+<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="LeNet — the canonical image CNN" viewBox="0 0 782.24 484.5" width="782.24" height="484.5">
 <title>LeNet — the canonical image CNN</title>
 <desc>LeNet — the canonical image CNN: 9 stages over 12 traced operations, 61706 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
 <text class="ds-title" x="12" y="15" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:14px;font-weight:600;fill:currentColor">LeNet — the canonical image CNN</text>
 <text class="ds-subtitle" x="12" y="29" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10px;fill:currentColor;opacity:0.62">61706 parameters · 1×28×28 in, 10 out</text>
-<g class="ds-body" transform="translate(107.27 36)">
+<g class="ds-body" transform="translate(8.46 36)">
 <path class="ds-edge ds-edge-solid" data-from="image" data-to="conv1" d="M158.2 97.25 C185.2 97.25 185.2 97.25 212.2 97.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="conv1" data-to="pool1" d="M344.2 97.25 C371.2 97.25 371.2 97.25 398.2 97.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="pool1" data-to="conv2" d="M530.2 97.25 C557.2 97.25 557.2 97.25 584.2 97.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
@@ -26,7 +26,7 @@
 <g class="ds-legend">
 <rect class="ds-legend-glyph" x="12" y="449.5" width="9" height="8" style="fill:currentColor;fill-opacity:0.42"/>
 <text class="ds-legend-label" x="27" y="457" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;font-weight:600;fill:currentColor">channels × height × width</text>
-<text class="ds-legend-share" x="140.65" y="457" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">deepest = 16, tallest = 28, widest = 28 · each edge ∝ √value · a slab is a stack that could not be counted as drawn — too many sheets, or too little depth to separate them — so its number is printed instead</text>
+<text class="ds-legend-share" x="140.65" y="457" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">deepest = 16, tallest = 28, widest = 28 · each edge ∝ √value · sheets are drawn only where they separate; past 11 the stack is one slab carrying its count</text>
 </g>
 <text class="ds-caption" x="12" y="473.5" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Every operation here is a registered module, so a module enumerator gets this one right. The interest is that the figure is no worse for being derived from the trace.</text>
 </svg>

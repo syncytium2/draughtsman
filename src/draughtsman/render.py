@@ -86,25 +86,27 @@ SHEET_ROW = 48.0
 # exists for -- and adds no information, because the depth is already carried by
 # how far the stack travels. Offset rectangles read as depth honestly.
 SHEET_SKEW = 0.5          # rise per unit run of the offset
-# THE HONEST CEILING, AND IT IS LOWER THAN MARK_MAX. Counting marks stops working
-# near thirty; counting SHEETS stops much sooner, because each one occludes the
-# last. Past this the stack is drawn as one solid slab of the same depth with the
-# count written beside it -- the same degrade-rather-than-refuse move `marks`
-# makes at MARK_MAX, and it is what keeps the shape readable: the slab is still
-# drawn to scale, so a stack too deep to count is still the right size.
-SHEET_MAX = 12
-# AND A CEILING ON THE NUMBER IS ONLY HALF OF COUNTABILITY. `marks` learned this
-# first: at a pitch of 3.2 its marks touched and thirty of them read as a dotted
-# line, so MARK_PITCH is set by separability and never by fit. Sheets have the
-# same failure at the other end of the range. Depth is scaled against the
-# DEEPEST stack in the figure, so in a model whose channels reach 128 a 3-channel
-# input is allotted 40·√(3/128) ≈ 6 units of depth to spread three sheets
-# across — a 3-unit stagger, which is not a count anybody can read. Three sheets
-# nobody can separate are exactly the "picture pretending to be a number" that
-# MARK_MAX exists to refuse, arriving from below instead of above.
+# THE HONEST CEILING IS A PITCH, NOT A COUNT, AND STATING BOTH WAS A BUG.
 #
-# So countability is a test on the DRAWN pitch, not only on n, and both ends
-# fall back the same way: one slab, drawn to the same depth, count printed.
+# The first version of this carried SHEET_MAX = 12 beside a minimum pitch, on the
+# reasoning that a stack can fail by having too many sheets OR too little depth.
+# Both are real failures and they are not two rules: a count ceiling is just the
+# pitch rule evaluated at the largest depth the canvas allows. Drawing 128 sheets
+# at the minimum separable pitch needs 508 units of depth — against a 399-unit
+# budget for an ENTIRE figure at a journal column — so the count never binds
+# first. Measured: every n the cap refused, the pitch had already refused, in
+# both canvases. SHEET_MAX decided nothing and was unreachable code.
+#
+# That is DECISIONS.md correction 5 in a rule written to enforce correction 5:
+# one quantity, stated twice, allowed to disagree. So the pitch is the rule and
+# the ceiling is DERIVED from it. `sheet_ceiling` reports what that works out to
+# for a given canvas — 11 unboxed, 6 boxed — and the legend states it rather
+# than a constant somebody typed.
+#
+# Kept low deliberately. Counting marks stops working near thirty; counting
+# SHEETS stops sooner because each one occludes the last. Past the ceiling the
+# stack is one slab of the SAME DEPTH with its count printed beside it, so a
+# stack too deep to count is still drawn the right size and the shape survives.
 SHEET_MIN_PITCH = 4.0
 # WHEN THERE IS NO BOX, THE GLYPH IS THE STAGE, so it is drawn at this size
 # instead. A box sets its own width from the longest label and the glyph then
@@ -387,6 +389,7 @@ def render(spec: Spec, graph: Graph) -> str:
     rows += [("__meter__", label, f"full bar = {_fmt(full)}")
              for label, full in sorted(scales.items())]
     glyphed = [m for m in measured.values() if m.spec.glyph]
+    bare_glyphs = spec.layout.chrome == "none"
     if glyphed:
         lbl = glyphed[0].spec.glyph.labels
         if glyphed[0].spec.glyph.style == "marks":
@@ -407,9 +410,10 @@ def render(spec: Spec, graph: Graph) -> str:
                     + ("each edge ∝ value"
                        if glyphed[0].spec.glyph.scale == "linear"
                        else "each edge ∝ √value")
-                    + " · a slab is a stack that could not be counted as "
-                      "drawn — too many sheets, or too little depth to separate "
-                      "them — so its number is printed instead")
+                    + " · sheets are drawn only where they separate; past "
+                    + str(sheet_ceiling(BARE_DEPTH if bare_glyphs
+                                        else SHEET_DEPTH))
+                    + " the stack is one slab carrying its count")
         else:
             note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
                     + ("each edge ∝ value"
@@ -987,17 +991,21 @@ def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> flo
     return y + mk.h + 6
 
 
-def _countable(n: int, depth: float) -> bool:
-    """Can a reader actually count this stack as drawn?
+def sheet_ceiling(depth: float) -> int:
+    """Most sheets separable in `depth` units — the count ceiling, derived."""
+    return int(depth // SHEET_MIN_PITCH) + 1
 
-    TWO WAYS TO FAIL AND THEY ARE THE SAME FAILURE. Too many sheets and they
-    occlude into texture; too little depth and they collapse into one edge. Both
-    produce a drawing that looks like a count and cannot be read as one, and both
-    fall back to the slab, which states the number instead of implying it.
+
+def _countable(n: int, depth: float) -> bool:
+    """Can a reader separate this stack as drawn?
+
+    ONE TEST. Sheets nobody can tell apart are not a count, whether that is
+    because there are too many of them or because the stage was allotted too
+    little depth to spread them over — and those are the same measurement taken
+    from opposite ends. A stack that fails falls back to the slab, which states
+    the number instead of implying it.
     """
     if n <= 0:
-        return False
-    if n > SHEET_MAX:
         return False
     if n == 1:
         return True
@@ -1015,11 +1023,12 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
     -- stands in the same relation to the tensor as a block's area does to its
     two axes. That is the argument for allowing a third axis at all.
 
-    PAST SHEET_MAX THE STACK BECOMES ONE SLAB WITH ITS COUNT. Sheets occlude one
-    another, so counting fails far sooner than marks do. The slab keeps the SAME
-    DEPTH, so a stack too deep to count still draws the right size and the shape
-    of the model survives; only the countability is given up, and the number is
-    printed rather than implied. This is `marks`' bar at MARK_MAX, one rank up.
+    A STACK NOBODY CAN SEPARATE BECOMES ONE SLAB WITH ITS COUNT. The slab keeps
+    the SAME DEPTH, so a stack too deep to count still draws the right size and
+    the shape of the model survives; only the countability is given up, and the
+    number is printed rather than implied. This is `marks`' bar at MARK_MAX, one
+    rank up — and see SHEET_MIN_PITCH for why the ceiling is a pitch rather than
+    a count.
     """
     bare = m.chrome == "none"
     face_w, face_h = (BARE_FACE_W, BARE_FACE_H) if bare else (SHEET_FACE_W,

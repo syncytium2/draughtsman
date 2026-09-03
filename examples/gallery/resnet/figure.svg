@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="ResNet — residual blocks, one opened up" viewBox="0 0 974.85 757.53" width="974.85" height="757.53">
+<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="ResNet — residual blocks, one opened up" viewBox="0 0 777.23 757.53" width="777.23" height="757.53">
 <title>ResNet — residual blocks, one opened up</title>
 <desc>ResNet — residual blocks, one opened up: 9 stages over 52 traced operations, 175258 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
 <text class="ds-title" x="12" y="15" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:14px;font-weight:600;fill:currentColor">ResNet — residual blocks, one opened up</text>
 <text class="ds-subtitle" x="12" y="29" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10px;fill:currentColor;opacity:0.62">175258 parameters · 3×32×32 in, 10 out</text>
-<g class="ds-body" transform="translate(99.43 36)">
+<g class="ds-body" transform="translate(0.62 36)">
 <path class="ds-edge ds-edge-solid" data-from="image" data-to="stem" d="M175 97.23 C202 97.23 202 97.25 229 97.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-dashed" data-from="stem" data-to="b1join" d="M361 97.25 C421 97.25 421 210.53 481 210.53 C541 210.53 541 97.3 601 97.3" style="fill:none;stroke:currentColor;stroke-width:1.4;stroke-dasharray:5 3" marker-end="url(#ds-arrow)"/><text class="ds-edge-label" x="480.99" y="202.51" text-anchor="middle" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">identity</text>
 <path class="ds-edge ds-edge-solid" data-from="stem" data-to="b1path" d="M361 97.25 C388 97.25 388 97.28 415 97.28" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
@@ -27,7 +27,7 @@
 <g class="ds-legend">
 <rect class="ds-legend-glyph" x="12" y="722.53" width="9" height="8" style="fill:currentColor;fill-opacity:0.42"/>
 <text class="ds-legend-label" x="27" y="730.03" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;font-weight:600;fill:currentColor">channels × height × width</text>
-<text class="ds-legend-share" x="140.65" y="730.03" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">deepest = 64, tallest = 32, widest = 32 · each edge ∝ value · a slab is a stack that could not be counted as drawn — too many sheets, or too little depth to separate them — so its number is printed instead</text>
+<text class="ds-legend-share" x="140.65" y="730.03" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:9.0px;fill:currentColor;opacity:0.62">deepest = 64, tallest = 32, widest = 32 · each edge ∝ value · sheets are drawn only where they separate; past 11 the stack is one slab carrying its count</text>
 </g>
 <text class="ds-caption" x="12" y="746.53" style="font-family:Helvetica Neue, Helvetica, Arial, sans-serif;font-size:10.0px;fill:currentColor;opacity:0.62">Six identical blocks. Showing the residual at all costs one block's worth of width, and the other five are collapsed into three boxes that say 'and again' in prose.</text>
 </svg>
