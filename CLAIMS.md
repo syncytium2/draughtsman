@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c9` | `two-type-sizes` | `src/draughtsman/render.py`, `DECISIONS.md`, `tests/test_render.py`, `examples/gallery/mlp/figure.svg`, `examples/gallery/lenet/figure.svg`, `examples/gallery/dual/figure.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/resnet/figure.svg`, `examples/gallery/unet/figure.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/lstm/figure.svg`, `examples/gallery/whisper/figure.svg`, `examples/tube/figure.svg` | 2026-09-03 | A figure emits eight type sizes, and the legibility floor is computed against the wrong one |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
