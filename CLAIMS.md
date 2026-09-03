@@ -112,16 +112,16 @@ list is what stands between here and that flip, in order:
   another project's harness in a repository whose pitch is that it has almost
   none, and the value was the review, not the harness. `DECISIONS.md` is still
   outstanding — it is held on `volume-glyph`, and its two findings are below.
-- [x] **`CONTRIBUTING.md`.** Done. One page: this is a record of a working method as
-  much as a tool. Worth more here than an issue template.
-- [x] **Two stories into the README** — done., where a reader reaches them: the CI
-  blindness (a gate that knew the difference between *checked and wrong* and
-  *could not check*) and the `glyph.style` gap (a figure disagreeing with its spec
-  while every assertion was green). Both are currently only in `DECISIONS.md`
-  correction 8 and a commit message.
-- [x] **PyPI prep.** Done. `project.urls`, a version policy, and the one that bites:
-  every relative link in `README.md` renders dead on the PyPI project page.
-  That is a claim kept in two places, so it needs a check.
+- [x] **`CONTRIBUTING.md`.** Done at `d0dd7f1`. One page, leading with the rule
+  the repository is built on rather than with formatting preferences.
+- [x] **Two stories into the README.** Done at `d0dd7f1`. The CI blindness and
+  the `glyph.style` gap now sit immediately before "Working on this", so a reader
+  meets them before the section explaining that several sessions wrote this.
+- [x] **PyPI prep.** Done at `d0dd7f1`. `project.urls`, a stated version policy,
+  and all twelve README links made absolute — PyPI renders the readme with no
+  repository around it, so every relative one died there. That made the repo URL
+  a quantity kept in two places, so `tests/test_readme_links.py` ties them and
+  also fails on a link pointing at a path this repository does not have.
 - [ ] **Prune the merged branches.** SIXTEEN on `origin` now, every one
   verified at 0 unmerged commits against `main`, so nothing is lost by
   deleting them. **Blocked, not forgotten:** `git push origin --delete` was
