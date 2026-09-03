@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c9` | `fit-to-page` | `src/draughtsman/spec.py`, `src/draughtsman/layout.py`, `src/draughtsman/render.py`, `src/draughtsman/check.py`, `src/draughtsman/abstract.py`, `tests/test_layout_shape.py`, `tests/test_render.py`, `tests/test_payload.py`, `DECISIONS.md`, `examples/gallery/mlp/spec.json`, `examples/gallery/mlp/figure.svg`, `examples/gallery/lenet/spec.json`, `examples/gallery/lenet/figure.svg`, `examples/gallery/dual/spec.json`, `examples/gallery/dual/figure.svg`, `examples/gallery/vae/spec.json`, `examples/gallery/vae/figure.svg`, `examples/gallery/resnet/spec.json`, `examples/gallery/resnet/figure.svg`, `examples/gallery/unet/spec.json`, `examples/gallery/unet/figure.svg`, `examples/gallery/transformer/spec.json`, `examples/gallery/transformer/figure.svg`, `examples/gallery/lstm/spec.json`, `examples/gallery/lstm/figure.svg`, `examples/gallery/whisper/spec.json`, `examples/gallery/whisper/figure.svg`, `examples/tube/spec.json`, `examples/tube/figure.svg` | 2026-09-03 | Queue item 3: the spec states an output size and a type floor, layout solves for it, and check fails when the figure would print illegibly |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
@@ -199,7 +198,14 @@ parallelism, and nothing verifies that a lane count is attached to a single
 sublayer. Two sessions have agreed it should stay open and honest rather than get
 a heuristic — so the first move is a design, not a commit.
 
-**3. NO FIGURE IS LEGIBLE AT A JOURNAL COLUMN WIDTH.** Measured by
+**3. NO FIGURE IS LEGIBLE AT A JOURNAL COLUMN WIDTH — the mechanism is now
+built; seven of ten figures still miss it.** `output.width` and `output.min_type`
+state where a figure is going and what type it must hold there, layout solves
+against the budget, and `check` refuses a figure that would print under the floor.
+`mlp`, `dual` and `lstm` declare 6in and clear 6pt. The other seven are over
+budget and do not declare a size — declaring one turns `check` red with the
+number. What remains is narrower figures, not a knob. See DECISIONS.md correction
+10. Original measurement: Measured by
 `draughtsman-65` and reproduced independently. Detail text is 9.5 units; figures
 are 750–1737 units wide, so placing one in a 3.5in column scales the type to
 between 1.4pt and 3.2pt. **Nothing clears 6pt at 3.5in.** At the full 7in text
