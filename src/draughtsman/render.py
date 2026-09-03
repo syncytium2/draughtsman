@@ -79,8 +79,21 @@ MARK_PITCH, MARK_SIZE, MARK_BAR_H, MARK_BAR_ROW = 5.0, 3.0, 5.0, 11.0
 # every box would spend the one quantity the tool cannot afford. Depth is paid
 # for in HEIGHT, which a column crop does not charge for — a figure is scaled to
 # fit the column's WIDTH, so a taller glyph is free and a wider one is not.
-SHEET_FACE_W, SHEET_FACE_H, SHEET_DEPTH = 44.0, 28.0, 22.0
-SHEET_ROW = 48.0
+# ONE SPAN, NOT ONE PER AXIS — the largest axis VALUE anywhere in the figure is
+# drawn this long, and every other value is drawn in proportion to it.
+#
+# The first version gave each axis its own canvas and its own maximum: height
+# normalised against 28, width against 44, depth against 22. So a 64x64 spatial
+# map — the same number on two axes — was drawn 44 wide and 28 tall, and every
+# square tensor in the gallery came out at 1.45:1. The aspect a reader saw was an
+# artifact of the canvas rather than a fact about the tensor.
+#
+# With one span, equal values draw equal lengths: square maps are square, and
+# 128x8x8 is the long rod it actually is. It also costs less room than the
+# per-axis version did, because the axes no longer each claim their own budget.
+SHEET_SPAN = 30.0
+BARE_SPAN = 52.0
+SHEET_SKEW_PAD = 6.0     # breathing room under the tallest glyph in a figure
 # FLAT OBLIQUE, NOT ISOMETRIC. Skewing the faces into parallelograms is what the
 # textbook figures do; it destroys area comparability -- the thing the glyph
 # exists for -- and adds no information, because the depth is already carried by
@@ -113,8 +126,7 @@ SHEET_MIN_PITCH = 4.0
 # sits in whatever is left; with the box gone the drawing is the subject and the
 # labels arrange around it. Same scale rules, same cap, just a bigger canvas —
 # and still narrower than the titles it sits under, so the figure does not widen.
-BARE_FACE_W, BARE_FACE_H, BARE_DEPTH = 84.0, 58.0, 40.0
-BARE_ROW = 92.0
+
 # How far above the stack's top edge the name sits. Small, so the name still
 # reads as belonging to that drawing rather than floating over the figure.
 TITLE_GAP = 4.0
@@ -323,6 +335,7 @@ class _Stage:
         self.glyph: tuple[float, ...] | None = None
         self.marks: _Marks | None = None
         self.glyph_row = GLYPH_ROW
+        self.sheets = False
         if stage.glyph:
             shape = _shape_axes(
                 resolve(stage.glyph.of, graph, node_ids=stage.nodes,
@@ -337,21 +350,35 @@ class _Stage:
                 # both styles cost a box exactly the same width. Only the row
                 # height differs, and height is the cheap axis.
                 if stage.glyph.style == "sheets":
-                    bare = chrome == "none"
-                    widths.append(BARE_FACE_W + BARE_DEPTH if bare else GLYPH_W)
-                    self.glyph_row = BARE_ROW if bare else SHEET_ROW
+                    self.sheets = True      # sized by fit_glyph, second pass
                 else:
                     widths.append(GLYPH_W)
         # PADDING EXISTED TO KEEP TEXT OFF A BORDER. With no border there is no
         # border to clear, and the gutter between stages already separates them —
         # so an unboxed figure buys back most of what the bigger glyph spends.
         pad = 4.0 if chrome == "none" else PAD_X
-        self.w = max(MIN_W, max(widths) + 2 * pad)
-        self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
-                  + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
-                  + (METER_ROW * len(self.meters) + 4 if self.meters else 0)
+        self.pad = pad
+        self.text_w = max(widths)
+        self.w = max(MIN_W, self.text_w + 2 * pad)
+        self.rows_h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
+                       + (LANE_ROW * len(self.lane_labels) + 5
+                          if self.lane_labels else 0)
+                       + (METER_ROW * len(self.meters) + 4 if self.meters else 0))
+        self.h = (self.rows_h
                   + (self.marks.h + 6 if self.marks
                      else self.glyph_row if self.glyph else 0))
+
+    def fit_glyph(self, gw: float, gh: float) -> None:
+        """Second pass: the real footprint, once the figure-wide span is known.
+
+        A sheet stack cannot be measured when its stage is, because its size
+        depends on the largest axis value ANYWHERE in the figure — which is not
+        known until every stage has been measured. So the box reserves nothing
+        for it, and this sets the width and row height afterwards.
+        """
+        self.glyph_row = gh + SHEET_SKEW_PAD
+        self.w = max(MIN_W, max(self.text_w, gw) + 2 * self.pad)
+        self.h = self.rows_h + self.glyph_row
 
 
 def render(spec: Spec, graph: Graph) -> str:
@@ -365,6 +392,18 @@ def render(spec: Spec, graph: Graph) -> str:
         # A spec with no stages yet — `draughtsman ui` starts here when there is a
         # graph but nobody has grouped it. An empty figure is the honest picture.
         return _empty(spec, graph)
+
+    # SIZE THE SHEET STACKS BEFORE LAYING ANYTHING OUT. Their footprint depends
+    # on the largest axis value anywhere in the figure, so it cannot be known
+    # while the stages are being measured one at a time — and `build` consumes
+    # the box sizes, so the second pass has to finish first.
+    gscale = _glyph_scales(measured)
+    if gscale and any(m.sheets for m in measured.values()):
+        _bare = spec.layout.chrome == "none"
+        for _m in measured.values():
+            if _m.sheets:
+                *_, _gw, _gh = _sheet_geom(_m, gscale, _bare)
+                _m.fit_glyph(_gw, _gh)
 
     drawing = build(
         [(sid, m.w, m.h) for sid, m in measured.items()],
@@ -382,7 +421,6 @@ def render(spec: Spec, graph: Graph) -> str:
     head_h = 22.0 + (14.0 if subtitle else 0.0)
 
     scales = _meter_scales(measured)
-    gscale = _glyph_scales(measured)
     rows = _legend(spec, graph) if spec.layout.legend else []
     # A BAR WITHOUT A STATED SCALE IS A NUMBER WITHOUT A UNIT. The legend
     # carries the axis: what a full bar equals, per series.
@@ -411,8 +449,8 @@ def render(spec: Spec, graph: Graph) -> str:
                        if glyphed[0].spec.glyph.scale == "linear"
                        else "each edge ∝ √value")
                     + " · sheets are drawn only where they separate; past "
-                    + str(sheet_ceiling(BARE_DEPTH if bare_glyphs
-                                        else SHEET_DEPTH))
+                    + str(sheet_ceiling(BARE_SPAN if bare_glyphs
+                                        else SHEET_SPAN))
                     + " the stack is one slab carrying its count")
         else:
             note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
@@ -991,6 +1029,37 @@ def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> flo
     return y + mk.h + 6
 
 
+def _shade(stroke: str) -> tuple[str, str]:
+    """Top and side fills for a slab, from the stage's own stroke colour.
+
+    Two steps of OPACITY rather than two new hues: the palette separates kinds by
+    value as much as by hue so a figure survives a greyscale print, and inventing
+    a lit and a shaded variant per family would be a second palette to keep in
+    step with the first.
+    """
+    return (f'fill:{stroke};fill-opacity:0.46;stroke:{stroke};stroke-width:0.7;'
+            f'stroke-linejoin:round',
+            f'fill:{stroke};fill-opacity:0.60;stroke:{stroke};stroke-width:0.7;'
+            f'stroke-linejoin:round')
+
+
+def _sheet_geom(m, gscale, bare: bool):
+    """The stack's drawn geometry: face, depth, and total footprint.
+
+    ONE QUANTITY, ONE IMPLEMENTATION. This is called twice — once to size the
+    box and once to draw into it — and if the two disagreed by a pixel the glyph
+    would be off-centre or clipped. So neither computes it; both ask this.
+    """
+    span = BARE_SPAN if bare else SHEET_SPAN
+    biggest = max(gscale) if gscale else 0.0
+    depth_v, tall_v, wide_v = m.glyph
+    sc = m.spec.glyph.scale
+    fh = _edge_px(tall_v, biggest, span, sc)
+    fw = _edge_px(wide_v, biggest, span, sc)
+    dep = _edge_px(depth_v, biggest, span, sc)
+    return fw, fh, dep, fw + dep, fh + dep * SHEET_SKEW
+
+
 def sheet_ceiling(depth: float) -> int:
     """Most sheets separable in `depth` units — the count ceiling, derived."""
     return int(depth // SHEET_MIN_PITCH) + 1
@@ -1031,21 +1100,13 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
     a count.
     """
     bare = m.chrome == "none"
-    face_w, face_h = (BARE_FACE_W, BARE_FACE_H) if bare else (SHEET_FACE_W,
-                                                              SHEET_FACE_H)
-    max_dep = BARE_DEPTH if bare else SHEET_DEPTH
-    depth_v, tall_v, wide_v = m.glyph
-    sc = m.spec.glyph.scale
-    fh = _edge_px(tall_v, gscale[1], face_h, sc)
-    fw = _edge_px(wide_v, gscale[2], face_w, sc)
-    dep = _edge_px(depth_v, gscale[0], max_dep, sc)
+    fw, fh, dep, total_w, total_h = _sheet_geom(m, gscale, bare)
     dx, dy = dep, dep * SHEET_SKEW
-    n = int(depth_v)
+    n = int(m.glyph[0])
 
-    # The whole stack, so it can be centred as one object.
-    total_w, total_h = fw + dx, fh + dy
+    # The whole stack, centred as one object and sitting on the row's baseline.
     ox = box.x + (box.w - total_w) / 2.0
-    base = y + 3 + (face_h + max_dep * SHEET_SKEW - total_h)
+    base = y + (m.glyph_row - SHEET_SKEW_PAD - total_h) + 3
 
     if fill is None:
         fill = f'fill:{stroke};fill-opacity:0.32;stroke:{stroke};stroke-width:0.55'
@@ -1059,20 +1120,35 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
                 f'width="{_fmt(fw)}" height="{_fmt(fh)}" style="{fill}"/>'
             )
     else:
-        # One solid slab of the same depth, and the count set beside it.
-        pts = [(ox, base + dy), (ox + dx, base), (ox + dx + fw, base),
-               (ox + dx + fw, base + fh), (ox + fw, base + fh + dy),
-               (ox, base + fh + dy)]
-        poly = " ".join(f"{_fmt(px)},{_fmt(py)}" for px, py in pts)
-        parts.append(f'<polygon class="ds-sheet" points="{poly}" '
-                     f'style="{fill}"/>')
+        # ONE SOLID OF THE SAME DEPTH, DRAWN AS A SOLID. The first version was a
+        # single hexagon outline, and its whole claim to depth rested on two cut
+        # corners — subtle enough that Tony read the slabs as flat shapes with an
+        # odd bevel. A top and a side face at separated values cost nothing, need
+        # no extra geometry, and read as a solid immediately. The three faces are
+        # tinted from the SAME family colour so the kind is still legible in
+        # greyscale, which SPEC.md §4 requires.
+        top_f, side_f = _shade(stroke)
+        parts.append(
+            f'<polygon class="ds-sheet ds-sheet-top" points="'
+            f'{_fmt(ox)},{_fmt(base + dy)} {_fmt(ox + dx)},{_fmt(base)} '
+            f'{_fmt(ox + dx + fw)},{_fmt(base)} '
+            f'{_fmt(ox + fw)},{_fmt(base + dy)}" style="{top_f}"/>')
+        parts.append(
+            f'<polygon class="ds-sheet ds-sheet-side" points="'
+            f'{_fmt(ox + fw)},{_fmt(base + dy)} '
+            f'{_fmt(ox + dx + fw)},{_fmt(base)} '
+            f'{_fmt(ox + dx + fw)},{_fmt(base + fh)} '
+            f'{_fmt(ox + fw)},{_fmt(base + fh + dy)}" style="{side_f}"/>')
+        parts.append(
+            f'<rect class="ds-sheet" x="{_fmt(ox)}" y="{_fmt(base + dy)}" '
+            f'width="{_fmt(fw)}" height="{_fmt(fh)}" style="{fill}"/>')
         parts.append(
             f'<text x="{_fmt(ox + dx + fw + 3)}" '
             f'y="{_fmt(base + fh / 2 + dy / 2 + 2.5)}" '
             f'style="font-family:{FONT_STACK};font-size:{MARK_SIZE + 4}px;'
             f'fill:{MUTED}">×{n}</text>'
         )
-    return y + (BARE_ROW if bare else SHEET_ROW), base
+    return y + m.glyph_row, base
 
 
 def _shape_axes(text: str, glyph, where: str) -> tuple[float, ...]:

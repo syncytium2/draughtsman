@@ -338,7 +338,7 @@
       "to": "mask"
     }
   ],
-  "caption": "Three skips, each spanning the full depth. A ranked left-to-right layout gets the topology right and cannot produce the U readers expect — so the glyphs carry it instead. Each stage is drawn as its channels × height × width: the face is the spatial map, the depth is the channel count, and past twelve channels the stack is one slab with its count, because sheets that occlude each other stop being countable long before marks do. The volume is the U. It runs 65536, 32768, 16384, 8192 and back — halving into the bottleneck and doubling out of it — and it is invisible in any two of the three axes: channels times height alone is 1024 at every encoder and decoder stage, so the figure this replaces reported the architecture as unchanging.",
+  "caption": "Three skips, each spanning the full depth. A ranked left-to-right layout gets the topology right and cannot produce the U readers expect — so the glyphs carry it instead. Each stage is drawn as its channels × height × width on one shared scale, so equal values are equal lengths: the face is the spatial map and the depth is the channel count. Where a stack is too deep to separate it becomes one solid of the same depth carrying its count, and the key states the ceiling. The volume is the U. It runs 65536, 32768, 16384, 8192 and back — halving into the bottleneck and doubling out of it — and it is invisible in any two of the three axes: channels times height alone is 1024 at every encoder and decoder stage, so the figure this replaces reported the architecture as unchanging.",
   "layout": {
     "orientation": "lr",
     "chrome": "none"
