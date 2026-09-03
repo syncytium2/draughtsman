@@ -1,7 +1,8 @@
 # `tube` — the first example, and SPEC.md §9's acceptance test
 
-`figure.svg` is what draughtsman draws for bugarach's `tube`: a 1,149-parameter
-1-D coordinated-event detector. It is the model that broke all five tools in
+`figure.svg` is what draughtsman draws for `tube`: a 1,149-parameter 1-D
+coordinated-event detector from [`bugarach`](https://github.com/syncytium2/bugarach),
+a sibling project — public, and not a dependency of this one. It is the model that broke all five tools in
 [`../README.md`](../README.md).
 
 **The acceptance test is whether the figure shows the fan-out to four kernels, the

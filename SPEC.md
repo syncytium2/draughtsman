@@ -1,19 +1,28 @@
 # draughtsman — specification
 
-> **Written 2026-09-01, from a bugarach session.** Nothing here is built. This is
-> what to build and why, with the measurements that decided each choice.
+> **Written 2026-09-01 to build from**, before anything existed. This is what to
+> build and why, with the measurements that decided each choice.
 >
-> **Not murderboarded** — an internal spec, not a document for outside readers. If
-> any of it reaches one, review it first.
+> **It was built, and building falsified parts of it.**
+> [`DECISIONS.md`](DECISIONS.md) records every place, and **it is the authority
+> wherever the two disagree.** The largest is that `tube`'s fan-out to four kernels
+> is *not a fork in the traced graph* and cannot be drawn from topology: the model
+> fans out, the trace records one `conv1d` with four output channels. §2's
+> description of the architecture stands; the assumption that a tracer could hand
+> you that structure does not.
 >
-> **Built 2026-09-01. See [`DECISIONS.md`](DECISIONS.md) before trusting §2, §5,
-> §6 or §9 as written** — building answered §8's four open questions and found
-> three things here mistaken, the largest being that `tube`'s fan-out to four
-> kernels is *not a fork in the traced graph* and cannot be drawn from topology.
-> The model fans out; the trace records one `conv1d` with four output channels.
-> §2's description of the architecture stands — what does not is the assumption
-> that a tracer could hand you that structure. It also adds a fifth verb,
-> `draughtsman ui`, for the human step §5 names and leaves unserved.
+> **Reversed decisions are marked where they are made, not listed here.** An
+> earlier version of this header named the sections to distrust, and that list went
+> stale in the usual way — it vouched by omission for §4's choice of graphviz for
+> layout, long after graphviz had been rejected outright. A list of which parts of
+> a document to disbelieve is one more hand-maintained claim, and this document is
+> about what those cost.
+>
+> **Adversarially reviewed 2026-09-03** with the murderboard process
+> (`syncytium2/murderboard`), every role. Two gaps it did not close, named because
+> a review that hides its residuals is worse than none: §2's measurements were
+> taken on a model that is not in this repository, and the prior-art search was run
+> single-pass rather than blind.
 
 ---
 
@@ -36,8 +45,10 @@ publication figures are still drawn by hand.
 
 ## 2. The evidence, measured on one model
 
-The subject was `bugarach`'s `tube` — a 1-D coordinated-event detector,
-1,149 parameters. Its structure: a raster is max-pooled per cell, averaged across
+The subject was `tube`, a 1-D coordinated-event detector of 1,149 parameters from
+[`bugarach`](https://github.com/syncytium2/bugarach) — a sibling project, public,
+and **not a dependency of this one**. Its traced graph is committed here so that
+this repository reproduces without it. Its structure: a raster is max-pooled per cell, averaged across
 cells into one brightness trace, then **fans out** into four difference-of-Gaussian
 kernels *in parallel* while the raw trace **bypasses** them, and all five channels
 **concatenate** into a six-layer dilated conv stack ending in a 1×1.
@@ -53,8 +64,9 @@ The fan-out, bypass and concat are the whole architecture. What each tool did:
 | Model Explorer | Google AI Edge | Requires PyTorch ExportedProgram. `torch.export` fails on this model (below). Also a viewer, not a figure generator. |
 
 **Keep these artifacts.** They are the regression suite for "did we actually do
-better", and they are in bugarach's darkroom at
-`<darkroom>/bugarach/net-figure-options/`.
+better". They live in a private figure store outside this repository; the ones
+that could be committed are in [`examples/`](examples/), and the README shows two
+of them.
 
 ## 3. Which tracer works — measured, and it narrows fast
 
@@ -107,7 +119,14 @@ render time.
 
 ### Stage 3 — render. Deterministic.
 
-`spec.json` + `graph.json` → SVG. **Graphviz for layout** (`rankdir=LR`, a cluster
+`spec.json` + `graph.json` → SVG.
+
+> **⚠ Reversed. See [`DECISIONS.md`](DECISIONS.md) §8.2.** graphviz is not a
+> dependency in any form; the layout engine is in this repository. The reasoning
+> below still holds — hand-computed coordinates are the thing being replaced — but
+> the means changed, and §4's own styling rules were most of why.
+
+**Graphviz for layout** (`rankdir=LR`, a cluster
 per parallel branch), because hand-computed coordinates are what this replaces —
 the bugarach figure's first draft had its lane labels struck through by its own
 edges, invisible in the source and obvious in the render.
@@ -146,15 +165,20 @@ green check is never read as a good figure.
 
 **A staleness test regenerates and asserts byte equality**, so a model change that
 would move the figure turns CI red instead of shipping a figure of a model that no
-longer exists. Note the tension to resolve: that test needs graphviz in CI, and
-this estate dislikes tests that skip when a tool is absent — *"a skip is what
-silence looks like when it is being careful."*
+longer exists.
+
+> **⚠ Resolved, and the resolution is why graphviz went.** The tension recorded
+> here was that the test would need graphviz in CI, against a standing dislike of
+> tests that skip when a tool is absent — *"a skip is what silence looks like when
+> it is being careful."* Dropping graphviz removed the skip: `render` and `check`
+> need nothing at all, so the assertion is unconditional.
 
 ## 7. CLI
 
 ```
 draughtsman trace   mypkg.nets:build_tube --input-shape 1,30,600 -o graph.json
-draughtsman abstract graph.json -o spec.json      # agent; --dry-run prints the payload
+draughtsman abstract graph.json                   # prints the payload for an agent to answer
+draughtsman abstract graph.json -o spec.json      # ... and writes the answer back
 draughtsman render   spec.json  -o figure.svg
 draughtsman check    spec.json graph.json         # §5 coverage
 ```
@@ -184,13 +208,14 @@ API optional rather than load-bearing.
 `examples/tube/` — the model from §2.
 
 **Acceptance: the figure shows the fan-out to four kernels, the bypass, and the
-concat.** All five tools in §2 failed that. Anything that draws the tube as a
+concat.** Every tool in §2 failed that. Anything that draws the tube as a
 linear stack has reproduced pytorch-graph's defect and is not done.
 
-The current hand-laid figure — `<darkroom>/bugarach/net-figure-options/1-current-hand-laid.png`,
-generated by `bugarach/tools/make_architecture_diagram.py` — is the bar to beat.
-It is the only one of the five that got the topology right, and it is here as a
-comparison, not as code to port: its content is derived from the model, and its
+The current hand-laid figure — [`examples/1-current-hand-laid.png`](examples/1-current-hand-laid.png),
+generated by bugarach's own `make_architecture_diagram.py` — is the bar to beat.
+It got the topology right where every tool in §2 failed, and **it is not one of
+them**: it is bugarach's own generator, kept here as a comparison rather than as
+code to port: its content is derived from the model, and its
 **coordinates are placed by hand**, which is the objection that started this repo.
 
 ## 10. What this is not
