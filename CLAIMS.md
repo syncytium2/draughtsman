@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c9` | `distinct-refusals` | `tools/measure_type.py` | 2026-09-03 | Distinct causes must produce distinct refusals — the mechanical half of a failure no gate can catch |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
