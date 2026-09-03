@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-65` | `public-cleanup` | `README.md`, `DECISIONS.md`, `examples/README.md`, `examples/gallery/README.md`, `examples/gallery/cascade.py`, `examples/gallery/cascade/figure.svg`, `examples/gallery/cascade/graph.json`, `examples/gallery/cascade/spec.json`, `examples/gallery/whisper_tiny.py`, `src/draughtsman/check.py`, `tests/test_coverage.py`, `tests/test_counts.py`, `tests/test_claims.py`, `tests/test_reproduces.py` | 2026-09-03 | Public-readiness: CASCADE out to haruspex, the counts tied to a test, and four smaller things a stranger would hit |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
