@@ -126,7 +126,14 @@ list is what stands between here and that flip, in order:
   (the count here said eleven and was stale), each verified at zero unmerged
   commits against `main` first, so nothing was lost. `origin` now carries
   `main` alone.
-- [ ] **The flip**, then Zenodo for a DOI.
+- [x] **The flip.** PUBLIC as of 2026-09-03.
+  `gh repo view syncytium2/draughtsman --json visibility` returns `PUBLIC`, which
+  is the tonydefazio.com tile's deploy gate. All nine unique absolute links in
+  `README.md` were then fetched and returned 200 — a check that could not be made
+  while the repository was private, because every one of them 404s either way when
+  it is.
+- [ ] **Zenodo for a DOI.** Needs the GitHub↔Zenodo link on Tony's account and a
+  tagged release for it to archive. Nothing in the repository blocks it.
 
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
