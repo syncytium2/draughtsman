@@ -145,13 +145,41 @@ import name is not: `factorio-draftsman` installs a top-level `draftsman/` and
 released 2026-06-13. It trades a collision with a package abandoned in 2020 for
 one with a package that ships. Checked by pulling the wheel.
 
-**5. Public-readiness, remainder.** Install instructions, the zero-dependency
+**5. Email Peter Rupprecht about CASCADE.** *Tony's, drafted 2026-09-03.*
+`examples/gallery/cascade.py` transcribes CascadeTorch's `define_model` at the
+shipped config defaults. CascadeTorch and upstream Cascade are **GPL-3.0**; this
+repo is BSD-3. Obligations trigger on distribution, so this becomes real the
+moment the repo goes public and is latent until then.
+
+The ask, in one line: would he be happy for that file to sit in a BSD-3 repo with
+attribution? Lead with the offer, not the licence — attach two renderings of his
+network (34,381 parameters, 14 substantive operations, a 64-frame ΔF/F window in,
+one spike rate out, every number read from the trace) and ask whether either is
+useful for the repo or the docs. Worth telling him that every pretrained CASCADE
+model is this same architecture and they differ only in training set, resampling
+rate and target smoothing — he may not have seen it put that way. Tony has
+corresponded with him; reported friendly and prompt. Check whether he goes by
+Peter or Petr before sending.
+
+**Upside-only, and nothing waits on it.** If he says yes the question closes,
+including the copy in `171210d`. If he says no or is slow, the fallback is
+unchanged: CASCADE goes to `haruspex`, which is private, so GPL never engages.
+Deleting the file here does NOT clean it — a public repo publishes its history —
+and excising it would rewrite every hash after `171210d`, which `CLAIMS.md`,
+`DECISIONS.md`, the site's claim ledger and the handoff all cite. Do not rewrite
+history for this.
+
+Re-deriving from Rupprecht et al. 2022 instead is a real option and was
+deliberately deferred: verify the paper carries the layer sizes first, since the
+file names `config.py` as the authority for them.
+
+**6. Public-readiness, remainder.** Install instructions, the zero-dependency
 claim, a friendly no-torch error and the supported-Python range are done — the
 last of those at `787b1d4`, where `tests/test_versions.py` ties the README, the
 `pyproject` floor and the CI matrix together. Not done: no `CONTRIBUTING` or issue
 template for a repo that may be read as a record of working with Claude Code.
 
-**6. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
+**7. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
 published artifact; none is in the estate's figure store, whose own README says a
 figure nobody can re-run, date or attribute is one the next session re-derives.
 `bugarach/net-figure-options/` — the regression suite `SPEC.md` §2 says to keep —
