@@ -132,8 +132,19 @@ list is what stands between here and that flip, in order:
   `README.md` were then fetched and returned 200 — a check that could not be made
   while the repository was private, because every one of them 404s either way when
   it is.
-- [ ] **Zenodo for a DOI.** Needs the GitHub↔Zenodo link on Tony's account and a
-  tagged release for it to archive. Nothing in the repository blocks it.
+- [ ] **Zenodo for a DOI.** `CITATION.cff` is in and `v0.1.0` is tagged and
+  pushed. **The remaining step is ordered and the order matters:** enable the
+  GitHub↔Zenodo webhook on the account FIRST, then publish the GitHub Release for
+  `v0.1.0`. Zenodo only archives releases created after the webhook is on, so a
+  release published first archives nothing and needs a second one. The tag is
+  deliberately not a Release yet for exactly that reason.
+- [ ] **JOSS, if wanted — and it is not an alternative to the above.** Zenodo
+  archives and mints a DOI in a day with no review; JOSS is peer review that also
+  mints one, takes months, and expects a submission to point at an archived DOI'd
+  version. So Zenodo is a prerequisite rather than a substitute. What this repo
+  still lacks for it is `paper.md` and a statement of need; licence, tests, docs
+  and `CONTRIBUTING.md` are done. The venue precedent is already cited in
+  `SPEC.md` §2 — nn-SVG is LeNail (2019), *JOSS* 4(33):747.
 
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
