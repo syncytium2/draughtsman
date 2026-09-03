@@ -519,3 +519,46 @@ def test_equal_axis_values_draw_equal_lengths(d):
         + ". Equal axis values must draw equal lengths, or the aspect the reader "
           "sees belongs to the canvas rather than to the tensor."
     )
+
+
+# --- two type sizes ---------------------------------------------------------
+
+_FONT_SIZE_RE = re.compile(r"font-size:([\d.]+)px")
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_a_figure_uses_two_type_sizes(d):
+    """Eight sizes is noise. Two is hierarchy, and one of them is the floor.
+
+    There were eight — 14, 12, 10, 9.5, 9, 9, 9, 8 and 7 — none of them chosen as
+    a set. Each arrived with a feature that wanted to be slightly smaller than the
+    last. Hierarchy in a figure that will be reduced onto a journal column has to
+    come from weight, position and colour, because half a point of size does not
+    survive the reduction.
+
+    AND IT IS WHAT MAKES THE PAGE BUDGET HONEST. `width_budget` derives the
+    output scale from the smallest type in the figure. While there were eight
+    sizes that number was DETAIL_SIZE by assumption and 7.0 in fact, so a figure
+    could pass the legibility check carrying type under the floor it had just
+    promised to hold. With two, the smallest is knowable by construction.
+    """
+    sizes = sorted({float(v) for v in
+                    _FONT_SIZE_RE.findall((d / "figure.svg").read_text())})
+    assert sizes, f"{d.name}: parsed no type sizes at all"
+    assert len(sizes) <= 2, (
+        f"{d.name} draws {len(sizes)} type sizes: {sizes}. A figure gets a head "
+        "size and a body size. Anything that wants a third is asking for weight "
+        "or colour instead.")
+
+
+def test_the_page_budget_uses_the_smallest_type_there_is():
+    """The floor must be computed from the smallest size the renderer emits."""
+    from draughtsman import render as R
+    emitted = {R.TITLE_SIZE, R.DETAIL_SIZE, R.LANE_SIZE, R.CAPTION_SIZE,
+               R.LEGEND_SIZE, R.EDGE_LABEL_SIZE, R.METER_SIZE}
+    assert min(emitted) == R.DETAIL_SIZE, (
+        f"the smallest type the renderer emits is {min(emitted)}, but "
+        f"width_budget scales the page from DETAIL_SIZE ({R.DETAIL_SIZE}). The "
+        "legibility floor would be computed against type that is not the "
+        "smallest, so a figure could pass while printing under its own floor."
+    )

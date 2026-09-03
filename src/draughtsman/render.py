@@ -28,10 +28,25 @@ from draughtsman.layout import build
 from draughtsman.spec import Spec, length_pt
 from draughtsman.text import FONT_STACK, escape, width
 
-TITLE_SIZE = 12.0
-DETAIL_SIZE = 9.5
-LANE_SIZE = 9.0
-CAPTION_SIZE = 10.0
+# TWO TYPE SIZES IN A FIGURE, AND THE SMALLEST ONE IS KNOWN.
+#
+# There were eight: 14, 12, 10, 9.5, 9, 9, 9, 8 and 7. Nobody chose eight — each
+# arrived with a feature that wanted to be a little smaller than the last, and
+# the result reads as noise rather than as hierarchy. Hierarchy here comes from
+# WEIGHT, POSITION and COLOUR, all of which survive a 3x reduction onto a journal
+# column. A size difference of half a point does not.
+#
+# THE SECOND REASON IS THE ONE THAT MATTERS. `width_budget` computes the page
+# budget from "the smallest type in the figure", and it used DETAIL_SIZE — which
+# was NOT the smallest, because a meter label was 8 and a count badge 7. So the
+# legibility floor added the same day was measured against the wrong number and a
+# figure could pass while carrying type under the floor it had just promised.
+# With two sizes the smallest is HEAD or BODY and there is nothing else to be
+# wrong about.
+TITLE_SIZE = 12.0        # HEAD: the figure's title and every stage name
+DETAIL_SIZE = 9.5        # BODY: everything else, and provably the smallest
+LANE_SIZE = DETAIL_SIZE
+CAPTION_SIZE = DETAIL_SIZE
 CAPTION_LINE = 13.0
 # A caption never sets the figure's width, but a figure narrower than this would
 # wrap prose into a column, so it is the floor the caption may widen the page to.
@@ -41,7 +56,7 @@ TITLE_LINE, DETAIL_LINE, LANE_ROW = 15.0, 12.5, 15.0
 # A meter is a bar, a label and nothing else. Deliberately shorter than a text
 # line: it replaces digits a reader has to compare in their head, and it should
 # not cost more room than the digits did.
-METER_ROW, METER_SIZE, METER_BAR = 11.0, 8.0, 4.5
+METER_ROW, METER_SIZE, METER_BAR = 12.5, DETAIL_SIZE, 4.5
 # ONE BAR LENGTH FOR THE WHOLE FIGURE, NOT ONE PER BOX. If the track stretched to
 # fit its box, two stages with the same value would draw different lengths and
 # the reader would be comparing box widths -- which is exactly the misreading the
@@ -191,7 +206,7 @@ PALETTE = {
     "op":      ("#f0f0ef", "#8a8a86"),
 }
 
-LEGEND_SIZE = 9.0
+LEGEND_SIZE = DETAIL_SIZE
 LEGEND_ROW = 15.0
 LEGEND_SWATCH = 9.0
 
@@ -491,7 +506,7 @@ def render(spec: Spec, graph: Graph) -> str:
     # because fitting exactly leaves 12px of margin for a text metric to be wrong
     # in. It was wrong by under one percent and the last word was cut. Prose wraps
     # to the drawing; the drawing does not stretch to the prose.
-    total_w = max(drawing.width, width(title, 14, bold=True) + 24,
+    total_w = max(drawing.width, width(title, TITLE_SIZE, bold=True) + 24,
                   width(subtitle or "", 10) + 24, legend_w + 24,
                   CAPTION_MIN_W if caption else 0.0)
     caption_lines = _wrap(caption, total_w - 24, CAPTION_SIZE) if caption else []
@@ -515,13 +530,13 @@ def render(spec: Spec, graph: Graph) -> str:
 
     out.append(
         f'<text class="ds-title" x="12" y="15" '
-        f'style="font-family:{FONT_STACK};font-size:14px;font-weight:600;'
+        f'style="font-family:{FONT_STACK};font-size:{TITLE_SIZE}px;font-weight:600;'
         f'fill:{PAGE_INK}">{escape(title)}</text>'
     )
     if subtitle:
         out.append(
             f'<text class="ds-subtitle" x="12" y="29" '
-            f'style="font-family:{FONT_STACK};font-size:10px;'
+            f'style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;'
             f'fill:{PAGE_MUTED}">{escape(subtitle)}</text>'
         )
 
@@ -611,15 +626,15 @@ def render(spec: Spec, graph: Graph) -> str:
 
 def _empty(spec: Spec, graph: Graph) -> str:
     note = f"{len(graph.traced)} traced operations, no stages yet"
-    w = max(240.0, width(spec.title, 14, bold=True) + 24)
+    w = max(240.0, width(spec.title, TITLE_SIZE, bold=True) + 24)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" '
         f'aria-label="{escape(spec.title)}" viewBox="0 0 {_fmt(w)} 46" '
         f'width="{_fmt(w)}" height="46">\n'
         f"<title>{escape(spec.title)}</title>\n"
-        f'<text x="12" y="18" style="font-family:{FONT_STACK};font-size:14px;'
+        f'<text x="12" y="18" style="font-family:{FONT_STACK};font-size:{TITLE_SIZE}px;'
         f'font-weight:600;fill:{PAGE_INK}">{escape(spec.title)}</text>\n'
-        f'<text x="12" y="34" style="font-family:{FONT_STACK};font-size:10px;'
+        f'<text x="12" y="34" style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;'
         f'fill:{PAGE_MUTED}">{escape(note)}</text>\n</svg>\n'
     )
 
@@ -659,7 +674,7 @@ def _towards(frm, to, by):
             frm[1] + (to[1] - frm[1]) * by / length)
 
 
-EDGE_LABEL_SIZE = 9.0
+EDGE_LABEL_SIZE = DETAIL_SIZE
 LABEL_GAP = 4.0
 # How far along the path to try, in order. The true middle first, then either
 # side of it — a label pushed off-centre still reads as belonging to its edge,
@@ -832,7 +847,7 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
         parts.append(
             f'<text class="ds-repeat-badge" x="{_fmt(box.x + box.w)}" '
             f'y="{_fmt(title_y)}" text-anchor="end" '
-            f'style="font-family:{FONT_STACK};font-size:9px;font-weight:600;'
+            f'style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;font-weight:600;'
             f'fill:{PAGE_MUTED}">×{m.repeat}</text>'
         )
     for line in m.detail:
@@ -880,7 +895,7 @@ def _box(box, m: _Stage, scales: dict[str, float],
         parts.append(
             f'<text class="ds-repeat-badge" x="{_fmt(box.x + box.w - 5)}" '
             f'y="{_fmt(top + box.h - 5)}" text-anchor="end" '
-            f'style="font-family:{FONT_STACK};font-size:9px;font-weight:600;'
+            f'style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;font-weight:600;'
             f'fill:{MUTED}">×{m.repeat}</text>'
         )
     cx = box.x + box.w / 2.0
@@ -1167,7 +1182,7 @@ def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
         parts.append(
             f'<text x="{_fmt(ox + dx + fw + 3)}" '
             f'y="{_fmt(base + fh / 2 + dy / 2 + 2.5)}" '
-            f'style="font-family:{FONT_STACK};font-size:{MARK_SIZE + 4}px;'
+            f'style="font-family:{FONT_STACK};font-size:{DETAIL_SIZE}px;'
             f'fill:{MUTED}">×{n}</text>'
         )
     return y + m.glyph_row, base
