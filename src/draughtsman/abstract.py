@@ -187,6 +187,7 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
                 " architectural quantity and not an initialisation>"},
   "layout": {"orientation": "lr|tb", "wrap": 760, "legend": false,
              "chrome": "box|none"},
+  "output": {"width": "6in", "min_type": "6pt"},
   "caption": "<optional one line>"
 }
 
@@ -229,6 +230,25 @@ pictures that do not read, so a figure can be 8:1 with every check green.
 These default to off and all are judgement, which is why they live here rather
 than in a render flag: the committed spec has to produce the same figure on any
 machine.
+
+HOW BIG WILL THIS BE ON THE PAGE? Set `output` and the figure is solved for it.
+
+  "width": "6in"       the width it will be PRINTED at — a journal column is
+                       about 3.5in, a double column about 6 to 7in. The rendered
+                       SVG then declares that size instead of a pixel count, so a
+                       page places it correctly instead of scaling it to fit.
+  "min_type": "6pt"    the floor the smallest label must clear at that size.
+
+Set it whenever you know where the figure is going, and it changes what layout
+does: the spine wraps into more rows until the figure fits the budget the two
+numbers imply. THE TYPE IS NEVER SHRUNK — a figure that fits by shrinking its
+labels has solved a different problem. If wrapping cannot get there, `check`
+refuses the spec and tells you the width to aim for.
+
+This matters more than it sounds. Measured across this gallery before it existed:
+scaled to a 6in double column the smallest type landed between 2.49pt and 5.25pt,
+and not one figure cleared 6pt. Every number in a figure can be correct and the
+figure still be unreadable at the size anybody sees it.
 """
 
 

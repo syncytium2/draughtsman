@@ -5,25 +5,105 @@
   "title": "MLP — the floor",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0020.out_shape} out",
   "stages": [
-    {"id": "pixels", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}", "channels × height × width"]},
-    {"id": "flatten", "name": "flatten", "kind": "op", "nodes": ["n0006"],
-     "detail": ["{stage.out_shape}"]},
-    {"id": "h1", "name": "hidden", "kind": "stack", "nodes": ["n0009", "n0010"],
-     "detail": ["{stage.out_shape[1]} units, ReLU", "{stage.params} params"]},
-    {"id": "drop", "name": "dropout", "kind": "op", "nodes": ["n0013"],
-     "detail": ["p = {node:n0013.constants.p}"]},
-    {"id": "h2", "name": "hidden", "kind": "stack", "nodes": ["n0016", "n0017"],
-     "detail": ["{stage.out_shape[1]} units, ReLU", "{stage.params} params"]},
-    {"id": "logits", "name": "class logits", "kind": "output", "nodes": ["n0020"],
-     "detail": ["{stage.out_shape[1]} classes", "{stage.params} params"]}
+    {
+      "id": "pixels",
+      "name": "image",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "channels × height × width"
+      ]
+    },
+    {
+      "id": "flatten",
+      "name": "flatten",
+      "kind": "op",
+      "nodes": [
+        "n0006"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "h1",
+      "name": "hidden",
+      "kind": "stack",
+      "nodes": [
+        "n0009",
+        "n0010"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} units, ReLU",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "drop",
+      "name": "dropout",
+      "kind": "op",
+      "nodes": [
+        "n0013"
+      ],
+      "detail": [
+        "p = {node:n0013.constants.p}"
+      ]
+    },
+    {
+      "id": "h2",
+      "name": "hidden",
+      "kind": "stack",
+      "nodes": [
+        "n0016",
+        "n0017"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} units, ReLU",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "logits",
+      "name": "class logits",
+      "kind": "output",
+      "nodes": [
+        "n0020"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} classes",
+        "{stage.params} params"
+      ]
+    }
   ],
   "edges": [
-    {"from": "pixels", "to": "flatten"},
-    {"from": "flatten", "to": "h1"},
-    {"from": "h1", "to": "drop"},
-    {"from": "drop", "to": "h2"},
-    {"from": "h2", "to": "logits"}
+    {
+      "from": "pixels",
+      "to": "flatten"
+    },
+    {
+      "from": "flatten",
+      "to": "h1"
+    },
+    {
+      "from": "h1",
+      "to": "drop"
+    },
+    {
+      "from": "drop",
+      "to": "h2"
+    },
+    {
+      "from": "h2",
+      "to": "logits"
+    }
   ],
-  "caption": "The control. A linear stack every existing tool already draws correctly — draughtsman should add nothing here but the numbers being real."
+  "caption": "The control. A linear stack every existing tool already draws correctly — draughtsman should add nothing here but the numbers being real.",
+  "layout": {},
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
+  }
 }

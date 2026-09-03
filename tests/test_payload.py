@@ -24,7 +24,8 @@ from draughtsman.abstract import payload
 DESCRIBED_AS = {"src": "from", "dst": "to"}
 
 DATACLASSES = [spec_mod.Spec, spec_mod.Stage, spec_mod.Edge, spec_mod.Layout,
-               spec_mod.Lanes, spec_mod.Elision, spec_mod.Meter, spec_mod.Glyph]
+               spec_mod.Lanes, spec_mod.Elision, spec_mod.Meter, spec_mod.Glyph,
+               spec_mod.Output]
 
 
 def _field_names():

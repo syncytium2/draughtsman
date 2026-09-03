@@ -9,6 +9,7 @@ render time.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 
 from draughtsman import FORMAT
@@ -186,6 +187,49 @@ class Layout:
     chrome: str = "box"
 
 
+# ONE PLACE THAT KNOWS WHAT A LENGTH MEANS.
+#
+# A figure had no physical size at all until now: the SVG said `width="1594.64"`,
+# unitless, which is pixels — so a journal page placed it at whatever scale fit
+# the column and took the type down with it. Measured across the gallery, that
+# put detail text between 1.45pt and 3.06pt in a 3.5in column and between 2.49pt
+# and 5.25pt at 6in. Nothing in the tool mentioned an inch.
+#
+# So a length is parsed here and nowhere else. Points are the internal currency
+# because type is specified in points and the floor is a type size.
+_PER_PT = {"pt": 1.0, "in": 72.0, "mm": 72.0 / 25.4, "cm": 720.0 / 25.4,
+           "px": 0.75}          # CSS px: 96 per inch
+
+
+def length_pt(text: str, where: str) -> float:
+    """`"6in"`, `"180mm"`, `"12pt"` -> points. The only length parser."""
+    m = re.fullmatch(r"\s*([0-9]*\.?[0-9]+)\s*(pt|in|mm|cm|px)\s*", str(text))
+    if not m:
+        raise ValueError(
+            f"{where}: {text!r} is not a length. Write a number and a unit, one "
+            f"of {', '.join(sorted(_PER_PT))} — for example '6in' or '180mm'.")
+    return float(m.group(1)) * _PER_PT[m.group(2)]
+
+
+@dataclass
+class Output:
+    """The size this figure will be PRINTED at, and the type it must keep there.
+
+    THE FIGURE IS DRAWN IN ARBITRARY UNITS AND THAT IS FINE — what was missing is
+    a statement of what those units become on a page. With `width` set, the
+    renderer emits a real physical width, layout is solved against the budget it
+    implies, and `check` refuses a figure whose smallest type would land under
+    `min_type` at that size.
+
+    NEVER THE TYPE. The one thing that may not give is the type size: a figure
+    that fits by shrinking its labels has solved the wrong problem. Layout wraps
+    harder and the graph gets smaller; if that is not enough the figure is
+    refused and the author is told by how much.
+    """
+    width: str | None = None        # "6in", "3.5in", "180mm"
+    min_type: str = "6pt"           # the floor the smallest label must clear
+
+
 @dataclass
 class Elision:
     nodes: list[str]
@@ -202,6 +246,8 @@ class Spec:
     caption: str | None = None
     graph: str = "graph.json"
     layout: Layout = field(default_factory=Layout)
+    # How big this will be on the page, and the type it must keep at that size.
+    output: Output = field(default_factory=Output)
     # Reference path -> why that traced constant is an architectural quantity.
     # Required only when graph.json carries a bake hazard; see check.py.
     constants: dict[str, str] = field(default_factory=dict)
@@ -251,6 +297,9 @@ def load(doc: dict) -> Spec:
                               wrap=lay.get("wrap"),
                               legend=bool(lay.get("legend", False)),
                               chrome=lay.get("chrome", "box")),
+                output=Output(
+                    width=(doc.get("output") or {}).get("width"),
+                    min_type=(doc.get("output") or {}).get("min_type", "6pt")),
                 constants=dict(doc.get("constants") or {}),
                 batch_axis=doc.get("batch_axis"))
 
@@ -299,6 +348,12 @@ def dump(spec: Spec) -> dict:
         out["caption"] = spec.caption
     # Omitted entirely when it is the default, so adding this field changes no
     # existing spec and no existing figure.
+    if spec.output.width or spec.output.min_type != "6pt":
+        out["output"] = {}
+        if spec.output.width:
+            out["output"]["width"] = spec.output.width
+        if spec.output.min_type != "6pt":
+            out["output"]["min_type"] = spec.output.min_type
     if (spec.layout.orientation != "lr" or spec.layout.wrap
             or spec.layout.legend or spec.layout.chrome != "box"):
         out["layout"] = {"orientation": spec.layout.orientation}

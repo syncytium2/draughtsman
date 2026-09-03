@@ -5,39 +5,141 @@
   "title": "Dual-branch 1-D net — tube's shape, generalised",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0097.out_shape} out",
   "stages": [
-    {"id": "signal", "name": "multichannel signal", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}", "channels × samples"]},
-    {"id": "slow", "name": "wide / dilated branch", "kind": "conv",
-     "nodes": ["n0021", "n0022", "n0029", "n0030"],
-     "detail": ["kernel {node:n0021.weight_shape[2]}, dilation {node:n0021.constants.dilation} → {node:n0029.constants.dilation}",
-                "{stage.out_shape}", "{stage.params} params"],
-     "note": "Long receptive field: slow structure."},
-    {"id": "fast", "name": "narrow branch", "kind": "conv",
-     "nodes": ["n0045", "n0046", "n0053", "n0054"],
-     "detail": ["kernel {node:n0045.weight_shape[2]}", "{stage.out_shape}",
-                "{stage.params} params"],
-     "note": "Short receptive field: fast structure. Runs on the same input, in parallel."},
-    {"id": "concat", "name": "concatenate", "kind": "concat", "nodes": ["n0057"],
-     "detail": ["{stage.out_shape[1]} channels", "{stage.out_shape}"]},
-    {"id": "gate", "name": "learned gate", "kind": "kernel",
-     "nodes": ["n0068", "n0069", "n0070"],
-     "detail": ["pointwise σ, multiplied back in", "{stage.params} params"],
-     "note": "A second true fork: the concatenation feeds both the gate and the multiply it gates."},
-    {"id": "head", "name": "conv head", "kind": "stack",
-     "nodes": ["n0084", "n0085", "n0092"],
-     "detail": ["kernel {node:n0084.weight_shape[2]} then pointwise",
-                "{stage.out_shape}", "{stage.params} params"]},
-    {"id": "score", "name": "class scores", "kind": "output", "nodes": ["n0097"],
-     "detail": ["mean over time", "{stage.out_shape}"]}
+    {
+      "id": "signal",
+      "name": "multichannel signal",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "channels × samples"
+      ]
+    },
+    {
+      "id": "slow",
+      "name": "wide / dilated branch",
+      "kind": "conv",
+      "nodes": [
+        "n0021",
+        "n0022",
+        "n0029",
+        "n0030"
+      ],
+      "detail": [
+        "kernel {node:n0021.weight_shape[2]}, dilation {node:n0021.constants.dilation} → {node:n0029.constants.dilation}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "Long receptive field: slow structure."
+    },
+    {
+      "id": "fast",
+      "name": "narrow branch",
+      "kind": "conv",
+      "nodes": [
+        "n0045",
+        "n0046",
+        "n0053",
+        "n0054"
+      ],
+      "detail": [
+        "kernel {node:n0045.weight_shape[2]}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "Short receptive field: fast structure. Runs on the same input, in parallel."
+    },
+    {
+      "id": "concat",
+      "name": "concatenate",
+      "kind": "concat",
+      "nodes": [
+        "n0057"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "gate",
+      "name": "learned gate",
+      "kind": "kernel",
+      "nodes": [
+        "n0068",
+        "n0069",
+        "n0070"
+      ],
+      "detail": [
+        "pointwise σ, multiplied back in",
+        "{stage.params} params"
+      ],
+      "note": "A second true fork: the concatenation feeds both the gate and the multiply it gates."
+    },
+    {
+      "id": "head",
+      "name": "conv head",
+      "kind": "stack",
+      "nodes": [
+        "n0084",
+        "n0085",
+        "n0092"
+      ],
+      "detail": [
+        "kernel {node:n0084.weight_shape[2]} then pointwise",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ]
+    },
+    {
+      "id": "score",
+      "name": "class scores",
+      "kind": "output",
+      "nodes": [
+        "n0097"
+      ],
+      "detail": [
+        "mean over time",
+        "{stage.out_shape}"
+      ]
+    }
   ],
   "edges": [
-    {"from": "signal", "to": "slow"},
-    {"from": "signal", "to": "fast"},
-    {"from": "slow", "to": "concat"},
-    {"from": "fast", "to": "concat"},
-    {"from": "concat", "to": "gate"},
-    {"from": "gate", "to": "head"},
-    {"from": "head", "to": "score"}
+    {
+      "from": "signal",
+      "to": "slow"
+    },
+    {
+      "from": "signal",
+      "to": "fast"
+    },
+    {
+      "from": "slow",
+      "to": "concat"
+    },
+    {
+      "from": "fast",
+      "to": "concat"
+    },
+    {
+      "from": "concat",
+      "to": "gate"
+    },
+    {
+      "from": "gate",
+      "to": "head"
+    },
+    {
+      "from": "head",
+      "to": "score"
+    }
   ],
-  "caption": "The family draughtsman was designed against: two parallel branches over one input, rejoining at a concat. Here the fan-out IS in the traced graph, unlike tube's kernel bank."
+  "caption": "The family draughtsman was designed against: two parallel branches over one input, rejoining at a concat. Here the fan-out IS in the traced graph, unlike tube's kernel bank.",
+  "layout": {},
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
+  }
 }

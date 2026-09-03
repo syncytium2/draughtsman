@@ -15,7 +15,7 @@ from conftest import EXAMPLES, IDS
 from draughtsman.facts import Graph
 from draughtsman.layout import build
 from draughtsman.render import render
-from draughtsman.spec import Layout, dump, load
+from draughtsman.spec import Layout, dump, length_pt, load
 
 
 def _chain(n, w=120.0, h=48.0):
@@ -172,3 +172,63 @@ def test_every_model_renders_wrapped_and_vertical(d):
         svg = render(load(variant), graph)
         assert svg.startswith("<svg")
         assert svg.count("ds-stage") == flat.count("ds-stage")
+
+
+# --- fit to the page --------------------------------------------------------
+#
+#     "NO FIGURE IS LEGIBLE AT A JOURNAL COLUMN WIDTH ... A figure has to come in
+#      at 399 units to clear 6pt in a column and the narrowest today is 646."
+#                                            — CLAIMS.md, queue item 3
+#
+# A figure declared no physical size at all, so a page scaled it to fit and took
+# the type down with it. `output.width` states where it is going; the budget the
+# floor implies is what layout solves against.
+
+import re as _re
+
+from draughtsman.render import width_budget, type_pt
+
+
+def _units(svg: str) -> float:
+    return float(_re.search(r'viewBox="0 0 ([\d.]+)', svg).group(1))
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_a_declared_output_size_is_what_the_svg_says(d):
+    """The SVG must assert inches, not a pixel count.
+
+    `width="1594.64"` is unitless and therefore pixels: the figure claims to be
+    1594 pixels wide and every consumer scales it to whatever fits. `width="6in"`
+    is the figure saying how big it is, which is the only form a page can honour.
+    """
+    spec = load(json.loads((d / "spec.json").read_text()))
+    svg = (d / "figure.svg").read_text()
+    root = _re.search(r"<svg[^>]*>", svg).group(0)
+    declared = _re.search(r'width="([^"]+)"', root).group(1)
+    if spec.output.width:
+        assert declared == spec.output.width, (
+            f"{d.name} declares output.width {spec.output.width!r} but the SVG "
+            f"says width={declared!r}. A page cannot honour a size the figure "
+            "does not state.")
+        assert _re.search(r'height="[\d.]+in"', root), (
+            f"{d.name}: width is physical but height is not, so the aspect is "
+            "left to the consumer to guess")
+    else:
+        assert _re.fullmatch(r"[\d.]+", declared), (
+            f"{d.name}: width={declared!r} is neither a bare unit count nor a "
+            "declared physical size")
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_a_figure_that_states_its_size_is_legible_at_it(d):
+    """Type never gives. If it would, the figure is too wide and must narrow."""
+    spec = load(json.loads((d / "spec.json").read_text()))
+    if not spec.output.width:
+        return                      # not a skip: nothing was promised
+    units = _units((d / "figure.svg").read_text())
+    got, budget = type_pt(spec, units), width_budget(spec)
+    floor = length_pt(spec.output.min_type, "min_type")
+    assert got >= floor, (
+        f"{d.name} at {spec.output.width}: smallest type is {got:.2f}pt, under "
+        f"the {spec.output.min_type} floor. {units:.0f} units against a budget "
+        f"of {budget:.0f}. Narrow the figure — never the type.")

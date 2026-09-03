@@ -523,6 +523,62 @@ by running the acceptance test against the figure that already exists rather tha
 building the thing that would replace it. The U-Net finding cost one afternoon of
 arithmetic and no code at all.
 
+### 10. A figure that does not know how big it will be cannot be legible
+
+Every number in a figure could be correct, every operation accounted for, every
+arrow traced — and the figure still unreadable at the size anybody sees it. That
+was the state of all ten, and nothing in the tool could tell.
+
+The cause was one line. The SVG root said:
+
+    viewBox="0 0 1594.64 351.69" width="1594.64" height="351.69"
+
+Unitless, which means pixels. So the figure asserted it was 1594 pixels wide and
+every consumer — LaTeX, Word, a browser — scaled it to whatever fitted, taking
+the type down with it. **Nothing in the source mentioned an inch, a millimetre or
+a point.** `layout.wrap` looked like a size and was a count of the same arbitrary
+units.
+
+Measured at the widths a paper actually uses, with detail type at 9.5 units:
+
+    figure         units | 3.5in  |  6in   |  7in
+    lenet            782 | 3.06pt | 5.25pt | 6.12pt
+    unet            1595 | 1.50pt | 2.57pt | 3.00pt
+    whisper         1647 | 1.45pt | 2.49pt | 2.91pt
+
+At a 6in double column, **not one figure cleared 6pt.** Exactly one cleared it
+anywhere, at a full 7in text width.
+
+**What was added.** `output.width` states where the figure is going and
+`output.min_type` the floor its smallest label must hold there. The two fix what
+a unit is worth in points, which gives a width budget:
+
+    units_max = DETAIL_SIZE x target_points / floor_points     684u at 6in/6pt
+
+Three things follow. The renderer emits a real physical size — `width="6in"` with
+the height derived from the same scale — so a page places the figure instead of
+guessing. Layout solves against the budget by wrapping the spine into more rows.
+And `check` refuses a spec whose figure would print under the floor, naming the
+width to aim for.
+
+**THE TYPE IS NEVER THE THING THAT GIVES.** A figure that fits by shrinking its
+labels has solved a different problem, and shrinking type is what every consumer
+already does for free. The budget exists precisely because the label size is the
+fixed quantity. Layout wraps harder, the graph gets narrower, and when that is
+not enough the figure is refused rather than quietly rendered illegible.
+
+**It works, and it does not work everywhere.** Solved at 6in with a 6pt floor:
+`mlp` 856 -> 493 units (8.32pt), `dual` 1033 -> 560 (7.33pt), `lstm` 923 -> 653
+(6.29pt). Those three now declare their size. The other seven are still over
+budget — `lenet` at 782 against 684, `whisper` at 1647 — and wrapping cannot
+reach it, because a row break is refused where a long edge is in flight and those
+models are webbed with skips. **That is the honest state and it is now visible in
+the spec rather than in a queue item**: declare an output width on any of the
+seven and `check` goes red with the number.
+
+The remaining work is not a knob. It is narrower figures: fewer detail lines, more
+collapsing, or a second orientation for models whose depth is the problem.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**

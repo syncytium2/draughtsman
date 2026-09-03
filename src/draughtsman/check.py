@@ -25,7 +25,7 @@ from dataclasses import dataclass
 
 from draughtsman.facts import (BATCHED_SHAPE_FIELDS, FactError, Graph, REF_RE,
                                bare_numbers, repeat_counts, resolve)
-from draughtsman.spec import Spec
+from draughtsman.spec import Spec, length_pt
 
 
 @dataclass
@@ -289,6 +289,41 @@ def check(spec: Spec, graph: Graph) -> Result:
         errors.append(
             "glyphs in one figure must use one scale; found "
             + " and ".join(sorted(repr(x) for x in scaling)))
+    # WILL THIS BE LEGIBLE AT THE SIZE IT IS PRINTED?
+    #
+    # The last question in this file that coverage cannot ask. A figure with a
+    # stated output width has a unit budget, and going over it does not fail
+    # anything at render time — the SVG scales down happily and takes the type
+    # with it. Measured across the gallery before this existed: at a 6in double
+    # column the detail type landed between 2.49pt and 5.25pt, and no figure in
+    # the set cleared 6pt anywhere.
+    #
+    # Imported here rather than at module scope: `check` is the layer that must
+    # not need a renderer to answer a question about coverage, and this is the
+    # one question that genuinely does.
+    if spec.output.width:
+        from draughtsman.render import render, width_budget, type_pt
+        import re as _re
+        try:
+            drawn = render(spec, graph)
+            units = float(_re.search(r'viewBox="0 0 ([\d.]+)', drawn).group(1))
+        except Exception as exc:                      # a broken spec fails elsewhere
+            units = 0.0
+            errors.append(f"output.width is set but the figure did not render: {exc}")
+        if units:
+            got = type_pt(spec, units)
+            floor = length_pt(spec.output.min_type, "output.min_type")
+            if got is not None and got < floor:
+                budget = width_budget(spec)
+                errors.append(
+                    f"at {spec.output.width} the smallest type would be "
+                    f"{got:.2f}pt, under the {spec.output.min_type} floor. The "
+                    f"figure is {units:.0f} units wide and the budget is "
+                    f"{budget:.0f}. Narrow it — wrap the spine into more rows "
+                    f"(layout.wrap around {budget * 0.92:.0f}), drop a detail "
+                    f"line, or collapse a stage. Do not shrink the type: the "
+                    f"floor is the point.")
+
     if spec.layout.chrome not in ("box", "none"):
         errors.append(
             f"layout chrome {spec.layout.chrome!r} is neither 'box' nor 'none'. "

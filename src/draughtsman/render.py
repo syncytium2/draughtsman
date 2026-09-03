@@ -25,7 +25,7 @@ import math
 from draughtsman.facts import (TIMES, FactError, Graph, repeat_counts,
                                resolve)
 from draughtsman.layout import build
-from draughtsman.spec import Spec
+from draughtsman.spec import Spec, length_pt
 from draughtsman.text import FONT_STACK, escape, width
 
 TITLE_SIZE = 12.0
@@ -405,11 +405,33 @@ def render(spec: Spec, graph: Graph) -> str:
                 *_, _gw, _gh = _sheet_geom(_m, gscale, _bare)
                 _m.fit_glyph(_gw, _gh)
 
-    drawing = build(
-        [(sid, m.w, m.h) for sid, m in measured.items()],
-        [(e.src, e.dst, e.label, e.style) for e in spec.edges],
-        orientation=spec.layout.orientation, wrap=spec.layout.wrap,
-    )
+    nodes_in = [(sid, m.w, m.h) for sid, m in measured.items()]
+    edges_in = [(e.src, e.dst, e.label, e.style) for e in spec.edges]
+    drawing = build(nodes_in, edges_in, orientation=spec.layout.orientation,
+                    wrap=spec.layout.wrap)
+
+    # SOLVE FOR THE PAGE, AND WRAP IS THE ONLY LEVER PULLED.
+    #
+    # With an output width stated, the figure has a unit budget (see
+    # width_budget) and depth converts directly into width, so the fix for a
+    # figure that is too wide is to break the spine into more rows. That is
+    # `layout.wrap`, which already exists and already refuses to cut a row where
+    # a long edge is in flight — so a model webbed with skips will decline to
+    # wrap and the check downstream will say so rather than this loop pretending.
+    #
+    # THE TYPE IS NEVER TOUCHED. A figure that fits by shrinking its labels has
+    # solved a different problem, and the whole point of the budget is that the
+    # label size is the fixed quantity. An explicit `layout.wrap` in the spec is
+    # a judgement already made and is left alone.
+    budget = width_budget(spec)
+    if budget and spec.layout.wrap is None and drawing.width > budget:
+        for target in (budget, budget * 0.86, budget * 0.72, budget * 0.6):
+            trial = build(nodes_in, edges_in,
+                          orientation=spec.layout.orientation, wrap=target)
+            if trial.width <= drawing.width:
+                drawing = trial
+            if drawing.width <= budget:
+                break
 
     ba = spec.batch_axis
     title = resolve(spec.title, graph, stages=stages, where="title", batch_axis=ba)
@@ -481,7 +503,7 @@ def render(spec: Spec, graph: Graph) -> str:
         f'<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" '
         f'role="img" aria-label="{escape(title)}" '
         f'viewBox="0 0 {_fmt(total_w)} {_fmt(total_h)}" '
-        f'width="{_fmt(total_w)}" height="{_fmt(total_h)}">'
+        + _physical(spec, total_w, total_h) + ">"
     )
     out.append(f"<title>{escape(title)}</title>")
     out.append(f"<desc>{escape(_describe(spec, graph))}</desc>")
@@ -1179,6 +1201,52 @@ def _shape_axes(text: str, glyph, where: str) -> tuple[float, ...]:
                 f"{len(dims)} axes.")
         out.append(dims[i])
     return tuple(out)
+
+
+def _physical(spec, w: float, h: float) -> str:
+    """The SVG's width and height attributes.
+
+    THIS IS THE HALF THAT WAS MISSING. A viewBox says what the coordinates mean
+    relative to each other; `width` and `height` say how big the thing is. With
+    no unit they are pixels, so every figure asserted it was 1594 pixels wide and
+    a page scaled it to fit — taking the type with it. Stating `6in` makes the
+    figure the size it was solved for, in LaTeX, Word or a browser alike, and the
+    aspect is preserved because the height is derived from the same scale.
+    """
+    if not spec.output.width:
+        return f'width="{_fmt(w)}" height="{_fmt(h)}"'
+    target = length_pt(spec.output.width, "output.width")
+    per_unit = target / w if w else 0.0
+    return (f'width="{spec.output.width}" '
+            f'height="{_fmt(round(h * per_unit / 72.0, 4))}in"')
+
+
+def width_budget(spec) -> float | None:
+    """Widest the figure may be, in figure units, to keep type above the floor.
+
+    A figure is drawn in arbitrary units and printed at a physical width, so the
+    two together fix what a unit is worth in points. The smallest type in the
+    figure is DETAIL_SIZE units, so:
+
+        units_max = DETAIL_SIZE x target_points / floor_points
+
+    At 6in with a 6pt floor that is 684 units. Returns None when the spec states
+    no output width, which is every figure written before this existed.
+    """
+    if not spec.output.width:
+        return None
+    target = length_pt(spec.output.width, "output.width")
+    floor = length_pt(spec.output.min_type, "output.min_type")
+    if floor <= 0:
+        raise FactError("output.min_type must be greater than zero")
+    return DETAIL_SIZE * target / floor
+
+
+def type_pt(spec, figure_units: float) -> float | None:
+    """What the smallest type actually becomes at the stated output width."""
+    if not spec.output.width or figure_units <= 0:
+        return None
+    return DETAIL_SIZE * length_pt(spec.output.width, "output.width") / figure_units
 
 
 def _glyph_scales(measured) -> tuple[float, ...]:
