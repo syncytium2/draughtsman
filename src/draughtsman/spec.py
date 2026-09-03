@@ -102,6 +102,26 @@ class Glyph:
     # limited one: a reader can count to about thirty and no further, so an axis
     # past that is drawn as a solid bar with its number rather than as marks
     # nobody could count. See MARK_MAX in render.py.
+    #
+    # "sheets" TAKES A THIRD AXIS, and it is the only style that may. n x m x p
+    # is drawn as n flat sheets of m x p, offset. axes are [depth, tall, wide]:
+    # axes[0] is the sheet COUNT, axes[1] and axes[2] are the face.
+    #
+    # WHY A THIRD AXIS IS ALLOWED HERE AND NOWHERE ELSE. The two-axis rule above
+    # exists because the eye reads a rectangle's AREA whether or not you meant it
+    # to, so both edges must come from one tensor or the reader is perceiving a
+    # product that means nothing. An offset stack is read the same way one step
+    # up: the eye reads the VOLUME of the stack -- face area times how deep it
+    # goes -- and three axes of one tensor multiply to something real exactly as
+    # two do. So the rule is not relaxed, it is the same rule at rank three, and
+    # `check` still refuses a glyph whose axes do not all come from one `of`.
+    #
+    # What this buys, measured on U-Net before the style existed: with axes
+    # [-3,-2] its glyph is CONSTANT at every encoder stage, because channels
+    # double at exactly the rate height halves. The figure reported "unchanging"
+    # for the quantity that is the architecture. The dropped axis halves too, so
+    # the volume runs 65536, 32768, 16384, 8192 and back -- the U the network is
+    # named for, invisible in any two of its three axes.
     style: str = "block"
 
 

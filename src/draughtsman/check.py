@@ -227,15 +227,27 @@ def check(spec: Spec, graph: Graph) -> Result:
             # draws the default silently and `check` calls it correct. That is a
             # figure disagreeing with its spec while every assertion is green,
             # which is the one thing this file exists to prevent.
-            if s.glyph.style not in ("block", "marks"):
+            if s.glyph.style not in ("block", "marks", "sheets"):
                 errors.append(
                     f"stage {s.id!r}: glyph style {s.glyph.style!r} is not one "
-                    "of 'block' or 'marks'. An unknown style would be drawn as "
-                    "a block, and the figure would not be the spec.")
-            if len(s.glyph.axes) != 2 or len(s.glyph.labels) != 2:
+                    "of 'block', 'marks' or 'sheets'. An unknown style would be "
+                    "drawn as a block, and the figure would not be the spec.")
+            # RANK IS SET BY THE STYLE, AND ONLY `sheets` MAY TAKE THREE.
+            #
+            # The two-axis rule is not arbitrary: the eye reads a rectangle's
+            # area, so both edges must come from one tensor or the reader
+            # perceives a product that means nothing. `sheets` is read as a
+            # VOLUME — face area times stack depth — so three axes of one tensor
+            # multiply to something real in the same way. Every other style stays
+            # at two, because nothing in a rectangle can carry a third.
+            want = 3 if s.glyph.style == "sheets" else 2
+            if len(s.glyph.axes) != want or len(s.glyph.labels) != want:
+                named = ("one for depth, one for height, one for width"
+                         if want == 3 else
+                         "one for height, one for width")
                 errors.append(
-                    f"stage {s.id!r}: a glyph needs exactly two axes and two "
-                    "labels — one for height, one for width.")
+                    f"stage {s.id!r}: a {s.glyph.style!r} glyph needs exactly "
+                    f"{want} axes and {want} labels — {named}.")
 
         for meter in s.meters:
             try:
@@ -277,6 +289,15 @@ def check(spec: Spec, graph: Graph) -> Result:
         errors.append(
             "glyphs in one figure must use one scale; found "
             + " and ".join(sorted(repr(x) for x in scaling)))
+    # AND ONE STYLE, for the same reason one rank. A figure mixing `sheets` with
+    # `block` would put a rectangle and a volume on one ruler, and the styles do
+    # not even agree on how many axes they read — so the shared scale would be
+    # computed over glyphs measuring different things.
+    styling = {s.glyph.style for s in glyphed}
+    if len(styling) > 1:
+        errors.append(
+            "glyphs in one figure must use one style; found "
+            + " and ".join(sorted(repr(x) for x in styling)))
     if len(glyphed) == 1:
         warnings.append(
             f"stage {glyphed[0].id!r} is the only one with a glyph, so its "

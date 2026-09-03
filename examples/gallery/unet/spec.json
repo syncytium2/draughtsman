@@ -5,68 +5,338 @@
   "title": "U-Net — the layout stress case",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0270.out_shape} out",
   "stages": [
-    {"id": "image", "name": "image", "kind": "input", "nodes": ["in1"],
-     "detail": ["{stage.out_shape}", "channels × height × width"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "enc1", "name": "encoder — full resolution", "kind": "conv",
-     "nodes": ["n0025", "n0026", "n0033", "n0034"],
-     "detail": ["double conv, kernel {node:n0025.weight_shape[2]}",
-                "{stage.out_shape}", "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "enc2", "name": "encoder — half", "kind": "conv",
-     "nodes": ["n0046", "n0061", "n0062", "n0069", "n0070"],
-     "detail": ["pool {node:n0046.constants.kernel_size}, then double conv",
-                "{stage.out_shape}", "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "enc3", "name": "encoder — quarter", "kind": "conv",
-     "nodes": ["n0082", "n0097", "n0098", "n0105", "n0106"],
-     "detail": ["pool, then double conv", "{stage.out_shape}", "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "bottom", "name": "bottleneck", "kind": "stack",
-     "nodes": ["n0118", "n0133", "n0134", "n0141", "n0142"],
-     "detail": ["{stage.out_shape}", "{stage.params} params"],
-     "note": "Widest and coarsest. Over half the model's parameters are here.",
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "dec3", "name": "decoder — quarter", "kind": "concat",
-     "nodes": ["n0154", "n0157", "n0172", "n0173", "n0180", "n0181"],
-     "detail": ["up-conv, concat skip, double conv", "{stage.out_shape}",
-                "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "dec2", "name": "decoder — half", "kind": "concat",
-     "nodes": ["n0193", "n0196", "n0211", "n0212", "n0219", "n0220"],
-     "detail": ["up-conv, concat skip, double conv", "{stage.out_shape}",
-                "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "dec1", "name": "decoder — full resolution", "kind": "concat",
-     "nodes": ["n0232", "n0235", "n0250", "n0251", "n0258", "n0259"],
-     "detail": ["up-conv, concat skip, double conv", "{stage.out_shape}",
-                "{stage.params} params"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}},
-    {"id": "mask", "name": "segmentation map", "kind": "output", "nodes": ["n0270"],
-     "detail": ["pointwise, {stage.out_shape[1]} classes", "{stage.out_shape}"],
-     "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2],
-               "labels": ["channels", "height"], "scale": "linear"}}
+    {
+      "id": "image",
+      "name": "image",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "channels × height × width"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "enc1",
+      "name": "encoder — full resolution",
+      "kind": "conv",
+      "nodes": [
+        "n0025",
+        "n0026",
+        "n0033",
+        "n0034"
+      ],
+      "detail": [
+        "double conv, kernel {node:n0025.weight_shape[2]}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "enc2",
+      "name": "encoder — half",
+      "kind": "conv",
+      "nodes": [
+        "n0046",
+        "n0061",
+        "n0062",
+        "n0069",
+        "n0070"
+      ],
+      "detail": [
+        "pool {node:n0046.constants.kernel_size}, then double conv",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "enc3",
+      "name": "encoder — quarter",
+      "kind": "conv",
+      "nodes": [
+        "n0082",
+        "n0097",
+        "n0098",
+        "n0105",
+        "n0106"
+      ],
+      "detail": [
+        "pool, then double conv",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "bottom",
+      "name": "bottleneck",
+      "kind": "stack",
+      "nodes": [
+        "n0118",
+        "n0133",
+        "n0134",
+        "n0141",
+        "n0142"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "Widest and coarsest. Over half the model's parameters are here.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "dec3",
+      "name": "decoder — quarter",
+      "kind": "concat",
+      "nodes": [
+        "n0154",
+        "n0157",
+        "n0172",
+        "n0173",
+        "n0180",
+        "n0181"
+      ],
+      "detail": [
+        "up-conv, concat skip, double conv",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "dec2",
+      "name": "decoder — half",
+      "kind": "concat",
+      "nodes": [
+        "n0193",
+        "n0196",
+        "n0211",
+        "n0212",
+        "n0219",
+        "n0220"
+      ],
+      "detail": [
+        "up-conv, concat skip, double conv",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "dec1",
+      "name": "decoder — full resolution",
+      "kind": "concat",
+      "nodes": [
+        "n0232",
+        "n0235",
+        "n0250",
+        "n0251",
+        "n0258",
+        "n0259"
+      ],
+      "detail": [
+        "up-conv, concat skip, double conv",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "mask",
+      "name": "segmentation map",
+      "kind": "output",
+      "nodes": [
+        "n0270"
+      ],
+      "detail": [
+        "pointwise, {stage.out_shape[1]} classes",
+        "{stage.out_shape}"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "linear",
+        "style": "sheets"
+      }
+    }
   ],
   "edges": [
-    {"from": "image", "to": "enc1"},
-    {"from": "enc1", "to": "dec1", "label": "skip", "style": "dashed"},
-    {"from": "enc1", "to": "enc2"},
-    {"from": "enc2", "to": "dec2", "label": "skip", "style": "dashed"},
-    {"from": "enc2", "to": "enc3"},
-    {"from": "enc3", "to": "dec3", "label": "skip", "style": "dashed"},
-    {"from": "enc3", "to": "bottom"},
-    {"from": "bottom", "to": "dec3"},
-    {"from": "dec3", "to": "dec2"},
-    {"from": "dec2", "to": "dec1"},
-    {"from": "dec1", "to": "mask"}
+    {
+      "from": "image",
+      "to": "enc1"
+    },
+    {
+      "from": "enc1",
+      "to": "dec1",
+      "label": "skip",
+      "style": "dashed"
+    },
+    {
+      "from": "enc1",
+      "to": "enc2"
+    },
+    {
+      "from": "enc2",
+      "to": "dec2",
+      "label": "skip",
+      "style": "dashed"
+    },
+    {
+      "from": "enc2",
+      "to": "enc3"
+    },
+    {
+      "from": "enc3",
+      "to": "dec3",
+      "label": "skip",
+      "style": "dashed"
+    },
+    {
+      "from": "enc3",
+      "to": "bottom"
+    },
+    {
+      "from": "bottom",
+      "to": "dec3"
+    },
+    {
+      "from": "dec3",
+      "to": "dec2"
+    },
+    {
+      "from": "dec2",
+      "to": "dec1"
+    },
+    {
+      "from": "dec1",
+      "to": "mask"
+    }
   ],
-  "caption": "Three skips, each spanning the full depth. A ranked left-to-right layout gets the topology right and cannot produce the U readers expect — so the glyphs carry it instead. Channels times height is the same at every encoder and decoder stage, so each rectangle keeps its area and only turns: wide and flat at full resolution, tall and narrow at the bottleneck, and back again. The U is in the encoding, not the layout."
+  "caption": "Three skips, each spanning the full depth. A ranked left-to-right layout gets the topology right and cannot produce the U readers expect — so the glyphs carry it instead. Each stage is drawn as its channels × height × width: the face is the spatial map, the depth is the channel count, and past twelve channels the stack is one slab with its count, because sheets that occlude each other stop being countable long before marks do. The volume is the U. It runs 65536, 32768, 16384, 8192 and back — halving into the bottleneck and doubling out of it — and it is invisible in any two of the three axes: channels times height alone is 1024 at every encoder and decoder stage, so the figure this replaces reported the architecture as unchanging."
 }

@@ -67,6 +67,32 @@ MARK_MAX = 32
 # that makes a thirty-element box tall then the box is tall: the height IS the
 # thirty, and shrinking it to fit would trade the only claim this style makes.
 MARK_PITCH, MARK_SIZE, MARK_BAR_H, MARK_BAR_ROW = 5.0, 3.0, 5.0, 11.0
+# SHEETS: n x m x p drawn as n flat sheets of m x p, offset. The third edge is
+# DEPTH, and the reader integrates face area x depth as a volume -- which is why
+# this is the one style allowed a third axis. See Glyph.style in spec.py.
+#
+# THE CANVAS IS SIZED AGAINST THE WIDTH BUDGET, NOT AGAINST THE BOX. face +
+# depth = 44 + 22 = 66, which is under MIN_W and under every box in this gallery
+# whose width is already set by its title, so adopting sheets widens nothing.
+# That is deliberate: no figure here is legible at a journal column width, the
+# ceiling is 399 units and the narrowest figure is 750, so a style that widened
+# every box would spend the one quantity the tool cannot afford. Depth is paid
+# for in HEIGHT, which a column crop does not charge for — a figure is scaled to
+# fit the column's WIDTH, so a taller glyph is free and a wider one is not.
+SHEET_FACE_W, SHEET_FACE_H, SHEET_DEPTH = 44.0, 28.0, 22.0
+SHEET_ROW = 48.0
+# FLAT OBLIQUE, NOT ISOMETRIC. Skewing the faces into parallelograms is what the
+# textbook figures do; it destroys area comparability -- the thing the glyph
+# exists for -- and adds no information, because the depth is already carried by
+# how far the stack travels. Offset rectangles read as depth honestly.
+SHEET_SKEW = 0.5          # rise per unit run of the offset
+# THE HONEST CEILING, AND IT IS LOWER THAN MARK_MAX. Counting marks stops working
+# near thirty; counting SHEETS stops much sooner, because each one occludes the
+# last. Past this the stack is drawn as one solid slab of the same depth with the
+# count written beside it -- the same degrade-rather-than-refuse move `marks`
+# makes at MARK_MAX, and it is what keeps the shape readable: the slab is still
+# drawn to scale, so a stack too deep to count is still the right size.
+SHEET_MAX = 12
 MIN_W = 76.0
 
 # TWO KINDS OF INK, AND THE DIFFERENCE IS WHAT THEY SIT ON.
@@ -267,8 +293,9 @@ class _Stage:
         ]
         widths += [width(lbl, METER_SIZE) + 5 + METER_BAR_W
                    for lbl, _ in self.meters]
-        self.glyph: tuple[float, float] | None = None
+        self.glyph: tuple[float, ...] | None = None
         self.marks: _Marks | None = None
+        self.glyph_row = GLYPH_ROW
         if stage.glyph:
             shape = _shape_axes(
                 resolve(stage.glyph.of, graph, node_ids=stage.nodes,
@@ -279,13 +306,18 @@ class _Stage:
                 self.marks = _Marks(shape, stage.glyph.labels)
                 widths.append(self.marks.w)
             else:
+                # A sheet stack is face + depth = GLYPH_W by construction, so
+                # both styles cost a box exactly the same width. Only the row
+                # height differs, and height is the cheap axis.
                 widths.append(GLYPH_W)
+                if stage.glyph.style == "sheets":
+                    self.glyph_row = SHEET_ROW
         self.w = max(MIN_W, max(widths) + 2 * PAD_X)
         self.h = (2 * PAD_Y + TITLE_LINE + DETAIL_LINE * len(self.detail)
                   + (LANE_ROW * len(self.lane_labels) + 5 if self.lane_labels else 0)
                   + (METER_ROW * len(self.meters) + 4 if self.meters else 0)
                   + (self.marks.h + 6 if self.marks
-                     else GLYPH_ROW if self.glyph else 0))
+                     else self.glyph_row if self.glyph else 0))
 
 
 def render(spec: Spec, graph: Graph) -> str:
@@ -331,12 +363,25 @@ def render(spec: Spec, graph: Graph) -> str:
             # that will read the bar as an axis of one.
             note = (f"one mark = one {lbl[0].rstrip('s') or 'element'} · "
                     f"a bar means more than {MARK_MAX}, counted beside it")
+        elif glyphed[0].spec.glyph.style == "sheets":
+            # THE COMPRESSION IS NAMED, AND SO IS THE CAP. A stack drawn under a
+            # root scale is a nonlinear mapping, and an unstated nonlinear scale
+            # is the confident-and-wrong figure this tool exists to prevent. The
+            # slab threshold is part of that: a reader shown a slab must know it
+            # is a stack that stopped being countable, not an axis of one.
+            note = (f"deepest = {_fmt(gscale[0])}, tallest = {_fmt(gscale[1])}, "
+                    f"widest = {_fmt(gscale[2])} · "
+                    + ("each edge ∝ value"
+                       if glyphed[0].spec.glyph.scale == "linear"
+                       else "each edge ∝ √value")
+                    + f" · a slab means more than {SHEET_MAX} sheets, counted "
+                      "beside it")
         else:
             note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
                     + ("each edge ∝ value"
                        if glyphed[0].spec.glyph.scale == "linear"
                        else "each edge ∝ √value"))
-        rows.append(("__glyph__", f"{lbl[0]} × {lbl[1]}", note))
+        rows.append(("__glyph__", " × ".join(lbl), note))
     legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
                     + 6 + width(sh, LEGEND_SIZE) + 18
                     for _, lbl, sh in rows), default=0.0)
@@ -694,6 +739,9 @@ def _box(box, m: _Stage, scales: dict[str, float],
     if m.marks:
         y = _draw_marks(parts, m.marks, box, y, stroke)
 
+    elif m.glyph and m.spec.glyph.style == "sheets":
+        y = _draw_sheets(parts, m, box, y, stroke, gscale)
+
     elif m.glyph:
         tall, wide = m.glyph
         sc = m.spec.glyph.scale
@@ -820,8 +868,70 @@ def _draw_marks(parts: list[str], mk: _Marks, box, y: float, stroke: str) -> flo
     return y + mk.h + 6
 
 
-def _shape_axes(text: str, glyph, where: str) -> tuple[float, float]:
-    """Pull the two named axes out of one resolved shape."""
+def _draw_sheets(parts: list[str], m, box, y: float, stroke: str,
+                 gscale: tuple[float, ...]) -> float:
+    """n x m x p as n flat sheets of m x p, offset up and to the right.
+
+    THREE EDGES, ONE SCALE EACH, AND THE VOLUME IS THE CLAIM. Face height comes
+    from axes[1], face width from axes[2] and the depth the stack travels from
+    axes[0], every one of them through `_edge_px` against the figure-wide
+    maximum for that position. So the perceived volume -- face area times depth
+    -- stands in the same relation to the tensor as a block's area does to its
+    two axes. That is the argument for allowing a third axis at all.
+
+    PAST SHEET_MAX THE STACK BECOMES ONE SLAB WITH ITS COUNT. Sheets occlude one
+    another, so counting fails far sooner than marks do. The slab keeps the SAME
+    DEPTH, so a stack too deep to count still draws the right size and the shape
+    of the model survives; only the countability is given up, and the number is
+    printed rather than implied. This is `marks`' bar at MARK_MAX, one rank up.
+    """
+    depth_v, tall_v, wide_v = m.glyph
+    sc = m.spec.glyph.scale
+    fh = _edge_px(tall_v, gscale[1], SHEET_FACE_H, sc)
+    fw = _edge_px(wide_v, gscale[2], SHEET_FACE_W, sc)
+    dep = _edge_px(depth_v, gscale[0], SHEET_DEPTH, sc)
+    dx, dy = dep, dep * SHEET_SKEW
+    n = int(depth_v)
+
+    # The whole stack, so it can be centred as one object.
+    total_w, total_h = fw + dx, fh + dy
+    ox = box.x + (box.w - total_w) / 2.0
+    base = y + 3 + (SHEET_FACE_H + SHEET_DEPTH * SHEET_SKEW - total_h)
+
+    fill = f'fill:{stroke};fill-opacity:0.32;stroke:{stroke};stroke-width:0.55'
+    if 0 < n <= SHEET_MAX:
+        # Back to front, so nearer sheets occlude further ones.
+        for k in range(n - 1, -1, -1):
+            frac = k / (n - 1) if n > 1 else 0.0
+            sx, sy = ox + dx * frac, base + dy * (1.0 - frac)
+            parts.append(
+                f'<rect class="ds-sheet" x="{_fmt(sx)}" y="{_fmt(sy)}" '
+                f'width="{_fmt(fw)}" height="{_fmt(fh)}" style="{fill}"/>'
+            )
+    else:
+        # One solid slab of the same depth, and the count set beside it.
+        pts = [(ox, base + dy), (ox + dx, base), (ox + dx + fw, base),
+               (ox + dx + fw, base + fh), (ox + fw, base + fh + dy),
+               (ox, base + fh + dy)]
+        poly = " ".join(f"{_fmt(px)},{_fmt(py)}" for px, py in pts)
+        parts.append(f'<polygon class="ds-sheet" points="{poly}" '
+                     f'style="{fill}"/>')
+        parts.append(
+            f'<text x="{_fmt(ox + dx + fw + 3)}" '
+            f'y="{_fmt(base + fh / 2 + dy / 2 + 2.5)}" '
+            f'style="font-family:{FONT_STACK};font-size:{MARK_SIZE + 4}px;'
+            f'fill:{MUTED}">×{n}</text>'
+        )
+    return y + SHEET_ROW
+
+
+def _shape_axes(text: str, glyph, where: str) -> tuple[float, ...]:
+    """Pull the named axes out of one resolved shape.
+
+    RANK COMES FROM THE STYLE. Two for a rectangle, three for a stack of sheets,
+    and nothing else — `check` states the rule and its reason; this is the same
+    rule where the drawing happens, because a spec may be rendered unchecked.
+    """
     parts = text.split(TIMES)
     try:
         dims = [float(p) for p in parts]
@@ -830,8 +940,11 @@ def _shape_axes(text: str, glyph, where: str) -> tuple[float, float]:
             f"{where}: glyph `of` resolved to {text!r}, which is not a shape. It "
             "must be one reference to a tensor shape, such as "
             "{stage.out_shape}.") from None
-    if len(glyph.axes) != 2 or len(glyph.labels) != 2:
-        raise FactError(f"{where}: a glyph needs exactly two axes and two labels")
+    want = 3 if glyph.style == "sheets" else 2
+    if len(glyph.axes) != want or len(glyph.labels) != want:
+        raise FactError(
+            f"{where}: a {glyph.style!r} glyph needs exactly {want} axes and "
+            f"{want} labels")
     out = []
     for i in glyph.axes:
         if i >= len(dims):
@@ -839,17 +952,26 @@ def _shape_axes(text: str, glyph, where: str) -> tuple[float, float]:
                 f"{where}: glyph asks for axis {i} of {text!r}, which has "
                 f"{len(dims)} axes.")
         out.append(dims[i])
-    return out[0], out[1]
+    return tuple(out)
 
 
-def _glyph_scales(measured) -> tuple[float, float]:
-    """Tallest and widest values anywhere in the figure. One scale, both axes."""
-    tall = wide = 0.0
+def _glyph_scales(measured) -> tuple[float, ...]:
+    """The biggest value at each axis position, anywhere in the figure.
+
+    ONE SCALE PER AXIS, SHARED BY EVERY GLYPH — so two stages with the same
+    tensor draw the same rectangle, which is the whole claim the glyph makes.
+    `check` proves every glyph in a figure has the same rank, so the tuples all
+    have the same length and position i means the same thing in all of them.
+    """
+    biggest: list[float] = []
     for m in measured.values():
-        if m.glyph:
-            tall = max(tall, m.glyph[0])
-            wide = max(wide, m.glyph[1])
-    return tall, wide
+        if not m.glyph:
+            continue
+        if not biggest:
+            biggest = [0.0] * len(m.glyph)
+        for i, v in enumerate(m.glyph):
+            biggest[i] = max(biggest[i], v)
+    return tuple(biggest) or (0.0, 0.0)
 
 
 def _edge_px(value: float, biggest: float, full: float,
