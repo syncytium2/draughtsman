@@ -1,4 +1,4 @@
-# The gallery — nine more models, and what they broke
+# The gallery — the models, and what they broke
 
 > **Run 2026-09-01.** Everything in [`SPEC.md`](../../SPEC.md) and
 > [`DECISIONS.md`](../../DECISIONS.md) was measured on one model: `tube`, 1,149
@@ -14,23 +14,23 @@ Every model is written out in full in [`models.py`](models.py) and
 alone: no torchvision, no downloads, no pinned third-party version. Weights are
 random. These draw architectures, not trained models.
 
-## The ten
+## The models
 
-| | model | family | verdict |
-|---|---|---|---|
-| 1 | [`mlp`](mlp/) | dense stack | held — and added nothing |
-| 2 | [`lenet`](lenet/) | 2-D image CNN | held |
-| 3 | [`dual`](dual/) | parallel branches, concat | held, best figure in the set |
-| 4 | [`vae`](vae/) | sibling heads, external source | held; exposed the edge blind spot |
-| 5 | [`resnet`](resnet/) | residual blocks ×6 | gap: repetition |
-| 6 | [`unet`](unet/) | encoder–decoder, long skips | held topologically |
-| 7 | [`transformer`](transformer/) | fused attention, ×4 blocks | gap: repetition |
-| 8 | [`lstm`](lstm/) | fused recurrent op | gap: nothing to abstract |
-| 9 | [`whisper`](whisper/) | encoder–decoder, cross-attention | **broke two things** |
-| — | [`../tube/`](../tube/) | filter bank, bypass, dilated stack | the control |
+| model | family | verdict |
+|---|---|---|
+| [`mlp`](mlp/) | dense stack | held — and added nothing |
+| [`lenet`](lenet/) | 2-D image CNN | held |
+| [`dual`](dual/) | parallel branches, concat | held, best figure in the set |
+| [`vae`](vae/) | sibling heads, external source | held; exposed the edge blind spot |
+| [`resnet`](resnet/) | residual blocks ×6 | gap: repetition |
+| [`unet`](unet/) | encoder–decoder, long skips | held topologically |
+| [`transformer`](transformer/) | fused attention, ×4 blocks | gap: repetition |
+| [`lstm`](lstm/) | fused recurrent op | gap: nothing to abstract |
+| [`whisper`](whisper/) | encoder–decoder, cross-attention | **broke two things** |
+| [`../tube/`](../tube/) | filter bank, bypass, dilated stack | the control |
 
-Totals: 2,078 traced nodes, 506 substantive, ten specs, ten green coverage
-checks, zero trace failures. These are computed from the committed graphs by
+Totals: 2,078 traced nodes, 506 substantive, one spec and one green coverage
+check each, zero trace failures. These are computed from the committed graphs by
 `tests/test_counts.py`, not typed here — they were typed here once, and adding a
 model made every count in three READMEs wrong for a day.
 
@@ -139,8 +139,8 @@ its two input rails give the figure a second row for free.
 
 **Coverage checked placement, not edges — now closed, and it was backwards.**
 The original finding here said the VAE "draws an edge the trace does not
-contain". Building the assertion showed the opposite: **every drawn edge in all
-ten figures was real.** What the VAE does is *omit* an edge the trace has —
+contain". Building the assertion showed the opposite: **every drawn edge in every
+committed figure was real.** What the VAE does is *omit* an edge the trace has —
 `randn_like` reads the mean's shape, so `graph.json` records mean → noise, and
 the figure does not draw it. The hole was never the arrows being false; it was
 that nothing looked at the arrows at all.
@@ -214,8 +214,9 @@ Three architectures, three different answers for the same idea, and `lanes` span
 all of them unmodified. The two transformer plates bracket that range on purpose:
 `nn.MultiheadAttention` fuses, and Whisper's hand-written attention does not.
 
-**The trace layer did not flinch.** Ten models, five families, 2,078 nodes, every
-one traced on the first attempt with every parameter attributed. Whisper's 835
+**The trace layer did not flinch.** Every model in the table above traced on the
+first attempt, with every parameter attributed — the totals are stated once, at
+the top, where something computes them. Whisper's 835
 nodes and 37M parameters traced in under a second. Given that SPEC.md §3 reached
 `torch.jit.trace` by eliminating two alternatives on a single model, that
 generalisation was not guaranteed.

@@ -33,7 +33,8 @@ not placed by anyone.
 
 ## The generalisation run
 
-[`gallery/`](gallery/) — nine more models across five architecture families, each
+[`gallery/`](gallery/) — the rest of the models, spanning the architecture
+families named in its own table, each
 chosen for a specific way it could break the tool, with the two things that did
 break it and the four gaps still open. Read
 [`gallery/README.md`](gallery/README.md) before trusting the design to generalise

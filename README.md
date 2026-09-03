@@ -72,7 +72,7 @@ because it is a real fork in the traced graph. The other five blocks are
 collapsed into two boxes, and the caption says so rather than letting the figure
 imply the model is nine layers deep.
 
-That figure and nine others are in [`examples/`](examples/), each with the
+That figure and one for every other model are in [`examples/`](examples/), each with the
 `graph.json` it was measured from and the `spec.json` that arranged it.
 
 ## Why this exists
@@ -160,9 +160,9 @@ coverage state and aspect ratio, and clicking one opens it for editing. Unsaved
 edits survive switching, and a model carrying them is marked in both the picker
 and the sheet.
 
-That sheet is a visual regression test. A layout defect in one model of ten does
+That sheet is a visual regression test. A layout defect in one model of many does
 not announce itself in a passing check — coverage is about what was *dropped*, not
-about what the picture looks like — and opening ten tabs to find it is how it stays
+about what the picture looks like — and opening a tab per model to find it is how it stays
 unfound. The half a machine can check is parametrised in `tests/test_render.py`,
 so every committed model has its coverage and its figure's freshness asserted;
 adding a folder adds a test.
