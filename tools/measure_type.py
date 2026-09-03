@@ -118,11 +118,19 @@ def measure(path: Path, display_px: float | None, floor_px: float | None):
     # after I claimed in writing that this branch already handled them.
     try:
         svg = path.read_text(encoding="utf-8")
-    except (UnicodeDecodeError, OSError) as exc:
-        kind = "not a text file" if isinstance(exc, UnicodeDecodeError) else "unreadable"
+    except UnicodeDecodeError:
         print(f"\n{path}")
-        print(f"  CANNOT DETERMINE: {kind}. This gate reads SVG; a PNG or PDF "
-              "figure has to be measured by something else.")
+        print("  CANNOT DETERMINE: not a text file. This gate reads SVG; a PNG "
+              "or PDF figure has to be measured by something else.")
+        return [(0.0, 0.0)]
+    except OSError as exc:
+        # A SEPARATE SENTENCE, BECAUSE IT IS A SEPARATE PROBLEM. Both arms used
+        # to print the format remedy, so a missing path was told that this gate
+        # reads SVG and that a PNG needs another tool — true, and no help at all
+        # to someone who has mistyped a filename. No fixture reached this arm, so
+        # nothing had ever read what it says.
+        print(f"\n{path}")
+        print(f"  CANNOT DETERMINE: cannot read this file ({exc.strerror or exc}).")
         return [(0.0, 0.0)]
     try:
         units = viewbox_width(svg)
@@ -177,6 +185,19 @@ _FIXTURE = (
     '<text style="font-size:10.0px">body</text>'
     '<text style="font-size:20.0px">head</text></svg>'
 )
+# HOW TO WRITE A FIXTURE, since this file has now got it wrong three times.
+#
+# A fixture drawn from the only producer you have is not a fixture, it is a
+# mirror — it is green on exactly the input class the tool already handles. That
+# went wrong here with CSS-only spellings, then with all-text files, then with a
+# read arm no file reached.
+#
+# The rule cannot bootstrap from inside the thing it is about: your fixtures come
+# from your producer because your producer is all you have. murderboard-7a's
+# operational form is the one to follow, because a single session can act on it
+# alone: A FIXTURE HAS TO COME FROM A SECOND PRODUCER, AND IF YOU ONLY HAVE ONE,
+# WRITE THE FILE BY HAND SPECIFICALLY TO BE UNLIKE YOUR OWN OUTPUT.
+#
 # THE SAME FIGURE IN SVG'S OWN SPELLING. The first selftest used only the CSS
 # form above — the form draughtsman happens to emit — so it was green while the
 # tool was blind to every figure written the other way. A fixture drawn from the
@@ -254,6 +275,15 @@ def selftest() -> int:
            "a binary file did not refuse — the SVG-only limit is not enforced")
         ok(main([str(b), "--width", "400px", "--floor", "6pt"]) == 1,
            "a binary file exited 0")
+
+        # AND THE ARM NO FIXTURE HAD EVER REACHED. Until this existed, both
+        # read failures printed the format remedy, and nobody had read the one
+        # for a path that simply is not there.
+        missing = Path(td) / "does-not-exist.svg"
+        ok(measure(missing, 400.0, 6.0) != [],
+           "a path that does not exist did not refuse")
+        ok(main([str(missing), "--width", "400px", "--floor", "6pt"]) == 1,
+           "a path that does not exist exited 0")
 
         n = Path(td) / "noviewbox.svg"
         n.write_text('<svg width="400"><text font-size="9">x</text></svg>',
