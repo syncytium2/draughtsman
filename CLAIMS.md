@@ -122,11 +122,10 @@ list is what stands between here and that flip, in order:
   repository around it, so every relative one died there. That made the repo URL
   a quantity kept in two places, so `tests/test_readme_links.py` ties them and
   also fails on a link pointing at a path this repository does not have.
-- [ ] **Prune the merged branches.** SIXTEEN on `origin` now, every one
-  verified at 0 unmerged commits against `main`, so nothing is lost by
-  deleting them. **Blocked, not forgotten:** `git push origin --delete` was
-  refused by this session's permission layer. It needs a human or a
-  permission rule; the verification is done.
+- [x] **Prune the merged branches.** Done by Tony, 2026-09-03. Sixteen deleted
+  (the count here said eleven and was stale), each verified at zero unmerged
+  commits against `main` first, so nothing was lost. `origin` now carries
+  `main` alone.
 - [ ] **The flip**, then Zenodo for a DOI.
 
 Not on this path and deliberately after it: JOSS, the publication-grade output
