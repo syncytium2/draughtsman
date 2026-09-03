@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c9` | `unreached-branch` | `tools/measure_type.py` | 2026-09-03 | A branch no fixture reaches, telling a reader to fix the wrong thing |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
