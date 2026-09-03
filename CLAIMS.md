@@ -70,7 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c9` | `measurer-selftest` | `tools/measure_type.py` | 2026-09-03 | The gate has no selftest, so nothing has ever proved it can fail |
+| `draughtsman-c9` | `measurer-selftest` | `tools/measure_type.py`, `tests/test_tools.py` | 2026-09-03 | The gate has no selftest, so nothing has ever proved it can fail |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
