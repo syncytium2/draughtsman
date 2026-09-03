@@ -70,6 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c9` | `fit-to-page` | `src/draughtsman/spec.py`, `src/draughtsman/layout.py`, `src/draughtsman/render.py`, `src/draughtsman/check.py`, `src/draughtsman/abstract.py`, `tests/test_layout_shape.py`, `tests/test_render.py`, `DECISIONS.md`, `examples/gallery/mlp/spec.json`, `examples/gallery/mlp/figure.svg`, `examples/gallery/lenet/spec.json`, `examples/gallery/lenet/figure.svg`, `examples/gallery/dual/spec.json`, `examples/gallery/dual/figure.svg`, `examples/gallery/vae/spec.json`, `examples/gallery/vae/figure.svg`, `examples/gallery/resnet/spec.json`, `examples/gallery/resnet/figure.svg`, `examples/gallery/unet/spec.json`, `examples/gallery/unet/figure.svg`, `examples/gallery/transformer/spec.json`, `examples/gallery/transformer/figure.svg`, `examples/gallery/lstm/spec.json`, `examples/gallery/lstm/figure.svg`, `examples/gallery/whisper/spec.json`, `examples/gallery/whisper/figure.svg`, `examples/tube/spec.json`, `examples/tube/figure.svg` | 2026-09-03 | Queue item 3: the spec states an output size and a type floor, layout solves for it, and check fails when the figure would print illegibly |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
