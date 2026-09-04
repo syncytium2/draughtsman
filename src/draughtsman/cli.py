@@ -107,8 +107,8 @@ def cmd_render(args) -> int:
             svg, chosen, scale = render_icon(_read(args.spec), graph, w, h)
         except IconError as exc:
             sys.exit(f"draughtsman: {exc}")
-        print(f"icon: {w:g}x{h:g}, {chosen} layout, drawing at {scale:.2f}x, "
-              "no text", file=sys.stderr)
+        print(f"icon: fitted to {w:g}x{h:g}, {chosen} layout, "
+              f"drawing at {scale:.2f}x, no text", file=sys.stderr)
 
     _write(args.output, svg)
     return 0
@@ -177,9 +177,16 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("-o", "--output", type=Path)
     r.add_argument("--no-check", dest="check", action="store_false",
                    help="render even if coverage fails")
+    # THE FLAG NAMES A SLOT, NOT A KIND OF PICTURE. "icon" also names the mark a
+    # project has CHOSEN for its site -- an editorial decision about which net
+    # stands for what -- and a reader who has only met that sense looks for
+    # branding code and concludes this does not exist. The help says "fit ... to
+    # a slot" so the flag reads as the operation it is.
     r.add_argument("--icon", metavar="WxH",
-                   help="drop everything unreadable at this size and crop to "
-                        "what is left, e.g. --icon 420x104")
+                   help="fit the figure to a slot this size: drop everything "
+                        "unreadable at it and crop to what is left, "
+                        "e.g. --icon 420x104. Not a scaled figure -- no text "
+                        "survives, so none is drawn")
     r.set_defaults(func=cmd_render, check=True)
 
     c = sub.add_parser("check", help="§5 coverage — every node in exactly one stage")
