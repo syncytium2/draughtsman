@@ -49,6 +49,19 @@ SELFTESTS = [
                                    "--selftest"]),
     ("tools/dragnet.py", [sys.executable, str(TOOLS / "dragnet.py"), "--selftest"]),
     ("tools/estate.py", [sys.executable, str(TOOLS / "estate.py"), "--selftest"]),
+    # WRITTEN HERE, AND UNREGISTERED UNTIL 2026-09-04. Each of these claimed a
+    # `--selftest` that nothing ran, which is the shape of the md5 stamp that said
+    # UNMODIFIED with nothing comparing it: an assertion made in a file, and no
+    # caller. `abstract_variance.py` could not be added when it landed because
+    # this file was claimed by another session at the time — so the gap was known
+    # and still had to wait for the board, which is the cost of the rule working.
+    ("tools/abstract_variance.py", [sys.executable,
+                                    str(TOOLS / "abstract_variance.py"),
+                                    "--selftest"]),
+    ("tools/edge_collisions.py", [sys.executable,
+                                  str(TOOLS / "edge_collisions.py"), "--selftest"]),
+    ("tools/site_check.py", [sys.executable, str(TOOLS / "site_check.py"),
+                             "--selftest"]),
 ]
 
 

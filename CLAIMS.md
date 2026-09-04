@@ -325,11 +325,19 @@ uncropped and textless. That judgement is still a person's.
   without a grant. Version is bumped to 1.6.0, README §3 fixed; **deploy was
   explicitly withheld** — the live site is still five cards. Held by
   `tonydefazio-com-ad`.
-- **`draughtsman.tonydefazio.com` has no certificate.** The Pages API reports
-  `https_certificate: state=None` — GitHub never requested one, because the domain
-  was set by committing a `CNAME` rather than through the Pages settings. Re-set
-  the custom domain to fire provisioning. Their tile points at the GitHub URL
-  until it answers.
+- [x] **`draughtsman.tonydefazio.com` had no certificate.** Done 2026-09-04.
+  This entry's diagnosis was right: the domain was set by committing a `CNAME`
+  rather than through the Pages settings, so GitHub never requested one. Port 443
+  answered with the `*.github.io` wildcard, which does not cover the host, so
+  every browser refused it while HTTP served 200 throughout. Re-submitting the
+  same domain did nothing; removing and re-adding it fired provisioning. The
+  certificate is approved to 2026-12-03 and `https_enforced` is true, so
+  `http://` now 301s to `https://`. **Their tile can point at the real domain.**
+
+  `tools/site_check.py` now asks the live site — redirect, certificate coverage,
+  and the two Pages settings that no file here can hold. It is a tool rather than
+  a test because `DRAUGHTSMAN_NO_SKIPS` would turn GitHub's next outage into our
+  red build, and a check that cries wolf gets switched off.
 - **This repo's Pages site loads Google Fonts** — the only destination in the
   estate that makes an external request on load, in a repo whose pitch is zero
   dependencies. A committed `@font-face` or a system stack removes it.
