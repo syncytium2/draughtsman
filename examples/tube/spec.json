@@ -253,7 +253,7 @@
   "layout": {
     "orientation": "lr",
     "legend": true,
-    "wrap": 455
+    "wrap": 600
   },
   "constants": {
     "n0149.constants.dilation": "Architectural. _dilated_stack sets d = 2 ** i from the layer index, so the schedule is fixed by `depth` and no gradient reaches it.",
@@ -261,7 +261,7 @@
   },
   "caption": "Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses {stage:dog.nodes} traced operations.",
   "output": {
-    "width": "6in",
+    "width": "10in",
     "min_type": "6pt"
   }
 }

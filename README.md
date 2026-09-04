@@ -291,9 +291,14 @@ operation dropped.
 ## The page
 
 [`index.html`](https://github.com/syncytium2/draughtsman/blob/main/index.html) is a
-one-page site, served by GitHub Pages from this branch. It is 4KB and points at the
-committed figures in `examples/` rather than embedding copies, so it cannot drift from
-what the tool produces — change a figure and the page changes with it.
+one-page site, served by GitHub Pages from this branch. It leads with `tube` at
+banner width and then names every option a spec can carry — glyph styles, chrome,
+lanes, repeats, edge kinds, wrap, the legend, the print floor, icon mode and the
+honesty declarations. It points at the committed figures in `examples/` rather than
+embedding copies, so it cannot drift from what the tool produces — change a figure and
+the page changes with it. Its own type arithmetic is written into the stylesheet, and
+the figures the column cannot hold — `tube` and `transformer` — say in their captions
+what width they would need rather than letting a reader assume it was solved.
 
 ## Checking a figure will be legible
 

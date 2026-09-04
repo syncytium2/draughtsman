@@ -11,38 +11,97 @@
   --paper:#101311;--ink:#e8eae4;--muted:#9aa39c;--rule:#262c27;--conv:#7fae99}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-size:var(--b);
-  line-height:1.6;font-family:"IBM Plex Sans",system-ui,sans-serif}
+  line-height:1.6;font-family:"IBM Plex Sans",system-ui,sans-serif;
+  /* `.bleed` is 100vw, which is wider than the content box by the scrollbar.
+     Without this the page itself scrolls sideways, which is the one thing a
+     figure is allowed to do and the page is not. */
+  overflow-x:clip}
 .wrap{max-width:940px;margin:0 auto;padding:0 28px 80px}
 h1,h2{font-family:Newsreader,Georgia,serif;font-size:var(--a);font-weight:400;
   line-height:1.06;letter-spacing:-.02em;margin:0}
+h3{font-size:var(--b);font-weight:600;margin:0 0 6px;letter-spacing:.01em}
 p{margin:0 0 15px;max-width:62ch}
 .label{font-weight:600;letter-spacing:.15em;text-transform:uppercase;
   color:var(--conv);margin:0 0 10px}
 figure{margin:0}
 .plate{background:#fff;padding:20px;border:1px solid var(--rule);overflow-x:auto}
-/* Figures are AUTHORED to this page rather than scaled to it. The plate is
-   842px inside its padding, and a figure whose body type is 9.5 units must be
-   842/(17/9.5) = 471 units or narrower to fill it at the page's own 17px body
-   size. dual is 460 and lenet 469, so both are shown at 842 and land at 17.4px
-   and 17.0px. Before this they were 560 and 822 units, served at 1002 and
-   1471px, and overflowed into the scrollbar below.
-   max-width is the narrow-screen floor: under 842px the figure scales down
-   rather than scrolling sideways. Type shrinks with it, which is the lesser of
-   the two evils and only below laptop width. */
+/* FIGURES ARE AUTHORED TO THIS PAGE rather than scaled to it, and the number
+   that decides everything is the size the body type lands at. A figure of U
+   units shown at W pixels renders its 9.5-unit detail text at 9.5 x W / U px,
+   and the page's own body is 17px.
+
+   In the content column the plate is 842px inside its padding, so a figure
+   needs to be about 470 units to match:
+       lenet   470u -> 17.0px      mlp   494u -> 16.2px      lstm 653u -> 12.3px
+   Below 842px the figure scales down rather than scrolling sideways. Type
+   shrinks with it, which is the lesser of the two evils and only below laptop
+   width.
+
+   TWO FIGURES ARE TOO WIDE FOR THAT COLUMN AND SAY SO. `.banner` and `.wide`
+   break out to 1440px, and even there the arithmetic does not reach 17px:
+   at a full 1440px inner width `tube`'s 934 units draw about 1051px in the 2:1
+   banner and land at 10.7px, and `transformer`'s 1277 units fill 1384px and land
+   at 10.3px. Narrower viewports take both down by another point or so. That gap is
+   not a page bug, it is the measurement this tool exists to make legible, and
+   the captions state it rather than letting the reader assume it was solved. */
 .plate img{display:block;height:auto;max-width:100%}
+/* Full-bleed, for the figures the column cannot hold. */
+.bleed{width:100vw;margin-left:calc(50% - 50vw);padding:0 28px}
+.bleed .inner{max-width:1440px;margin:0 auto}
+/* THE BANNER IS A 2:1 SLOT AND THE FIGURE IS 1.55:1, so it is fitted to the
+   slot's HEIGHT and the bands fall at the sides. That costs about a fifth of
+   the available width, and the type goes with it -- see the arithmetic above.
+   The alternative was letting the figure set its own height, which is wider
+   type and not a banner. */
+@media(min-width:1000px){
+  .banner .plate{aspect-ratio:2/1;display:flex;align-items:center;
+    justify-content:center;overflow:hidden}
+  .banner .plate img{height:100%;width:auto;max-width:100%}
+}
 .cap{color:var(--muted);margin:10px 0 0}
-header{padding:56px 0 44px;border-bottom:1px solid var(--rule)}
+.bleed .cap{max-width:80ch}
+header{padding:40px 0 44px;border-bottom:1px solid var(--rule)}
 section{padding:44px 0 0}
 .cols{display:grid;gap:22px;margin:20px 0 0}
 @media(min-width:780px){.cols{grid-template-columns:repeat(3,1fr)}}
 .cols b{color:var(--conv);font-weight:600}
 .cols p{margin:6px 0 0;color:var(--muted)}
+/* The options list. Two columns of prose, each item a named feature. */
+.opts{display:grid;gap:26px 34px;margin:24px 0 0}
+@media(min-width:780px){.opts{grid-template-columns:1fr 1fr}}
+.opts p{margin:0;color:var(--muted);max-width:46ch}
+.opts code,p code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:.88em;color:var(--ink)}
+@media(prefers-color-scheme:dark){.opts code,p code{color:var(--ink)}}
+.opts h3 code{font-size:.94em;color:var(--conv)}
+.note{border-left:2px solid var(--rule);padding:0 0 0 16px;margin:20px 0 0}
+.note p{color:var(--muted);margin:0}
 a{color:var(--conv)}
 footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   color:var(--muted);display:flex;flex-wrap:wrap;gap:10px 26px}
 </style>
 
 <div class="wrap">
+
+<!-- LEAD WITH THE FIGURE. The page's whole claim is that the picture is right,
+     so the picture goes before the sentence that says so. -->
+<section class="bleed banner" style="padding-top:40px">
+  <div class="inner">
+    <figure>
+      <div class="plate"><img src="examples/tube/figure.svg"
+        alt="tube, a coordinated-event detector, drawn as seven named stages wrapped across two rows: an onset raster, a max-pool, a mean over cells, a four-lane difference-of-Gaussian bank, a concatenate the bypass rejoins at, a dilated conv stack and a per-frame score, with a legend counting operations and parameters by colour family."></div>
+      <p class="cap">1,149 parameters over 47 traced operations. Every quantity —
+      the parameter counts, <code>kernel 257</code>, <code>dilation 1 → 32</code>, the
+      four lanes — is looked up from a trace of the model at render time; none of it
+      is typed into the spec. The spine wraps into two rows and the bypass returns
+      through the gutter reserved for it. Detail type lands at about 10–11px here against
+      the page's 17px: the figure is 934 units wide, and holding the page's own body
+      size would take a slot 1,671px across. It is solved to print at 10 inches, where it clears its 6pt floor
+      at 7.33pt.</p>
+    </figure>
+  </div>
+</section>
+
 <header>
   <p class="label">draughtsman</p>
   <h1>Architecture figures for PyTorch models.</h1>
@@ -54,15 +113,6 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
 </header>
 
 <section>
-  <figure>
-    <div class="plate"><img src="examples/gallery/dual/figure.svg" width="842"
-      alt="A dual-branch 1-D network: two parallel branches over one input, rejoining at a concat, then a gate and a conv head."></div>
-    <p class="cap">25,989 parameters. Solved to print at 6 inches — 8.92pt type, so it
-    stays readable in a double column.</p>
-  </figure>
-</section>
-
-<section>
   <h2>Three stages.</h2>
   <div class="cols">
     <div><b>trace</b><p>Every node, shape and parameter count, from the model.</p></div>
@@ -72,25 +122,172 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
 </section>
 
 <section>
+  <h2>What you can ask a figure to do.</h2>
+  <p>Everything below is a field in <code>spec.json</code> — judgement, committed, and
+  the same on any machine. None of it is a render-time flag, because a figure that
+  comes out differently depending on who ran it cannot be checked against the model.</p>
+
+  <div class="opts">
+    <div>
+      <h3>The tensor, drawn to scale — <code>glyph</code></h3>
+      <p>One axis tall, another wide, both from the same shape, so the area the eye
+      reads is a real product. <code>block</code> is one rectangle;
+      <code>marks</code> draws the axes as countable objects and turns to a labelled
+      bar past about thirty, where counting stops; <code>sheets</code> takes a third
+      axis and stacks it, and is the only style that may. <code>scale</code> chooses
+      <code>sqrt</code> or the faithful <code>linear</code>, and the key names which.</p>
+    </div>
+    <div>
+      <h3>No box at all — <code>chrome</code></h3>
+      <p>A box is right when a stage's content is words. It is wrong when the content
+      is a drawing of the tensor: you get a rectangle around a rectangle competing
+      for the same reading, and the eye settles on the larger. <code>chrome</code>
+      set to <code>none</code> lets the tensor be the stage, and the colour family
+      moves onto the glyph.</p>
+    </div>
+    <div>
+      <h3>Parallelism and repetition — <code>lanes</code>, <code>repeat</code></h3>
+      <p><code>lanes</code> names the channels of a bank the agent chose to draw as
+      parallel, and <code>check</code> asserts there are exactly as many labels as
+      the model has channels. <code>repeat</code> names the stages that draw one unit
+      and draughtsman counts how many times they tile against the traced nodes — so a
+      repetition the graph does not contain fails rather than draws.</p>
+    </div>
+    <div>
+      <h3>Edges that say what they are — <code>edges</code></h3>
+      <p>A label, a <code>dashed</code> style for an identity or a skip, and
+      <code>untraced</code> — an arrow the trace does not contain, drawn anyway with
+      a written reason. A reader wants a sampled latent to depend on its mean and
+      variance; the trace records only the shape read. That reason lands in a diff
+      instead of in nobody's head.</p>
+    </div>
+    <div>
+      <h3>Arrangement — <code>orientation</code>, <code>wrap</code></h3>
+      <p>Depth otherwise converts straight into width, which is the ribbon this page
+      criticises other tools for. <code>wrap</code> breaks the spine into rows at a
+      stated width, and a break is refused where a long edge is still in flight — so
+      a net whose skips span its whole depth barely wraps, which is the honest answer
+      rather than a row break drawn through a skip.</p>
+    </div>
+    <div>
+      <h3>A number as a picture — <code>meters</code></h3>
+      <p>A quantity drawn as a bar rather than read as digits. The value is a
+      reference the renderer resolves, never a number the agent typed. The label is
+      also the series: every bar sharing one is drawn on a single scale across the
+      figure, and bars in different series are never comparable, because parameters
+      and frames have no common unit.</p>
+    </div>
+    <div>
+      <h3>A key under the drawing — <code>legend</code></h3>
+      <p>One row per colour family actually drawn, each carrying its share of the
+      traced operations and parameters — counted off the graph, not off the picture.
+      Colour cannot carry proportion when a box is a collapsed stage rather than a
+      layer, so the legend answers <em>how much of this model is convolution</em> as
+      a fact instead of an impression. Off by default.</p>
+    </div>
+    <div>
+      <h3>Where it is going — <code>output</code></h3>
+      <p><code>width</code> states the size the figure will be printed at and
+      <code>min_type</code> the type it must hold there. Layout solves against that
+      budget, and <code>check</code> refuses a figure whose smallest type would land
+      under the floor — naming the number, and how much narrower it would have to be.
+      The type is the one thing that never gives.</p>
+    </div>
+    <div>
+      <h3>At a size where nothing can be read — <code>--icon</code></h3>
+      <p>In a 420×104 slot no type survives at any point size, so the honest response
+      is not a smaller floor but no text. <code>render --icon WxH</code> removes what
+      cannot be read — labels, key, sub-pixel detail, any stage that was only text,
+      and the arrows into it — and crops to what is left: the sequence, the relative
+      bulk, the merges and skips. It never crops to fill, because a cropped net is a
+      net with a stage missing at the one size where nobody can tell.</p>
+    </div>
+    <div>
+      <h3>Saying what was left out — <code>elided</code>, <code>batch_axis</code>,
+      <code>constants</code></h3>
+      <p>A dropped node needs a written reason, so the loss is a decision in a diff.
+      <code>batch_axis</code> declares which axis to stop drawing, and
+      <code>check</code> refuses the declaration wherever the hidden number is not 1.
+      <code>constants</code> is required before a spec may quote a traced constant
+      the tracer warned it had baked out of a tensor.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <figure>
+    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="842"
+      alt="LeNet drawn as stacks of sheets with no boxes around them: six countable sheets at the first two stages, then a solid marked times sixteen."></div>
+    <p class="cap"><code>sheets</code> and <code>chrome: none</code> together. Six
+    channels can be counted, so six sheets are drawn. Sixteen cannot, so it becomes one
+    solid of the same depth carrying its number, and the stage is the tensor rather
+    than a box with a small mark inside it. Solved to print at 6 inches — 8.74pt type.</p>
+  </figure>
+</section>
+
+<section class="bleed wide">
+  <div class="inner">
+    <figure>
+      <div class="plate"><img src="examples/gallery/transformer/figure.svg" width="1384"
+        alt="A transformer drawn as a long horizontal ribbon of named stages, with a labelled dashed skip and a block marked as a repeated unit."></div>
+      <p class="cap"><code>lanes</code> and <code>repeat</code>, and the reason
+      <code>wrap</code> exists. The agent named the unit; draughtsman tiled it against
+      the traced nodes and counted. Its 1,277 units put detail type at about 10px
+      here, and holding the page's body size would take 2,285px — the ribbon problem
+      stated as a number rather than complained about. It declares no print width at
+      all, because at this width there is none that clears the floor.</p>
+    </figure>
+  </div>
+</section>
+
+<section>
   <h2>It refuses figures that are wrong.</h2>
   <p>Coverage asks whether an operation was dropped. Each of these asks something else,
   and each exists because a figure was wrong while coverage was green: an arrow the trace
   does not contain, a tied weight counted twice, a repeat count nobody verified, a glyph
-  whose axes come from different tensors, a name painted over its own drawing, and type
-  too small to read at the size it will be printed.</p>
+  whose axes come from different tensors, a name painted over its own drawing, type too
+  small to read at the size it will be printed, and an arrow whose path runs through a
+  stage it has nothing to do with.</p>
+  <div class="note">
+    <p>The last one was found by looking. A figure in this gallery drew one branch's
+    output straight through the other branch on its way to a concatenate, and there is
+    no such path in the trace — the confident-and-wrong figure this project convicts
+    other tools of, in its own examples. Coverage was green, the type cleared its floor,
+    and the committed SVG was exactly what the spec produced. Nothing had ever asked
+    where an edge's own path goes. <code>tools/edge_collisions.py</code> is that look,
+    mechanised.</p>
+  </div>
 </section>
 
 <section>
-  <h2>Ten models, each written to break it.</h2>
-  <p>How each might break the tool was written down before it was traced. Two did — and
-  what they cost is in <a href="DECISIONS.md">DECISIONS.md</a>, which is the most useful
-  file here.</p>
+  <h2>The half a machine cannot check.</h2>
+  <p>A green check says no operation was dropped. It says nothing about whether the
+  names are good, the grouping natural or the figure legible — and <code>check</code>
+  ends by saying so, so a green check is never read as a good figure.
+  <code>draughtsman ui</code> is where a person does the other half: the figure, the
+  coverage panel and every traced node in one place, the grouping editable, the picture
+  redrawing as you change it.</p>
+  <p>Point it at a directory and <em>All models</em> renders every figure onto one
+  sheet with its coverage state and aspect ratio — a layout defect in one model of many
+  does not announce itself in a passing check, and opening a tab per model to find it is
+  how it stays unfound. Every picture it shows comes from the same <code>render()</code>
+  the CLI calls, so the figure you judge is the figure that ships.</p>
+</section>
+
+<section>
+  <h2>A model for each way it could break.</h2>
+  <p>How each model might break the tool was written down before it was traced. Two did
+  — and what they cost is in <a href="DECISIONS.md">DECISIONS.md</a>, which is the most
+  useful file here. Every model is written out in full in the repository — no
+  torchvision, no downloads, no pinned third-party version — with the
+  <code>graph.json</code> it was measured from and the <code>spec.json</code> that
+  arranged it, so the whole pipeline reproduces from a clone.</p>
   <figure style="margin-top:20px">
-    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="842"
-      alt="LeNet drawn as stacks of sheets: six countable sheets at the first two stages, then a solid marked times sixteen."></div>
-    <p class="cap">Six channels can be counted, so six sheets are drawn. Sixteen cannot,
-    so it becomes one solid of the same depth carrying its number. Also solved to print at
-    6 inches — 8.75pt type.</p>
+    <div class="plate"><img src="examples/gallery/dual/figure.svg" width="842"
+      alt="A dual-branch 1-D network: two parallel branches over one input, rejoining at a concat, then a gate and a conv head."></div>
+    <p class="cap">25,989 parameters. Solved to print at 6 inches — 8.92pt type, so it
+    stays readable in a double column. This is the figure the edge check was written
+    against.</p>
   </figure>
 </section>
 
@@ -98,5 +295,6 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   <a href="https://github.com/syncytium2/draughtsman">source</a>
   <a href="https://doi.org/10.5281/zenodo.22286341">DOI</a>
   <span>BSD-3-Clause</span>
+  <span>PyPI <code>draughtsman-nn</code>, unpublished</span>
 </footer>
 </div>
