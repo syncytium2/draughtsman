@@ -133,12 +133,20 @@ list is what stands between here and that flip, in order:
   `README.md` were then fetched and returned 200 — a check that could not be made
   while the repository was private, because every one of them 404s either way when
   it is.
-- [ ] **Zenodo for a DOI.** `CITATION.cff` is in and `v0.1.0` is tagged and
-  pushed. **The remaining step is ordered and the order matters:** enable the
-  GitHub↔Zenodo webhook on the account FIRST, then publish the GitHub Release for
-  `v0.1.0`. Zenodo only archives releases created after the webhook is on, so a
-  release published first archives nothing and needs a second one. The tag is
-  deliberately not a Release yet for exactly that reason.
+- [x] **Zenodo for a DOI.** Done 2026-09-03. Concept DOI
+  `10.5281/zenodo.22286341`, which always resolves to the newest release; the
+  version DOI for `v0.1.1` is `10.5281/zenodo.22289006`. The badge and
+  `CITATION.cff` both cite the concept one, and `tests/test_readme_links.py`
+  refuses them disagreeing.
+
+  **Two things that cost a release to learn.** Zenodo reads `CITATION.cff` from
+  the TAGGED snapshot, so a metadata correction landed on `main` after a release
+  never reaches the archive — `v0.1.1` exists because `v0.1.0` carried the wrong
+  author initials. And `v0.1.0`'s webhook event was ACCEPTED (HTTP 202) and then
+  never completed its archive; an accepted event is not a completed deposit, and
+  a new release re-triggers processing, which is the remedy.
+
+
 - [ ] **JOSS, if wanted — and it is not an alternative to the above.** Zenodo
   archives and mints a DOI in a day with no review; JOSS is peer review that also
   mints one, takes months, and expects a submission to point at an archived DOI'd
