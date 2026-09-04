@@ -70,7 +70,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c9` | `site-in-repo` | `README.md`, `index.html` | 2026-09-03 | The site and the glyph writeup exist only as private artifacts; nothing in the repo records them or can reach them |
 | `draughtsman-f7` | `wire-instruments` | `.claude/settings.json`, `.claude/hooks/session-start.sh`, `.claude/hooks/draughtsman-briefing.sh`, `.claude/hooks/dragnet-before-absence.py`, `tools/dragnet.py`, `tools/estate.py`, `tests/test_hooks.py` | 2026-09-03 | The estate mechanizes its rules and this repo wires none of them |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
