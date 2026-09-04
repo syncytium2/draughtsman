@@ -84,7 +84,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-f7` | `figures-fit-the-page` | `index.html`, `examples/gallery/dual/spec.json`, `examples/gallery/dual/figure.svg`, `examples/gallery/lenet/spec.json`, `examples/gallery/lenet/figure.svg` | 2026-09-03 | The two figures on the page are wider than the page and scroll sideways |
+| `draughtsman-f7` | `figures-fit-the-page` | `index.html`, `examples/gallery/dual/spec.json`, `examples/gallery/dual/figure.svg`, `examples/gallery/lenet/spec.json`, `examples/gallery/lenet/figure.svg`, `src/draughtsman/render.py`, `examples/gallery/unet/figure.svg`, `tests/test_render.py` | 2026-09-03 | The two figures on the page are wider than the page and scroll sideways |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
