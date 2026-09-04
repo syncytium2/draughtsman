@@ -214,45 +214,42 @@ session-start hooks are wired.
 
 ---
 
-**1. THE ROUTER PUT EDGES THROUGH BOXES. Eight fixed; one left, in the wrap lane.**
+**1. ~~THE ROUTER PUT EDGES THROUGH BOXES.~~ FIXED — the gallery is clean.**
 
-**Eight of the nine are fixed. One is left, and it was never the same defect.**
-*Re-measured and fixed 2026-09-04 by `draughtsman-c4`.*
+**ALL NINE ARE FIXED. The gallery has no edge running through a box.**
+*2026-09-04 by `draughtsman-c4`. `tests/test_edge_collisions.py`'s BASELINE is
+empty, which makes it a floor in effect: any crossing at all now fails.*
 
-The six rows were first split into nine — the detector had been summing an edge's
-separate meetings with one box into a single number, so three bypass arcs read as
-near-traversals. The split showed what they were: each arc clips the near corner of
-the stage it skips going down and the far corner coming up, symmetric to the unit
-(26/26, 27/27, 70/70), because a bow under a box is symmetric about it.
+They were three faults, and the count only became legible once the detector
+stopped summing. Six rows split into nine; the nine were three bypass arcs
+clipping two corners each (symmetric to the unit — 26/26, 27/27, 70/70, because a
+bow under a box is symmetric about it), a dashed edge riding a border, a corner
+cut, and one genuine traversal.
 
-The fix was clearance, not routing. A dummy is now **as wide as the rank it
-crosses**, so a bypass runs level beneath the whole stage instead of dipping to a
-point at its centre. Depth was the wrong lever and was tried first: `DUMMY_H` from
-12 to 44 moved transformer 21%→14% and tube 38%→34% and cleared nothing. Width
-cleared eight at once, and re-routed three more skips that had never registered —
-`lstm`, `resnet` and `unet`, whose three skips span row breaks. **No figure changed
-size**, so nothing moved against the legibility budget.
+- **A bypass now has the WIDTH of the rank it crosses**, so it runs level beneath
+  the stage instead of dipping to a point at its centre. Cleared eight, and
+  re-routed three skips that had never registered (`lstm`, `resnet`, `unet`).
+  Depth was the wrong lever and was tried first: `DUMMY_H` 12→44 moved transformer
+  21%→14%, tube 38%→34%, and cleared nothing.
+- **The wrap connector's return lane is now the centre of the gutter reserved for
+  it.** `GUTTER = 34.0` is commented "the lane a wrap connector returns through"
+  and `row_gap = vgap + GUTTER` reserves it between every pair of rows — the space
+  existed and the connector was not using it, taking the midpoint between its two
+  endpoint boxes instead, a number about two boxes rather than the rows they sit
+  on. In `dual` that midpoint landed at y=175.0 while `fast` spanned
+  112.5..183.0. Cleared the ninth.
 
-What is left:
+**No figure changed size for either**, so nothing moved against the legibility
+budget, and `check` stays green on all ten.
 
-    dual   slow -> concat  through 'fast'   104/104 (100%)  CROSSES IT
-
-**`dual` is not a bypass**, which is why the clearance change did not touch it.
-`slow` and `concat` sit on rows the layout wrapped, so the edge takes the wrap
-route — out to the right margin, down, back along a **return lane**, and in. The
-lane's height is the midpoint between the source's bottom and the target's top, and
-nothing asks whether a stage is standing there. In `dual` one is: the lane sits at
-y=175.0 and `fast` spans y=112.5..183.0, so the run back to the left margin crosses
-it end to end, hidden behind an opaque fill — a reader sees a line emerge from
-behind a stage with no visible origin. **Found by Tony looking at a rendering.**
-
-The fix is how the lane is chosen, in `layout.py`'s wrapped-edge branch. It is one
-figure and one code path. Unclaimed.
-
-`tools/edge_collisions.py --floor 80 <svg>` reports and gates.
-`tests/test_edge_collisions.py` pins what remains, keyed on `(from, to, box, nth)`.
-**Do not add a row to make a red run green** — a new entry means the layout put an
-edge through a box.
+**One thing this broke, and it is the more interesting half.** `tests/
+test_edge_collisions.py::test_the_detector_can_fail` mutates the clipper and
+proves the real one still finds a crossing — and it used `dual` as its fixture,
+because the gallery had a crossing in it. Fixing `dual` disarmed the guard: it
+could no longer tell the mutated detector from the working one, and failed for a
+reason that had nothing to do with the detector. **A guard against a checker going
+blind must not depend on the defect it checks for still being present in the
+work.** Its fixture is synthetic now.
 
 **Three figures are outside the check entirely.** `lenet`, `resnet` and `unet`
 set `layout.chrome: "none"` and draw no stage rects, so they report clean because

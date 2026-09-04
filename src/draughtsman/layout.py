@@ -358,6 +358,29 @@ def build(nodes: list[tuple[str, float, float]],
     real = [b for b in boxes.values() if not b.dummy]
     right = max(b.x + b.w for b in real)
 
+    # THE GUTTER EXISTS; THE CONNECTOR HAS TO BE TOLD TO USE IT. `row_gap` is
+    # `vgap + GUTTER` and GUTTER is documented as "the lane a wrap connector
+    # returns through", so the space between two rows is already reserved. The
+    # return lane was nonetheless computed as the midpoint between the source's
+    # bottom and the target's top -- a number about two boxes, not about the rows
+    # they sit on -- and in `dual` that midpoint landed at y=175.0 while `fast`
+    # spanned 112.5..183.0, so the run back to the left margin crossed a stage it
+    # has nothing to do with, end to end and hidden behind an opaque fill.
+    #
+    # Measured per row over every box including dummies: a bypass running flat
+    # under its stage is also something the return lane must not cut through.
+    extent: dict[int, tuple[float, float]] = {}
+    for bx in boxes.values():
+        i = row_of.get(bx.rank)
+        if i is None:
+            continue
+        top, bottom = bx.y - bx.h / 2.0, bx.y + bx.h / 2.0
+        if i in extent:
+            lo, hi = extent[i]
+            extent[i] = (min(lo, top), max(hi, bottom))
+        else:
+            extent[i] = (top, bottom)
+
     routes = []
     for a, b, label, style in edges:
         ra, rb = row_of.get(boxes[a].rank, 0), row_of.get(boxes[b].rank, 0)
@@ -365,8 +388,14 @@ def build(nodes: list[tuple[str, float, float]],
             # Out to the right margin, down through the gutter, back to the left
             # margin and in — the way a line of text wraps. Reading direction
             # stays left-to-right on every row, which a serpentine would not.
-            lane = (boxes[a].y + boxes[a].h / 2 + boxes[b].y
-                    - boxes[b].h / 2) / 2.0
+            # Centre of the gutter between the two rows, not the midpoint
+            # between the two boxes. Falls back to the old figure only if a row
+            # has no extent, which cannot happen for a placed graph.
+            if ra in extent and rb in extent:
+                lane = (extent[ra][1] + extent[rb][0]) / 2.0
+            else:
+                lane = (boxes[a].y + boxes[a].h / 2 + boxes[b].y
+                        - boxes[b].h / 2) / 2.0
             pts = [(boxes[a].x + boxes[a].w, boxes[a].y),
                    (right + hgap / 2, boxes[a].y),
                    (right + hgap / 2, lane),

@@ -14,32 +14,22 @@ did not think the session could see -- correctly, because that session was
 measuring type size, unit width and print points, and none of those asks whether
 the drawing reads as a drawing.
 
-WHY THIS IS A BASELINE AND NOT A FLOOR, WHICH IS THE UNCOMFORTABLE PART.
-One crossing exists right now, and this still pins rather than forbids. A floor
-set at zero goes red the moment anything regresses, with no record of what was
-tolerated or why, and a red test on `main` is one the next session learns to skip
-past. Movement is allowed in one direction only: a figure may lose a crossing or
-make one shallower, never gain one or make one deeper. **Do not add a row here to
-make a red run green** -- a new crossing means the layout put an edge through a
-box, and the fix is the layout, not the table.
+WHY THIS WAS A BASELINE AND NOT A FLOOR, AND WHY IT NOW AMOUNTS TO ONE.
+No figure has an edge through a box. The table below is empty, so this test now
+fails on any crossing at all -- which is what it always wanted to do and could not
+while six existed. A test that forbade them on arrival would have been red from
+the start, and a red test on `main` is one the next session learns to skip past;
+pinning the inventory and allowing movement in one direction only is what got the
+inventory to zero without ever shipping a red suite.
 
-That is deliberately not the same as "this is fine". `dual` is a figure claiming a
-path the trace does not contain, it is on a figure the project page publishes, and
-it is the last one left.
+**Do not add a row to make a red run green.** A new crossing means the layout put
+an edge through a box, and the fix is the layout, not the table.
 
-IT IS NOT A BYPASS, which is why the change that cleared the other eight did not
-touch it. `slow` and `concat` sit on rows the layout wrapped, so the edge takes the
-wrap route: out to the right margin, down, back along a RETURN LANE, and in. The
-lane's height is the midpoint between the source's bottom and the target's top --
-and nothing asks whether a stage is standing there. In `dual` one is: the lane sits
-at y=175.0 and `fast` spans y=112.5..183.0, so the run back to the left margin
-crosses it end to end. That is the 100%, and the fix is how the lane is chosen, not
-how a skip is drawn.
-
-THE COUNT WENT SIX -> NINE -> ONE, and only the last step changed a figure.
-Splitting an edge's separate meetings with a box into their own rows added no
-defect and removed none; it stopped three bypasses from reading as near-traversals
-and made the shape of the remaining work legible. Giving a bypass room then took
+THE COUNT WENT SIX -> NINE -> ONE -> ZERO. Splitting an edge's separate meetings
+with a box into their own rows added no defect and removed none; it stopped three
+bypasses from reading as near-traversals and made the remaining work legible.
+Giving a bypass room took eight away. Putting the wrap connector in its own gutter
+took the last one, which was never a bypass at all.
 eight rows away at once. See the BASELINE comment for what the split showed.
 """
 
@@ -58,25 +48,30 @@ from edge_collisions import collisions            # noqa: E402
 
 TOOL = ROOT / "tools" / "edge_collisions.py"
 
-#: figure -> {(from, to, box, nth): percent of the box crossed}. One row now, and
-#: how it got to one is worth more than the row.
+#: figure -> {(from, to, box, nth): percent of the box crossed}. EMPTY, and that
+#: is the whole point of having kept it.
 #:
 #: It was six, across five figures. Splitting an edge's separate meetings with a
 #: box into their own rows made it nine and showed the six were never six of a
 #: kind: `dual` was one unbroken traversal, `vae` a dashed edge riding a border,
 #: `whisper` one corner cut, and the other six rows were three bypass arcs, each
 #: clipping the near corner of the stage it skips going down and the far corner
-#: coming up. The pairs were symmetric to the unit -- 26/26, 27/27, 70/70 --
-#: because an arc bowing under a box is symmetric about it, and summing the halves
-#: had hidden exactly that signature.
+#: coming up -- symmetric to the unit, 26/26, 27/27, 70/70, because a bow under a
+#: box is symmetric about it. Summing the halves had hidden exactly that.
 #:
-#: Giving a bypass the WIDTH of the rank it crosses, so it runs flat beneath the
-#: stage instead of dipping to a point at its centre, cleared eight of the nine and
-#: re-routed three more skips that had never registered. No figure changed size.
-#: What is left was never a bypass.
-BASELINE: dict[str, dict[tuple[str, str, str, int], float]] = {
-    "dual": {("slow", "concat", "fast", 1): 100.0},
-}
+#: Two changes emptied it, and they were different faults with different fixes.
+#: Giving a bypass the WIDTH of the rank it crosses made it run level beneath the
+#: stage instead of dipping to a point, which cleared eight. Putting the wrap
+#: connector's return lane in the GUTTER already reserved for it -- rather than at
+#: the midpoint between its two endpoints, a number about two boxes and not about
+#: the rows they sit on -- cleared the ninth. No figure changed size for either.
+#:
+#: KEEP THE TABLE AND KEEP IT EMPTY. An empty baseline makes this a floor in
+#: effect: any crossing at all is now a failure, which is what the check always
+#: wanted to be and could not be while six existed. A row added here is a
+#: deliberate, argued decision to tolerate a figure claiming a path the model does
+#: not contain -- not a way to green a red run.
+BASELINE: dict[str, dict[tuple[str, str, str, int], float]] = {}
 
 TOLERANCE = 1.0          # percentage points; re-rendering moves numbers slightly
 
@@ -132,6 +127,16 @@ def test_the_detector_selftest_passes():
     assert r.returncode == 0, r.stdout + r.stderr
 
 
+#: An edge from `a` to `b` straight through `c`. Deliberately synthetic -- see
+#: `test_the_detector_can_fail` for why this is not one of the gallery figures.
+_CROSSES = """<svg viewBox="0 0 200 100">
+<g class="ds-stage ds-kind-op" data-stage="a"><rect x="10" y="10" width="40" height="30"/></g>
+<g class="ds-stage ds-kind-op" data-stage="b"><rect x="150" y="10" width="40" height="30"/></g>
+<g class="ds-stage ds-kind-op" data-stage="c"><rect x="80" y="10" width="40" height="30"/></g>
+<path class="ds-edge ds-edge-solid" data-from="a" data-to="b" d="M50 25 L150 25"/>
+</svg>"""
+
+
 def test_the_detector_can_fail():
     """THE ONLY VERSION OF THE TEST ABOVE THAT MEANS ANYTHING, and the mutation
     is the bug this tool actually shipped with for an hour.
@@ -140,6 +145,16 @@ def test_the_detector_can_fail():
     makes `t0` land past `t1` on every real crossing, so the segment is discarded
     and the tool reports a figure with an edge straight through a box as clean.
     A checker that cannot fail in the direction it exists for is worse than none.
+
+    IT USED TO RUN AGAINST `dual`, AND FIXING `dual` DISARMED IT. The guard needed
+    a figure with a crossing in it, and the gallery had one, so it used it. When
+    the wrap connector was moved into its own gutter and `dual` came out clean,
+    this test could no longer tell the mutated clipper from the real one and
+    failed -- correctly, and for a reason that had nothing to do with the clipper.
+
+    A guard against a detector going blind must not depend on the thing it detects
+    still being present in the work. The fixture is synthetic now, so emptying the
+    baseline cannot quietly take the mutation guard with it.
     """
     src = TOOL.read_text(encoding="utf-8")
     good = "for p_, q_ in ((-dx, x1 - rx1), (dx, rx2 - x1),\n" \
@@ -152,10 +167,10 @@ def test_the_detector_can_fail():
                          "                   (dy, y1 - ry1), (-dy, ry2 - y1)):", 1)
     ns: dict = {}
     exec(compile(broken, "edge_collisions_mutated", "exec"), ns)   # noqa: S102
-    dual = next(p for p in EXAMPLES if p.name == "dual")
-    assert ns["collisions"]((dual / "figure.svg").read_text()) == [], (
+    assert ns["collisions"](_CROSSES) == [], (
         "the mutation did not actually break the clipper, so this test proves "
         "nothing about the real one")
-    assert collisions((dual / "figure.svg").read_text()), (
-        "the real clipper now reports dual as clean, which is the mutation's "
-        "behaviour, not the fixed one's")
+    hit = collisions(_CROSSES)
+    assert hit and hit[0].box == "c" and hit[0].pct > 95, (
+        "the real clipper no longer reports an edge drawn straight through a box, "
+        "which is the mutation's behaviour, not the fixed one's")
