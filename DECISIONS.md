@@ -579,6 +579,113 @@ seven and `check` goes red with the number.
 The remaining work is not a knob. It is narrower figures: fewer detail lines, more
 collapsing, or a second orientation for models whose depth is the problem.
 
+**UPDATE, 2026-09-04, and the paragraph above is now wrong in three places.** It
+is left standing because correction 5's whole value is a document catching itself,
+and because being wrong about `lenet` at 782 units is the honest record of what
+was known.
+
+Six of ten specs now declare a size and clear the floor: `mlp` 493 (8.32pt),
+`dual` 460 (8.92pt), `lenet` 470 (8.75pt), `lstm` 653 (6.29pt), `resnet` 516
+(7.95pt) and `tube` 589 (6.97pt). `resnet` reached it partly by accident —
+spelling `each edge ∝ √value` out in words made the legend sentence long enough to
+WRAP instead of setting the figure's width, and it fell 160 units in a commit
+about font metrics.
+
+**The other four cannot be armed from the spec at all, and "wrapping cannot reach
+it" is not quite the reason.** Swept `layout.wrap` from 680 down to 60, alone and
+combined with `chrome: none` and `legend: false`, the narrowest each will go
+against a budget of 684: `vae` 812, `transformer` 891, `whisper` 936, `unet` 1324.
+The figures do keep wrapping — `transformer` goes from 13 rows to 16 as `wrap`
+tightens — and the width stops falling anyway. `vae` is the clearest case: 876
+units at every wrap value from 900 to 60, the lever doing nothing whatsoever.
+
+The floor is structural rather than typographic. Width is set by parallel
+structure that has no spine to wrap: `lanes` on the attention stages, and U-Net's
+skip connections holding its encoder and decoder apart. **So `check`'s own remedy
+text is wrong for these four.** It says *"wrap the spine into more rows, drop a
+detail line, or collapse a stage"*; the first does not apply to a figure whose
+width is not a spine, and the second is worth about 80 units where 200 to 640 are
+needed. Only the third can work, and collapsing a stage changes what the figure
+claims about the model — which is stage 2's judgement and not a layout fix.
+
+`CLAIMS.md` queue item 3 says the remaining work is "narrower figures, not a
+knob". For the linear figures that is exactly right. For the branched ones there
+is no knob AND no narrower figure short of a different abstraction, and until now
+nothing said so.
+
+### 11. A guard that loses its subject reports all clear
+
+Correction 8 separated one shape from the first seven: a check that **cannot see**
+reports the thing it checks as **wrong**. This is the same failure in the other
+direction, and it is the worse half. A check that goes confidently wrong gets
+investigated within the hour, because somebody is staring at a red build with
+their name on it. A check that goes confidently quiet is not investigated at all.
+
+On 2026-09-04 five instruments in this repository did it, found by three sessions
+working concurrently. Each had been written deliberately, each had a test, and
+each stopped being able to fail without saying so.
+
+| instrument | what it lost | found |
+|---|---|---|
+| `test_the_detector_can_fail` | ran against `dual` because the gallery happened to contain a crossing; `8e78183` moved the wrap connector into its own gutter, `dual` came out clean, and the guard could no longer tell the mutated clipper from the real one | in review, by its author |
+| `draughtsman-briefing.sh --selftest` | asserted on the briefing's printed output, which stops at three rows; a third session claiming pushed the smuggled fenced row into "+1 more" | **shipped** — `main` red at `570f377`, on a commit that added one board row and nothing else |
+| `_stage_boxes` | skipped stages that drew no rect, so a figure built from them had nothing to collide with and came back clean | in review |
+| the crossing report | summed an edge's separate crossings into one, so a bypass and a traversal reported as the same kind of thing | in review |
+| the icon bands | `0.30`/`0.20` were read off a contact sheet printing two decimals; `lstm` prints `0.30x` and is `0.2975`, so the boundary sat `0.0025` below the lowest mark anyone had confirmed readable | in review, and **every model still rendered** |
+
+Fixed at `8e78183`, `f78a6ce`, `7bb32db`, `ef3f340` and `c01c308`.
+
+**Two of the five were disarmed by fixing something else.** Nobody regressed
+anything. `dual` was made better and its guard went blind; a session claimed a
+row, correctly, following rule 2, and the briefing's guard went blind. That is
+what makes this one correction rather than five fixes: the defect is not in any
+of the five instruments, it is in what they were pointed at.
+
+**The distinction that matters is not whether a check depends on external state.
+It is whether the dependency is declared.** Three positions, and only the last is
+the defect:
+
+- **Controlled.** The guard builds its own subject. A fixture board, a synthetic
+  spec. Nothing outside the test can move it.
+- **Declared.** The guard reads the world, and an assertion says what it needs.
+  `test_the_briefing_skips_the_fenced_worked_example` asserts the fenced example
+  is present — *"has moved or gone, so this test no longer reproduces the case it
+  guards"*. Tidy that row away and the suite goes red naming exactly what broke.
+- **Incidental.** The guard reads the world and nothing records that it depends on
+  what it found there. This is the only one that fails silently, and it is the
+  one that cost a day.
+
+Declared is not as good as controlled — a subject other sessions rewrite while the
+test runs is a bad arrangement whatever the failure mode — but it is a design
+decision, and incidental is a defect. `test_the_detector_can_fail` was incidental
+and is now controlled. The briefing selftest was incidental, is now declared, and
+**a fixture board it writes itself is still the right end state and is not done.**
+
+**The remedy that generalises: assert the property the number is for, not the
+number.** This is the sentence worth carrying out of all five.
+
+    READS_AT is 0.25                     pins a value nobody can check, and is
+                                         wrong the moment the corpus moves
+
+    READS_AT has measured room on both   fails on the mistake actually available
+    sides                                to make — drawing a boundary against a
+                                         neighbour — and survives the right value
+                                         changing
+
+`DRAUGHTSMAN_BRIEF_ALL` is the same move: the selftest asks the parse, which is
+what was being claimed, instead of the display, which was incidental to it. The
+cap was moved from parse time to display time so the parse became observable
+again, and the environment variable suppresses only the display.
+
+**One note on reading the evidence, because it is easy to get wrong here.** `main`
+going green after the briefing fix proves nothing: releasing any one claim drops
+the board below three rows and greens it without fixing anything. The evidence
+is the mutated hook exiting 1 with *"fenced example read as a live claim"* while
+four rows are on the board. Anyone auditing this later should look at that and not
+at the run being green — and anyone who saw it go red and green as sessions
+released would reasonably have called it flaky and stopped looking, which is the
+nastiest property this class has.
+
 ## SPEC.md §8, answered
 
 ### 1. Where the agent call lives — **payload in, spec out**
