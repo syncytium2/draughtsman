@@ -66,10 +66,29 @@ if [ -n "$claims" ]; then
                 for (i = 2; i <= 3; i++) gsub(/^ +| +$/, "", c[i])
                 gsub(/^ +| +$/, "", c[6])
                 if (length(c[6]) > 30) c[6] = substr(c[6], 1, 29) "~"
-                shown++
-                if (shown <= 3) printf "   %s on %s -- %s\n", c[2], c[3], c[6]
-            }
-            END { if (shown > 3) printf "   +%d more -- see CLAIMS.md\n", shown - 3 }' )
+                printf "   %s on %s -- %s\n", c[2], c[3], c[6]
+            }' )
+
+    # TRUNCATE FOR DISPLAY, NEVER AT THE PARSE. The awk above used to stop
+    # PRINTING after three rows, which quietly made the parse unobservable past
+    # three -- and the selftest below reads this hook's OUTPUT, so with three
+    # sessions holding claims the fenced worked example fell off the end and the
+    # check that it is skipped could no longer fail. `main` went red on
+    # 2026-09-04 for exactly that: the mutation test requires the broken parser to
+    # be caught, and the broken parser's extra row was truncated away before the
+    # assertion could see it.
+    #
+    # The guard went blind at the concurrency the board exists for, and printed
+    # PASS while doing it. So the parse is now complete and the CAP IS A DISPLAY
+    # DECISION, which is also the only place it was ever wanted -- the 2000-byte
+    # preview budget asserted further down.
+    if [ -n "$rows" ]; then
+        total=$(printf '%s\n' "$rows" | wc -l | tr -d ' ')
+        if [ "${DRAUGHTSMAN_BRIEF_ALL:-}" != "1" ] && [ "$total" -gt 3 ]; then
+            rows="$(printf '%s\n' "$rows" | sed -n '1,3p')
+   +$((total - 3)) more -- see CLAIMS.md"
+        fi
+    fi
     age=$(git -C "$root" log -1 --format=%cr origin/main 2>/dev/null)
 fi
 
@@ -127,7 +146,14 @@ if [ "${1:-}" = "--selftest" ]; then
     # THE FENCED WORKED EXAMPLE MUST NOT BE REPORTED AS A LIVE CLAIM. Named by its
     # branch, because that is what the example row carries and no real row will:
     # `name-every-axis` landed on 2026-09-02 and its session is gone.
-    case "$out" in *"name-every-axis"*)
+    # ASKED OF THE FULL PARSE, NOT THE PREVIEW. `$out` is capped at three rows,
+    # so this assertion used to be answerable only while fewer than three
+    # sessions held claims -- it could not fail in the one situation the board is
+    # for. `DRAUGHTSMAN_BRIEF_ALL=1` suppresses the display cap and nothing else;
+    # the parser it exercises is the same one production uses, which is what
+    # makes the mutation in `tests/test_hooks.py` still bite.
+    all=$(DRAUGHTSMAN_BRIEF_ALL=1 "$self" 2>/dev/null)
+    case "$all" in *"name-every-axis"*)
             t "fenced example read as a live claim" 0;;
         *)  t "skips the fenced worked example" 1;; esac
 
