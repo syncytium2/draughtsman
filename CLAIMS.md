@@ -114,6 +114,7 @@ that nothing checks is decoration until something does.**
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
 | `draughtsman-a4` | `lead-with-whisper` | `README.md`, `index.html` | 2026-09-04 | Leading the README and the page with the Whisper-tiny figure |
+| `draughtsman-b7` | `pypi-release` | `pyproject.toml`, `src/draughtsman/__init__.py`, `.github/workflows/publish.yml`, `tests/test_release.py` | 2026-09-04 | The upload nothing ever queued: one version source, tied to the tag by the workflow that publishes it |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
