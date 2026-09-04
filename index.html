@@ -1,0 +1,94 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>draughtsman</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Two sizes. --a for headings, --b for everything else. */
+:root{--a:clamp(30px,4.2vw,46px);--b:17px;
+  --paper:#f6f6f3;--ink:#15171a;--muted:#5d635e;--rule:#dcded7;--conv:#4d7a63}
+@media(prefers-color-scheme:dark){:root{
+  --paper:#101311;--ink:#e8eae4;--muted:#9aa39c;--rule:#262c27;--conv:#7fae99}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-size:var(--b);
+  line-height:1.6;font-family:"IBM Plex Sans",system-ui,sans-serif}
+.wrap{max-width:940px;margin:0 auto;padding:0 28px 80px}
+h1,h2{font-family:Newsreader,Georgia,serif;font-size:var(--a);font-weight:400;
+  line-height:1.06;letter-spacing:-.02em;margin:0}
+p{margin:0 0 15px;max-width:62ch}
+.label{font-weight:600;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--conv);margin:0 0 10px}
+figure{margin:0}
+.plate{background:#fff;padding:20px;border:1px solid var(--rule);overflow-x:auto}
+/* Figures are shown at the scale their own labels need: body type is 9.5
+   figure units, page body is 17px, so 1.79x. Never scaled to fit a column. */
+.plate img{display:block;height:auto}
+.cap{color:var(--muted);margin:10px 0 0}
+header{padding:56px 0 44px;border-bottom:1px solid var(--rule)}
+section{padding:44px 0 0}
+.cols{display:grid;gap:22px;margin:20px 0 0}
+@media(min-width:780px){.cols{grid-template-columns:repeat(3,1fr)}}
+.cols b{color:var(--conv);font-weight:600}
+.cols p{margin:6px 0 0;color:var(--muted)}
+a{color:var(--conv)}
+footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
+  color:var(--muted);display:flex;flex-wrap:wrap;gap:10px 26px}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="label">draughtsman</p>
+  <h1>Architecture figures for PyTorch models.</h1>
+  <p style="margin-top:18px">The tracer supplies the facts. An agent supplies the
+  judgement — which operations to collapse into a stage and what to call it. It never
+  supplies a number: every quantity in the figure is looked up from a trace of your
+  model at render time.</p>
+  <p>A coverage check then proves no traced operation was silently dropped.</p>
+</header>
+
+<section>
+  <figure>
+    <div class="plate"><img src="examples/gallery/dual/figure.svg" width="1002"
+      alt="A dual-branch 1-D network: two parallel branches over one input, rejoining at a concat, then a gate and a conv head."></div>
+    <p class="cap">25,989 parameters. Solved to print at 6 inches — 7.33pt type, so it
+    stays readable in a double column.</p>
+  </figure>
+</section>
+
+<section>
+  <h2>Three stages.</h2>
+  <div class="cols">
+    <div><b>trace</b><p>Every node, shape and parameter count, from the model.</p></div>
+    <div><b>abstract</b><p>The agent groups and names. It writes no numbers.</p></div>
+    <div><b>render</b><p>Deterministic SVG. Quantities read back by node id.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>It refuses figures that are wrong.</h2>
+  <p>Coverage asks whether an operation was dropped. Each of these asks something else,
+  and each exists because a figure was wrong while coverage was green: an arrow the trace
+  does not contain, a tied weight counted twice, a repeat count nobody verified, a glyph
+  whose axes come from different tensors, a name painted over its own drawing, and type
+  too small to read at the size it will be printed.</p>
+</section>
+
+<section>
+  <h2>Ten models, each written to break it.</h2>
+  <p>How each might break the tool was written down before it was traced. Two did — and
+  what they cost is in <a href="DECISIONS.md">DECISIONS.md</a>, which is the most useful
+  file here.</p>
+  <figure style="margin-top:20px">
+    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="1471"
+      alt="LeNet drawn as stacks of sheets: six countable sheets at the first two stages, then a solid marked times sixteen."></div>
+    <p class="cap">Six channels can be counted, so six sheets are drawn. Sixteen cannot,
+    so it becomes one solid of the same depth carrying its number.</p>
+  </figure>
+</section>
+
+<footer>
+  <a href="https://github.com/syncytium2/draughtsman">source</a>
+  <a href="https://doi.org/10.5281/zenodo.22286341">DOI</a>
+  <span>BSD-3-Clause</span>
+</footer>
+</div>

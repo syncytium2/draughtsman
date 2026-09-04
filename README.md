@@ -254,6 +254,30 @@ allowed to disagree, or computed in one place and never checked.** Coverage
 cannot see any of them, because coverage answers a different question — was an
 operation dropped.
 
+## The page
+
+[`index.html`](https://github.com/syncytium2/draughtsman/blob/main/index.html) is a
+one-page site, served by GitHub Pages from this branch. It is 4KB and points at the
+committed figures in `examples/` rather than embedding copies, so it cannot drift from
+what the tool produces — change a figure and the page changes with it.
+
+## Checking a figure will be legible
+
+`check` refuses a spec whose figure would print under its stated type floor.
+[`tools/measure_type.py`](https://github.com/syncytium2/draughtsman/blob/main/tools/measure_type.py)
+answers the same question about a rendered file, at any width — a journal column, a
+slide, a web page:
+
+```
+tools/measure_type.py --print 6in --floor 6pt examples/gallery/*/figure.svg
+```
+
+It reports `unit_size x display_width / viewBox_width` and exits 1 below the floor, so it
+works as a gate. Three inputs decide that number and they are easy to get wrong together;
+this repository got it wrong three different ways in one evening, and every one was
+invisible to the eye and obvious to arithmetic. It refuses what it cannot measure — a
+PNG, a missing viewBox, a relative font size — rather than reporting those as clean.
+
 ## Working on this
 
 Several Claude Code sessions have worked this repository at once.
