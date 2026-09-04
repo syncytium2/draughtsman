@@ -44,6 +44,35 @@ that nothing checks is decoration until something does.**
    twice. The check now compares against `origin/main:CLAIMS.md`, so a claim that
    has not landed protects nobody.
 
+   **Push the row and the branch in ONE command, or you turn `main` red:**
+
+   ```
+   git commit -m "Claim: ..." CLAIMS.md
+   git branch <name>                        # AT the claim commit, not before it
+   git push origin HEAD:main HEAD:<name>    # one push, both refs
+   ```
+
+   *Because:* rule 2 as written walks you into a window. The row lands on `main`,
+   the branch has not reached `origin` yet, and in between
+   `test_every_claim_names_a_branch_that_exists` fails — `main` is red by
+   construction, for as long as it takes you to push. **This happened twice on
+   2026-09-04, once to each session working that day**, and each time it was
+   found by the *other* session rather than by the one that caused it.
+
+   The obvious alternative does not work either. Pushing the branch first and the
+   row second leaves a branch carrying work with no row protecting it — a smaller
+   and much quieter window than the red one, and the exact thing rule 2 exists to
+   close. One push closes both.
+
+   Cutting the branch *before* the claim commit is the third trap: it is then
+   `ahead=0`/`behind=1` the instant the row lands, which `_spent()` reads as
+   landed-and-unreleased, and rule 4's check fires on a claim whose work has not
+   started. Cut it at the claim commit.
+
+   **None of this is visible locally.** The branch is fine, the worktree is fine,
+   `git log` is fine. Only `origin` knows, and only CI asks. The instinct after
+   being burned is to add a local check; a local check cannot see this.
+
 3. **A claim names paths, not intentions.** "the layout" is not a claim;
    `src/draughtsman/layout.py` is.
    *Because:* `check.py` was touched six times today and `test_coverage.py` five,
