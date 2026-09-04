@@ -114,7 +114,6 @@ that nothing checks is decoration until something does.**
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
 | `draughtsman-a4` | `lead-with-whisper` | `README.md`, `index.html` | 2026-09-04 | Leading the README and the page with the Whisper-tiny figure |
-| `draughtsman-b7` | `pypi-release` | `pyproject.toml`, `src/draughtsman/__init__.py`, `.github/workflows/publish.yml`, `tests/test_release.py` | 2026-09-04 | The upload nothing ever queued: one version source, tied to the tag by the workflow that publishes it |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
@@ -190,6 +189,41 @@ list is what stands between here and that flip, in order:
   never completed its archive; an accepted event is not a completed deposit, and
   a new release re-triggers processing, which is the remedy.
 
+
+- [ ] **THE UPLOAD. It was never on this list, which is why it never happened.**
+  Everything above it was read as covering it: the name, the URLs, the version
+  policy and the absolute README links landed at `d0dd7f1` under "PyPI prep", the
+  repository went public, Zenodo minted a DOI — and `pip install draughtsman-nn`
+  has returned a 404 the whole time. There was no build step and no upload step
+  anywhere in the repository. A list that sequences everything against the flip to
+  public can still omit the one item a stranger actually needs.
+
+  The machinery is done and checked (`8db7e23`): `.github/workflows/publish.yml`
+  builds on a `v*` tag, refuses to upload unless the tag is the version in the
+  built wheel, and publishes with a trusted publisher so no token is stored here.
+  The version is now written in one place, `src/draughtsman/__init__.py`, and the
+  tree is at `0.1.2` — not `0.1.1`, because `v0.1.1` is already a tag, a release
+  and a Zenodo deposit taken at `577bf92`, whose snapshot says `0.1.0`.
+
+  **What is left needs the PyPI account and cannot be done from a commit**, and it
+  is Tony's:
+
+  1. On PyPI, add a **pending** publisher (Your projects -> Publishing) — pending,
+     because the project does not exist there yet. Project `draughtsman-nn`, owner
+     `syncytium2`, repository `draughtsman`, workflow `publish.yml`, environment
+     `pypi`. All five must match or the upload is refused with no useful error.
+  2. `git tag -a v0.1.2 -m "..." && git push origin v0.1.2`. That is the whole
+     release: the workflow does the rest, and refuses if the tag and the wheel
+     disagree.
+  3. Check it from outside: `pip install draughtsman-nn` into an empty
+     virtualenv, then `draughtsman --version`. A green workflow is not the same
+     claim as an installable package.
+  4. Zenodo will archive the tag as well, per the two lessons above — the
+     `CITATION.cff` it reads is the TAGGED snapshot's.
+
+  Then, and only after an upload has actually succeeded: `README.md`'s install
+  block still shows `pip install -e .` alone, because until now there was nothing
+  else true to write. It is held by `lead-with-whisper` at the time of writing.
 
 - [ ] **JOSS, if wanted — and it is not an alternative to the above.** Zenodo
   archives and mints a DOI in a day with no review; JOSS is peer review that also
