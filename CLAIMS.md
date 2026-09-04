@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-a4` | `lead-with-whisper` | `README.md`, `index.html` | 2026-09-04 | Leading the README and the page with the Whisper-tiny figure |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
