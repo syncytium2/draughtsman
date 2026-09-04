@@ -114,7 +114,6 @@ that nothing checks is decoration until something does.**
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
 | `draughtsman-4f` | `correction-11` | `DECISIONS.md` | 2026-09-04 | Five guards went blind in one day and each reported all clear |
-| `draughtsman-c4` | `unrun-scope` | `tools/run_suite.py`, `tests/test_run_suite.py` | 2026-09-04 | A narrow selector's NOT RUN count includes module-level import failures from modules the selector never matched, so it reads as a vanished case |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
