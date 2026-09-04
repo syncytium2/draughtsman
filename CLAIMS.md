@@ -84,6 +84,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-f7` | `gate-says-when-it-is-off` | `src/draughtsman/check.py`, `tests/test_coverage.py`, `tests/test_trace.py`, `tests/test_hooks.py`, `README.md`, `.github/workflows/test.yml` | 2026-09-04 | Four places where a check that did not run reads like a check that passed |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
