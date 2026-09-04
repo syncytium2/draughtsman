@@ -40,6 +40,28 @@ Depth is reported as a percentage of the box's extent along the crossing axis,
 because the difference matters: a run that crosses 100% of a box has gone in one
 side and out the other, and a run that clips 4% has grazed a corner while
 routing past it. Both are wrong; only the first is unreadable.
+
+ONE ROW PER CONTIGUOUS CROSSING, WHICH IS NOT WHAT THIS TOOL FIRST DID.
+An edge can meet the same box more than once. A bypass -- the arc that leaves a
+stage, dips under the one it skips and rejoins beyond it -- clips the near corner
+on its way down and the far corner on its way up, and travels visibly outside the
+box in between. The first version keyed its findings on (from, to, box) and added
+every segment inside that box into a single depth, so those two corner grazes were
+summed and reported as one number against one span.
+
+That number then read as a traversal. `transformer` reported "42% clips it" for
+two ~21% corner clips of `attn`; `tube` reported 76% against `dog` while the arc
+it describes is labelled `bypass` in the figure and is drawn below that box. The
+tool exists to separate a figure claiming a path the model does not contain from a
+figure routing politely around one, and summing the two destroyed exactly that
+distinction.
+
+So a crossing is a MAXIMAL RUN OF CONSECUTIVE SEGMENTS inside the box, each run is
+its own row, and depth is measured within a run rather than across the edge. An
+edge that meets a box twice reports twice. `dual`, whose run through `fast` is one
+unbroken traversal, is unchanged at 100% -- which is the point: the number that
+should have stood out always could have, once the ones beside it stopped being
+inflated.
 """
 from __future__ import annotations
 
@@ -48,6 +70,7 @@ import math
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 NUM = r"-?\d+\.?\d*"
 CURVE_SAMPLES = 24          # points per bezier; corners here are 9-unit radii
@@ -152,12 +175,19 @@ def _edges(svg: str) -> list[tuple[str, str, list[tuple[float, float]]]]:
 
 
 # --------------------------------------------------------------- geometry
-def _overlap(p, q, box) -> tuple[float, float] | None:
-    """How far segment p->q reaches into the box, and the box's extent.
+def _overlap(p, q, box) -> tuple[float, float, float, float] | None:
+    """How far segment p->q reaches into the box, the box's extent, and where.
 
-    Returns None when the segment stays outside. Handles the general case by
-    clipping the segment to the rect (Liang-Barsky), so a diagonal sample from a
-    flattened curve is measured rather than skipped.
+    Returns `(length, span, t0, t1)`, or None when the segment stays outside.
+    Handles the general case by clipping the segment to the rect (Liang-Barsky),
+    so a diagonal sample from a flattened curve is measured rather than skipped.
+
+    `t0`/`t1` are the clipped parameters, and they are returned because the
+    CALLER cannot otherwise tell a segment that runs out of the box from one that
+    ends inside it. Grouping crossings by segment adjacency alone was wrong for
+    exactly the shape this tool cares about: a bypass whose descent leaves the box
+    and whose next segment re-enters it is two crossings drawn with consecutive
+    segments, and index adjacency reports it as one.
     """
     _, rx1, ry1, rx2, ry2 = box
     rx1, ry1, rx2, ry2 = rx1 + PAD, ry1 + PAD, rx2 - PAD, ry2 - PAD
@@ -188,31 +218,73 @@ def _overlap(p, q, box) -> tuple[float, float] | None:
         return None
     # measure against the box along whichever axis the run is travelling
     span = (rx2 - rx1) if abs(dx) >= abs(dy) else (ry2 - ry1)
-    return length, span
+    return length, span, t0, t1
 
 
-def collisions(svg: str):
-    """[(from, to, box_id, depth, span, pct)], worst first."""
+class Crossing(NamedTuple):
+    """One contiguous run of an edge inside a box that is not its endpoint.
+
+    `nth` counts this edge's separate meetings with THIS box, in path order and
+    from 1, so a bypass that clips two corners reports `nth` 1 and 2 rather than
+    one summed row. It is part of the identity of a finding: a baseline keyed
+    without it collapses the two back together and cannot tell whether a change
+    removed a crossing or merged it.
+    """
+    frm: str
+    to: str
+    box: str
+    nth: int
+    depth: float
+    span: float
+    pct: float
+
+
+def collisions(svg: str) -> list[Crossing]:
+    """Every contiguous crossing, worst first.
+
+    Segments are walked in path order per box, and a run ends at the first
+    segment that is outside -- which is what makes a dip below a box two findings
+    instead of one, and what keeps an unbroken traversal a single 100% row.
+    """
     boxes = _stage_boxes(svg)
-    found: dict[tuple[str, str, str], tuple[float, float]] = {}
+    out: list[Crossing] = []
     for frm, to, pts in _edges(svg):
-        for p, q in zip(pts, pts[1:]):
-            for box in boxes:
-                if box[0] in (frm, to):
-                    continue               # its own endpoints: that is the arrowhead
+        for bid, rx1, ry1, rx2, ry2 in boxes:
+            if bid in (frm, to):
+                continue                   # its own endpoints: that is the arrowhead
+            box = (bid, rx1, ry1, rx2, ry2)
+            runs: list[dict[str, float]] = []
+            prev = None                    # (index, t1) of the last segment inside
+            for i, (p, q) in enumerate(zip(pts, pts[1:])):
                 hit = _overlap(p, q, box)
                 if not hit:
                     continue
-                depth, span = hit
-                key = (frm, to, box[0])
-                prev = found.get(key)
-                # segments of one crossing accumulate along the same run
-                found[key] = ((prev[0] if prev else 0.0) + depth, span)
-    out = []
-    for (frm, to, bid), (depth, span) in found.items():
-        depth = min(depth, span)
-        out.append((frm, to, bid, depth, span, 100.0 * depth / span if span else 0.0))
-    out.sort(key=lambda r: -r[5])
+                depth, _, t0, t1 = hit
+                # A run continues only where the path itself does: the previous
+                # segment must have still been inside when it ended, and this one
+                # must already be inside when it starts. Otherwise the edge left
+                # the box in between -- which is the whole of a bypass.
+                joins = (prev is not None and i == prev[0] + 1
+                         and prev[1] >= 1.0 - EPS and t0 <= EPS)
+                if not joins:
+                    runs.append({"depth": 0.0, "adx": 0.0, "ady": 0.0})
+                runs[-1]["depth"] += depth
+                # THE AXIS IS THE RUN'S, NOT THE LAST SEGMENT'S. A flattened
+                # curve arrives as short diagonals whose individual dominant axis
+                # flips; taking the final one picked the box's width or height
+                # essentially at random.
+                runs[-1]["adx"] += abs(q[0] - p[0])
+                runs[-1]["ady"] += abs(q[1] - p[1])
+                prev = (i, t1)
+            for nth, run in enumerate(runs, 1):
+                span = ((rx2 - rx1 - 2 * PAD) if run["adx"] >= run["ady"]
+                        else (ry2 - ry1 - 2 * PAD))
+                if span <= 0:
+                    continue
+                depth = min(run["depth"], span)
+                out.append(Crossing(frm, to, bid, nth, depth, span,
+                                    100.0 * depth / span))
+    out.sort(key=lambda r: -r.pct)
     return out
 
 
@@ -229,12 +301,22 @@ def report(paths, floor):
             continue
         any_found = True
         print(f"{name}:")
-        for frm, to, bid, depth, span, pct in hits:
-            worst = max(worst, pct)
-            verdict = ("CROSSES IT" if pct >= 80 else
-                       "clips it" if pct >= 20 else "cuts a corner")
-            print(f"  {frm} -> {to}  runs through {bid!r}: "
-                  f"{depth:.0f} of {span:.0f} units ({pct:.0f}%) {verdict}")
+        # How many times each edge meets each box, so a run can say "1 of 2"
+        # and a reader can see a bypass for what it is rather than reading two
+        # rows as two separate faults.
+        meets: dict[tuple[str, str, str], int] = {}
+        for c in hits:
+            meets[(c.frm, c.to, c.box)] = max(meets.get((c.frm, c.to, c.box), 0),
+                                              c.nth)
+        for c in hits:
+            worst = max(worst, c.pct)
+            verdict = ("CROSSES IT" if c.pct >= 80 else
+                       "clips it" if c.pct >= 20 else "cuts a corner")
+            total = meets[(c.frm, c.to, c.box)]
+            which = f" [crossing {c.nth} of {total}]" if total > 1 else ""
+            print(f"  {c.frm} -> {c.to}  runs through {c.box!r}: "
+                  f"{c.depth:.0f} of {c.span:.0f} units ({c.pct:.0f}%) "
+                  f"{verdict}{which}")
     if any_found and floor is not None and worst >= floor:
         print(f"\nFAIL: a collision reaches {worst:.0f}% against a floor of {floor:.0f}%")
         return 1
@@ -251,6 +333,17 @@ _CLEAN = '''<svg viewBox="0 0 200 100">
 
 _THROUGH = _CLEAN.replace('<rect x="80" y="60" width="40" height="30"/>',
                           '<rect x="80" y="10" width="40" height="30"/>')
+
+#: A BYPASS: in at the near corner, out through the bottom, back in at the far
+#: corner. Drawn as straight segments so the fixture asserts the grouping and not
+#: the curve sampler -- the two are separate claims and a fixture that mixed them
+#: would not say which broke. This is `tube`'s and `transformer`'s shape, reduced.
+_BYPASS = '''<svg viewBox="0 0 200 100">
+<g class="ds-stage ds-kind-op" data-stage="a"><rect x="0" y="15" width="20" height="20"/></g>
+<g class="ds-stage ds-kind-op" data-stage="b"><rect x="180" y="15" width="20" height="20"/></g>
+<g class="ds-stage ds-kind-op" data-stage="c"><rect x="80" y="10" width="40" height="30"/></g>
+<path class="ds-edge" data-from="a" data-to="b" d="M20 25 L90 25 L100 60 L110 25 L180 25"/>
+</svg>'''
 
 _CURVE = '''<svg viewBox="0 0 200 100">
 <g class="ds-stage ds-kind-op" data-stage="a"><rect x="10" y="10" width="20" height="20"/></g>
@@ -275,9 +368,10 @@ def selftest() -> int:
     hits = collisions(_THROUGH)
     t("an edge crossing a third box is found", len(hits) == 1)
     if hits:
-        frm, to, bid, depth, span, pct = hits[0]
-        t("it names the box it crosses, not the endpoints", bid == "c")
-        t(f"and reports a full traversal ({pct:.0f}%)", pct > 95)
+        c = hits[0]
+        t("it names the box it crosses, not the endpoints", c.box == "c")
+        t(f"and reports a full traversal ({c.pct:.0f}%)", c.pct > 95)
+        t("an unbroken traversal is ONE crossing", c.nth == 1 and len(hits) == 1)
 
     # THE ENDPOINT EXCLUSION MUST NOT BE A BLANKET ONE. Removing it would report
     # every edge against its own source and target, which is one false positive
@@ -313,7 +407,22 @@ def selftest() -> int:
                             'd="M30 20 C60 200 140 200 170 20"')
     hit = collisions(dipped)
     t("a curve that does cross is still caught",
-      len(hit) == 1 and hit[0][2] == "c")
+      len(hit) == 1 and hit[0].box == "c")
+
+    # THE REGRESSION THIS FILE WAS REOPENED FOR. Summing the two corner clips
+    # into one row is what made a bypass indistinguishable from a traversal, and
+    # a single-row assertion is what let that ship: `len(by) == 1` was true both
+    # before and after, so only counting the runs can tell them apart.
+    by = [h for h in collisions(_BYPASS) if h.box == "c"]
+    t("an edge that leaves a box and re-enters reports TWO crossings", len(by) == 2)
+    t("and numbers them in path order from 1",
+      sorted(h.nth for h in by) == [1, 2])
+    t("neither is reported as a traversal, because neither one is",
+      all(h.pct < 80 for h in by))
+    # The sum of the parts is what the old key reported; the point of the change
+    # is that no row now carries it.
+    t("no row carries the summed depth",
+      all(h.depth < sum(x.depth for x in by) - EPS for h in by))
 
     print("PASS" if not fail else "FAIL")
     return fail

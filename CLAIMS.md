@@ -216,26 +216,47 @@ session-start hooks are wired.
 
 **1. THE ROUTER PUTS EDGES THROUGH BOXES. Detector landed, fix unclaimed.**
 
+**These six were three defects, not one, and the number was hiding it. Re-measured
+2026-09-04 by `draughtsman-c4`; no figure changed.** The detector summed an edge's
+separate meetings with one box into a single row, so a bypass arc clipping two
+corners reported as one deep-looking crossing. It now reports each contiguous run:
+
     dual         slow -> concat   through 'fast'    104/104 (100%) CROSSES IT
     vae          noise -> sample  through 'sigma'    45/57   (79%)
-    tube         mean -> concat   through 'dog'     140/184  (76%)
-    transformer  pos -> join1     through 'attn'     51/122  (42%)
-    transformer  join1 -> join2   through 'ff'       54/208  (26%)
+    tube         mean -> concat   through 'dog'      70/184  (38%) x2
+    transformer  pos -> join1     through 'attn'     26/122  (21%) x2
+    transformer  join1 -> join2   through 'ff'       27/208  (13%) x2
     whisper      audio -> drest   through 'dcross'   20/208  (10%)
 
-An arrow through a stage is a figure claiming a path the trace does not contain.
-In `dual` the wide branch's output crosses the narrow branch end to end. It
-passes coverage, the legibility gate and the byte-exact render test;
-`tests/test_edge_labels.py` checks an edge's LABEL against boxes and never its
-path. **Found by Tony looking at a rendering**, not by any measurement here.
+Nine crossings, four kinds. **`dual` is the only traversal** — one unbroken run in
+one side and out the other, and the one Tony saw. `vae` is a dashed edge riding up
+`sigma`'s right border, which is a clearance fault. `whisper` cuts one corner. The
+other six are three bypass arcs, each clipping the near corner going down and the
+far corner coming up — `tube` labels its arc `bypass` in the figure and draws it
+below the box. The pairs are symmetric to the unit (26/26, 27/27, 70/70), because
+an arc bowing under a box is symmetric about it, and that symmetry is the
+signature the sum destroyed.
 
-`tools/edge_collisions.py --floor 80 <svg>` reports and gates.
-`tests/test_edge_collisions.py` pins the six as a BASELINE that may only improve.
+An arrow through a stage is a figure claiming a path the trace does not contain.
+In `dual` the wide branch's output crosses the narrow branch end to end, hidden
+behind an opaque fill, so a reader sees a line emerge from behind a stage with no
+visible origin. It passes coverage, the legibility gate and the byte-exact render
+test; `tests/test_edge_labels.py` checks an edge's LABEL against boxes and never
+its path. **Found by Tony looking at a rendering**, not by any measurement here.
+
+`tools/edge_collisions.py --floor 80 <svg>` reports and gates, and now
+discriminates: it exits 1 on `dual` and 0 on the bypasses, which it could not do
+while their halves were summed to 76% and 42%.
+`tests/test_edge_collisions.py` pins the nine as a BASELINE that may only improve,
+keyed on `(from, to, box, nth)` — an edge that starts meeting a box an extra time
+is a new finding even at the same depth.
 **Do not add a row to make a red run green** — a new entry means the layout put
 an edge through a box.
 
-The fix is `layout.py`'s router and it re-renders all ten figures, so it is a
-large claim. Not started.
+So the router item is smaller than it looked: `dual`'s single edge is the routing
+bug, `vae` wants lateral clearance, and the six bypass rows want the arc to bow a
+little deeper — plausibly one constant, and none of it re-renders all ten figures.
+Not started.
 
 **Three figures are outside the check entirely.** `lenet`, `resnet` and `unet`
 set `layout.chrome: "none"` and draw no stage rects, so they report clean because
