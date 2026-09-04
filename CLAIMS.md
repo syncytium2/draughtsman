@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c4` | `wrap-lane` | `src/draughtsman/layout.py`, `examples/gallery/dual/figure.svg`, `examples/gallery/lenet/figure.svg`, `examples/gallery/lstm/figure.svg`, `examples/gallery/mlp/figure.svg`, `examples/gallery/resnet/figure.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/unet/figure.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/whisper/figure.svg`, `examples/tube/figure.svg`, `tests/test_edge_collisions.py`, `tests/test_layout.py`, `tests/test_layout_shape.py` | 2026-09-04 | The wrap connector's return lane is the midpoint between its two endpoints and ignores the gutter reserved for it, so in dual it runs through `fast` end to end |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
