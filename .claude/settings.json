@@ -1,0 +1,35 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/draughtsman-briefing.sh",
+            "timeout": 15,
+            "statusMessage": "Reading the board on origin/main…"
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/session-start.sh",
+            "timeout": 45,
+            "statusMessage": "Checking every worktree for unpushed work…"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/dragnet-before-absence.py",
+            "timeout": 60,
+            "statusMessage": "Search came back empty — checking branches, worktrees and the stash…"
+          }
+        ]
+      }
+    ]
+  }
+}
