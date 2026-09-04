@@ -1,0 +1,121 @@
+name: publish
+
+# THE STEP NOBODY EVER WROTE DOWN. `draughtsman-nn` had a distribution name, a
+# version policy, URLs and a README whose links survive PyPI -- and no way to
+# upload. `pip install draughtsman-nn` was a 404 for as long as the project had
+# been public, because the standing list in CLAIMS.md ran prep -> flip public ->
+# Zenodo -> JOSS and never named the upload. Prep was mistaken for the release.
+#
+# WHY THIS IS A GATE AND NOT A CONVENIENCE. PyPI accepts a version number once.
+# Not once per correct upload -- once. A wheel uploaded under the wrong number
+# cannot be replaced, corrected or re-used after a yank, so the number is checked
+# against the tag being released BEFORE anything leaves this runner, and it is
+# checked on the built artifact rather than on the source it was built from.
+
+on:
+  push:
+    tags: ["v*"]
+  # A DRY RUN THAT CANNOT UPLOAD. Running this by hand builds and re-checks
+  # everything the release path does; the publish job below refuses to run
+  # unless the ref is a tag, so there is no way to reach PyPI from this door.
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: build
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      # THE NUMBER ON THE FILE, NOT THE NUMBER IN THE SOURCE.
+      #
+      # `pyproject.toml` declares the version dynamic and hatchling reads it from
+      # `src/draughtsman/__init__.py`, so those two cannot disagree. What still
+      # can is the tag: `v0.1.0` and `v0.1.1` were both cut without touching that
+      # line, and v0.1.1's tagged tree says 0.1.0 to this day. On GitHub that is
+      # untidy; on PyPI it is permanent.
+      #
+      # So this reads the version out of the wheel filename -- the artifact that
+      # would actually be uploaded, after the build, past every place the number
+      # could have been transformed -- and refuses the release if it is not the
+      # tag. A check on the source would have passed on a build that renamed it.
+      - name: the tag and the built version must be the same number
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          python - <<'PY'
+          import os, pathlib, sys
+
+          tag = os.environ["TAG"].removeprefix("v")
+          # Wheel filenames are {distribution}-{version}-{python}-{abi}-{platform}.whl
+          # and a distribution name cannot contain "-", so field 1 is the version.
+          wheels = sorted(pathlib.Path("dist").glob("*.whl"))
+          sdists = sorted(pathlib.Path("dist").glob("*.tar.gz"))
+
+          if len(wheels) != 1 or len(sdists) != 1:
+              sys.exit(f"::error::expected one wheel and one sdist, built "
+                       f"{[p.name for p in wheels + sdists]}. This check reads "
+                       f"the version off a single wheel and cannot speak for a "
+                       f"set of them.")
+
+          built = wheels[0].name.split("-")[1]
+          if built != tag:
+              sys.exit(f"::error::tag v{tag} would upload {wheels[0].name}, which "
+                       f"is version {built}. PyPI takes a version number once and "
+                       f"forever, so this is refused rather than corrected later. "
+                       f"Fix __version__ in src/draughtsman/__init__.py, or move "
+                       f"the tag.")
+          print(f"tag v{tag} matches {wheels[0].name}")
+          PY
+
+      - name: check the metadata PyPI will render
+        run: |
+          python -m pip install --upgrade twine
+          twine check --strict dist/*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    # NO DOOR FROM A BRANCH. `workflow_dispatch` above exists so the build and
+    # the version gate can be exercised without spending a tag; this is what
+    # keeps that from also being a way to publish one.
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    # TRUSTED PUBLISHING: no API token is stored in this repository. PyPI is
+    # configured to trust this workflow file, in this repository, running in this
+    # environment, and mints a short-lived credential for the run. `id-token`
+    # is what lets the runner ask for it.
+    #
+    # The environment name below is not decoration -- it must match the publisher
+    # configured on PyPI, and it is where a required reviewer is attached if this
+    # should ever need a human to press the button.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/draughtsman-nn
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      # `skip-existing` is deliberately NOT set. A release that finds its version
+      # already on PyPI is a release that has lost track of what it published,
+      # and skipping it quietly would report success for an upload that did not
+      # happen.
+      - uses: pypa/gh-action-pypi-publish@release/v1

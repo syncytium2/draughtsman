@@ -2,6 +2,10 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# One version, read from the module that already had to declare it.
+[tool.hatch.version]
+path = "src/draughtsman/__init__.py"
+
 [project]
 # THE DISTRIBUTION NAME IS NOT THE IMPORT NAME, AND THAT IS DELIBERATE.
 # PyPI's `draughtsman` is Kyle Fuller's API Blueprint parser (0.2.0, last released
@@ -14,7 +18,19 @@ build-backend = "hatchling.build"
 # places and checked in none is DECISIONS.md correction 5, and the hint in cli.py
 # had already gone wrong: it told a reader to install the other package.
 name = "draughtsman-nn"
-version = "0.1.0"
+
+# THE VERSION IS NOT WRITTEN HERE, AND THAT IS THE FIX RATHER THAN AN OMISSION.
+# It was a literal in this file AND in `src/draughtsman/__init__.py`, which is
+# DECISIONS.md correction 5 in the one place it is unrecoverable: PyPI accepts a
+# version number once, forever, so a copy that has drifted is uploaded under a
+# number that can never be corrected or replaced. The two had already drifted --
+# both said 0.1.0 while the tags and GitHub releases were at v0.1.1, and v0.1.1's
+# own tagged tree said 0.1.0 as well.
+#
+# `__init__.py` is the surviving copy because it is the executed one: it is what
+# `draughtsman --version` prints and what an importer reads. Hatchling reads it
+# from there, so a build cannot disagree with the running program.
+dynamic = ["version"]
 description = "Readable architecture diagrams for PyTorch models: the tracer supplies the facts, an agent supplies the abstraction, and a coverage check proves nothing was silently dropped."
 readme = "README.md"
 requires-python = ">=3.10"
