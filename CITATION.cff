@@ -13,6 +13,13 @@ type: software
 authors:
   - family-names: DeFazio
     given-names: Richard A.
+# THE CONCEPT DOI, NOT THE VERSION ONE. Zenodo mints both: a version DOI for
+# each release, and a concept DOI that always resolves to the newest. A citation
+# that pins a version goes stale the moment there is another; this one does not.
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22286341
+    description: Concept DOI — always resolves to the latest release.
 license: BSD-3-Clause
 repository-code: 'https://github.com/syncytium2/draughtsman'
 abstract: >-

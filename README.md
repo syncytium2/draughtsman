@@ -1,5 +1,7 @@
 # draughtsman
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22286341.svg)](https://doi.org/10.5281/zenodo.22286341)
+
 **Readable architecture diagrams for PyTorch models.** The tracer supplies the
 facts, an agent supplies the abstraction, and a coverage check proves nothing was
 silently dropped.

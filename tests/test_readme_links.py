@@ -92,3 +92,44 @@ def test_every_repository_link_points_at_a_path_that_exists():
         "An absolute link cannot be checked by following it from the repo, so a "
         "renamed or deleted file leaves a link that looks correct and 404s."
     )
+
+
+# --- the DOI, which is now kept in two files ---------------------------------
+
+CITATION = ROOT / "CITATION.cff"
+_DOI_RE = re.compile(r"10\.5281/zenodo\.\d+")
+
+
+def test_the_readme_badge_and_the_citation_name_the_same_doi():
+    """One quantity, two files — so it is checked in one place.
+
+    The badge in README.md and the identifier in CITATION.cff are the same DOI
+    written twice, which is DECISIONS.md correction 5's exact shape: a value with
+    a single correct answer, kept in two places, free to disagree. Nothing would
+    notice a badge left pointing at an old record — least of all a reader, who
+    would follow it and land somewhere plausible.
+    """
+    readme = {m.group(0) for m in _DOI_RE.finditer(README.read_text(encoding="utf-8"))}
+    cff = {m.group(0) for m in _DOI_RE.finditer(CITATION.read_text(encoding="utf-8"))}
+    assert readme, "README.md names no Zenodo DOI; the badge has gone"
+    assert cff, "CITATION.cff names no Zenodo DOI"
+    assert readme == cff, (
+        f"README.md cites {sorted(readme)} and CITATION.cff cites {sorted(cff)}. "
+        "They must be the same concept DOI — a badge pointing at a different "
+        "record than the citation file sends a reader somewhere plausible and "
+        "wrong.")
+
+
+def test_the_doi_cited_is_the_concept_doi_not_a_version():
+    """A concept DOI outlives a release; a version DOI is stale on the next one.
+
+    Zenodo mints both. The version DOI for v0.1.1 is 10.5281/zenodo.22289006 and
+    the concept DOI is 10.5281/zenodo.22286341; citing the former would pin every
+    future reader to one release. This cannot tell them apart by inspection, so
+    it pins the one that was chosen — if it changes, that has to be deliberate.
+    """
+    concept = "10.5281/zenodo.22286341"
+    cited = {m.group(0) for m in _DOI_RE.finditer(CITATION.read_text(encoding="utf-8"))}
+    assert cited == {concept}, (
+        f"CITATION.cff cites {sorted(cited)}; the concept DOI is {concept}. A "
+        "version DOI pins readers to one release and goes stale at the next.")
