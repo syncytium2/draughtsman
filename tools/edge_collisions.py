@@ -86,15 +86,36 @@ def _stage_boxes(svg: str) -> list[tuple[str, float, float, float, float]]:
     A `<rect class=...>` filter finds nothing and reports every figure clean,
     which is how the first version of this check passed on a figure that was
     visibly wrong.
+
+    AND A STAGE NEED NOT DRAW A RECT AT ALL, which is the second way this went
+    blind. Under `layout.chrome: "none"` a stage draws sheets and text and no box,
+    so the rect search found nothing and the stage was skipped -- silently, and
+    into a report that said "clean". lenet offered 4 boxes for 9 stages and resnet
+    7 for 9. unet offered 9, which looked complete and was not: they were the
+    small glyph body rects, so the check ran against something a good deal smaller
+    than the stage a reader sees.
+
+    A checker that cannot see a thing must not be able to report that thing as
+    fine. The renderer already publishes the extent -- a bare stage carries
+    `data-box="x y w h"` on its group, written exactly where there is no rect to
+    find -- so that is read first and the rect is the fallback.
     """
     out = []
-    for g in re.finditer(
-            r'<g class="ds-stage[^"]*" data-stage="([^"]*)"[^>]*>(.*?)</g>',
-            svg, re.S):
-        sid, body = g.group(1), g.group(2)
+    for g in re.finditer(r'<g class="ds-stage[^"]*"([^>]*)>(.*?)</g>', svg, re.S):
+        attrs, body = g.group(1), g.group(2)
+        sid_m = re.search(r'data-stage="([^"]*)"', attrs)
+        if not sid_m:
+            continue
+        sid = sid_m.group(1)
+        db = re.search(r'data-box="(%s) (%s) (%s) (%s)"'
+                       % (NUM, NUM, NUM, NUM), attrs)
+        if db:
+            x, y, w, h = (float(db.group(i)) for i in (1, 2, 3, 4))
+            out.append((sid, x, y, x + w, y + h))
+            continue
         m = re.search(r"<rect\b([^>]*)>", body)
         if not m:
-            continue                       # chrome:"none" draws sheets, not a box
+            continue                       # no chrome and no declared box
         a = m.group(1)
         try:
             x = float(re.search(r'\bx="(%s)"' % NUM, a).group(1))
@@ -345,6 +366,15 @@ _BYPASS = '''<svg viewBox="0 0 200 100">
 <path class="ds-edge" data-from="a" data-to="b" d="M20 25 L90 25 L100 60 L110 25 L180 25"/>
 </svg>'''
 
+#: A BARE STAGE: no rect, extent declared on the group. `c` is drawn as sheets
+#: and text under `layout.chrome: "none"`, and the edge runs straight through it.
+_BARE = '''<svg viewBox="0 0 200 100">
+<g class="ds-stage ds-kind-op" data-stage="a"><rect x="10" y="10" width="40" height="30"/></g>
+<g class="ds-stage ds-kind-op" data-stage="b"><rect x="150" y="10" width="40" height="30"/></g>
+<g class="ds-stage ds-bare ds-kind-op" data-stage="c" data-box="80 10 40 30"><text x="100" y="25">c</text></g>
+<path class="ds-edge ds-edge-solid" data-from="a" data-to="b" d="M50 25 L150 25"/>
+</svg>'''
+
 _CURVE = '''<svg viewBox="0 0 200 100">
 <g class="ds-stage ds-kind-op" data-stage="a"><rect x="10" y="10" width="20" height="20"/></g>
 <g class="ds-stage ds-kind-op" data-stage="b"><rect x="170" y="10" width="20" height="20"/></g>
@@ -423,6 +453,16 @@ def selftest() -> int:
     # is that no row now carries it.
     t("no row carries the summed depth",
       all(h.depth < sum(x.depth for x in by) - EPS for h in by))
+
+    # A STAGE THAT DRAWS NO RECT MUST STILL BE SEEN. Skipping it does not report
+    # a miss, it reports nothing -- and nothing reads as "clean". lenet offered
+    # four boxes for nine stages and the tool called it clean for want of anything
+    # to collide with.
+    t("a stage with no rect is found through its declared box",
+      [b[0] for b in _stage_boxes(_BARE)] == ["a", "b", "c"])
+    bare = collisions(_BARE)
+    t("and an edge through it is caught",
+      len(bare) == 1 and bare[0].box == "c" and bare[0].pct > 95)
 
     print("PASS" if not fail else "FAIL")
     return fail

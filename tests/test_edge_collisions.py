@@ -35,6 +35,7 @@ eight rows away at once. See the BASELINE comment for what the split showed.
 
 from __future__ import annotations
 
+import re
 import subprocess
 import sys
 
@@ -44,7 +45,7 @@ from conftest import EXAMPLES, IDS, ROOT
 
 sys.path.insert(0, str(ROOT / "tools"))
 
-from edge_collisions import collisions            # noqa: E402
+from edge_collisions import collisions, _stage_boxes   # noqa: E402
 
 TOOL = ROOT / "tools" / "edge_collisions.py"
 
@@ -119,6 +120,30 @@ def test_the_baseline_does_not_outlive_what_it_records():
         "these collisions are fixed and their BASELINE rows should be deleted: "
         + "; ".join(f"{name}: {f} -> {t} through {b!r} (crossing {n})"
                     for name, (f, t, b, n) in stale))
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_every_stage_is_measured(d):
+    """A CHECKER MUST NOT BE ABLE TO PASS ON WHAT IT CANNOT SEE.
+
+    `_stage_boxes` read a stage's extent from the first <rect> in its group, and a
+    stage under `layout.chrome: "none"` draws sheets and text and no rect. Those
+    stages were skipped -- not reported as unmeasurable, just absent -- and a
+    figure made entirely of them came back "clean" because there was nothing left
+    to collide with. lenet offered four boxes for nine stages, resnet seven for
+    nine, and unet nine that were the small glyph bodies rather than the stages.
+
+    Every crossing this suite has ever caught was in a figure that happened to
+    draw rects. That is not a property of the figures worth relying on, so the
+    count is now checked rather than assumed.
+    """
+    svg = (d / "figure.svg").read_text(encoding="utf-8")
+    stages = re.findall(r'<g class="ds-stage[^"]*"[^>]*data-stage="([^"]*)"', svg)
+    seen = [b[0] for b in _stage_boxes(svg)]
+    assert sorted(seen) == sorted(stages), (
+        f"{d.name}: the detector measures {len(seen)} of {len(stages)} stages; "
+        f"missing {sorted(set(stages) - set(seen))}. A stage it cannot see is one "
+        "it will report as clean.")
 
 
 def test_the_detector_selftest_passes():

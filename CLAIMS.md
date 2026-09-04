@@ -251,9 +251,23 @@ reason that had nothing to do with the detector. **A guard against a checker goi
 blind must not depend on the defect it checks for still being present in the
 work.** Its fixture is synthetic now.
 
-**Three figures are outside the check entirely.** `lenet`, `resnet` and `unet`
-set `layout.chrome: "none"` and draw no stage rects, so they report clean because
-there is nothing to collide with. Extending to glyph bounds is unclaimed.
+**~~Three figures are outside the check entirely.~~ Fixed 2026-09-04.** `lenet`,
+`resnet` and `unet` set `layout.chrome: "none"` and draw no stage rects, so the
+detector skipped those stages — silently — and reported what it could not measure
+as clean. lenet offered 4 boxes for 9 stages, resnet 7 for 9, and unet 9 that were
+the small glyph bodies rather than the stage extents.
+
+It did not need glyph bounds. The renderer already publishes the answer: a bare
+stage carries `data-box="x y w h"` on its group, written exactly where there is no
+rect to find. `_stage_boxes` reads that first and falls back to the rect. Every
+stage in every figure is now measured — 85 of 85 — and **every figure is still
+clean**, so the gallery was genuinely clean rather than vacuously so.
+
+`tests/test_edge_collisions.py::test_every_stage_is_measured` compares the boxes
+found against the `data-stage` groups present and fails on any gap. **A checker
+must not be able to pass on what it cannot see**, and every crossing this suite
+ever caught happened to be in a figure that drew rects — not a property worth
+relying on.
 
 ---
 
