@@ -20,6 +20,7 @@ the suite a second time from inside itself.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 
@@ -77,3 +78,27 @@ def test_the_runner_states_what_it_could_not_run():
         "the summary no longer states how many tests were not run")
     assert "CI is still the verdict" in src, (
         "the summary no longer says that CI, not this tool, decides")
+    # A module that will not import was never filtered by the selector, so
+    # counting it inside the selection reads as one of your cases vanishing --
+    # which is the single thing someone running one test must not have to guess
+    # about. Reported by `draughtsman-b2` on first use.
+    assert "could not be imported at all" in src, (
+        "module-level import failures are no longer separated from the "
+        "selection's own NOT RUN count")
+
+
+def test_nothing_under_test_can_block_on_stdin():
+    """A HANG IS A RUNNER THAT NOBODY LEAVES RUNNING.
+
+    `test_hooks` runs the session hooks and a hook reads its payload from stdin.
+    Alone it finished in 0.1s; after the rest of the suite it blocked until the
+    per-test deadline killed it, and before there was a deadline it took the whole
+    run with it silently. The runner hands every test -- and every subprocess a
+    test starts, which is why this is done at the file-descriptor level -- a stdin
+    that is already at end of file.
+    """
+    sys.path.insert(0, str(ROOT / "tools"))
+    import run_suite
+
+    with run_suite._null_stdin():
+        assert os.read(0, 1) == b"", "stdin returned data instead of EOF"

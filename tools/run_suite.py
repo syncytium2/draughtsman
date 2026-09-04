@@ -324,6 +324,32 @@ def _selected(selection, module, name, suffix) -> bool:
                for sel in selection)
 
 
+@contextlib.contextmanager
+def _null_stdin():
+    """Nothing under test may block reading standard input.
+
+    `test_hooks` runs the session hooks, and a hook reads its payload from stdin.
+    Run alone it finishes in 0.1s; run after the rest of the suite it blocked
+    until the per-test deadline killed it, because by then fd 0 was no longer
+    something that returns promptly. pytest does the same thing for the same
+    reason -- it swaps sys.stdin for a reader that refuses -- and this is the fd
+    level version, so a SUBPROCESS started by a test inherits it too.
+    """
+    try:
+        null = os.open(os.devnull, os.O_RDONLY)
+    except OSError:
+        yield
+        return
+    saved = os.dup(0)
+    try:
+        os.dup2(null, 0)
+        yield
+    finally:
+        os.dup2(saved, 0)
+        os.close(saved)
+        os.close(null)
+
+
 class _Timeout(Exception):
     pass
 
@@ -360,7 +386,14 @@ OPTIONAL = ("torch", "torchvision", "numpy")
 
 
 def run(selection=None, timeout=30.0):
-    """Returns (passed, failures, skipped, unrun) -- unrun is the honest column."""
+    """Returns (passed, failures, skipped, unrun, unimported).
+
+    `unrun` is per-test and belongs to the selection: a fixture this runner cannot
+    build, or an optional dependency it does not have. `unimported` is per-MODULE
+    and does not, because a module that will not import cannot be filtered -- its
+    test names were never knowable. Folding the two together made a narrow
+    selection ambiguous in the one direction that matters here; see report().
+    """
     if "pytest" not in sys.modules:
         sys.modules["pytest"] = _make_pytest()
     sys.path.insert(0, str(ROOT / "src"))
@@ -369,8 +402,15 @@ def run(selection=None, timeout=30.0):
     conftest = importlib.import_module("conftest")
 
     passed = skipped = 0
-    failures, unrun = [], []
+    failures, unrun, unimported = [], [], []
     session_cache: dict = {}
+    with _null_stdin():
+        return _walk(selection, timeout, conftest, passed, skipped,
+                     failures, unrun, unimported, session_cache)
+
+
+def _walk(selection, timeout, conftest, passed, skipped,
+          failures, unrun, unimported, session_cache):
     for path in sorted(TESTS.glob("test_*.py")):
         # A module can only be skipped without importing it when every selector
         # says which module it means. A bare substring may match a test name that
@@ -382,7 +422,7 @@ def run(selection=None, timeout=30.0):
         try:
             module = importlib.import_module(path.stem)
         except Exception as exc:
-            unrun.append((path.stem, "<import>", f"{type(exc).__name__}: {exc}"))
+            unimported.append((path.stem, f"{type(exc).__name__}: {exc}"))
             continue
         for name, fn in sorted(vars(module).items()):
             if not name.startswith("test_") or not callable(fn):
@@ -426,24 +466,39 @@ def run(selection=None, timeout=30.0):
                 finally:
                     for t in reversed(teardown):
                         t()
-    return passed, failures, skipped, unrun
+    return passed, failures, skipped, unrun, unimported
 
 
 def report(selection=None, list_unrun=False, timeout=30.0) -> int:
-    passed, failures, skipped, unrun = run(selection, timeout)
+    passed, failures, skipped, unrun, unimported = run(selection, timeout)
     for mod, name, why in failures:
         print(f"FAIL  {mod}::{name}\n      {why}")
     if list_unrun:
         for mod, name, why in unrun:
             print(f"unrun {mod}::{name}  ({why})")
+        for mod, why in unimported:
+            print(f"unimported {mod}  ({why})")
     total = passed + len(failures) + skipped + len(unrun)
     # NEVER A BARE PASS. The count it could not run is part of the result, not a
     # footnote -- a partial runner that reads as a full one is the failure this
     # repository keeps finding in its own instruments.
     print(f"\n{passed} passed, {len(failures)} failed, {skipped} skipped, "
-          f"{len(unrun)} NOT RUN, of {total} collected")
+          f"{len(unrun)} NOT RUN, of {total} collected"
+          + (" in this selection" if selection else ""))
+    # AND THE MODULES ARE COUNTED APART FROM THE SELECTION, because they are not
+    # in it. A module that will not import never yielded test names to match
+    # against, so attributing it to the selection reads as a case that vanished --
+    # which is the one thing someone running a single test must not be left
+    # guessing about. Reported by `draughtsman-b2`, from first use.
+    if unimported:
+        names = ", ".join(m for m, _ in unimported)
+        plural = "module" if len(unimported) == 1 else "modules"
+        print(f"plus {len(unimported)} {plural} that could not be imported at all "
+              f"and {'is' if len(unimported) == 1 else 'are'} outside that count: "
+              f"{names}")
     print("This is not pytest and CI is still the verdict; "
-          + ("see --list-unrun for what it skipped." if unrun and not list_unrun
+          + ("see --list-unrun for what it skipped."
+             if (unrun or unimported) and not list_unrun
              else "it ran everything it could collect."))
     return 1 if failures else 0
 
