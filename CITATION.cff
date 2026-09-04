@@ -12,7 +12,7 @@ message: >-
 type: software
 authors:
   - family-names: DeFazio
-    given-names: Richard
+    given-names: Richard A.
 license: BSD-3-Clause
 repository-code: 'https://github.com/syncytium2/draughtsman'
 abstract: >-
