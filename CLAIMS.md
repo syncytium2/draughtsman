@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a3` | `site-banner` | `index.html`, `README.md`, `examples/tube/spec.json`, `examples/tube/figure.svg`, `examples/tube/icon.svg`, `examples/gallery/resnet/icon.svg`, `examples/gallery/unet/icon.svg`, `examples/gallery/transformer/icon.svg` | 2026-09-04 | Leading the page with `tube` at banner width, and showing every option the tool has |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
