@@ -70,7 +70,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c9` | `doi` | `README.md`, `CITATION.cff`, `tests/test_readme_links.py` | 2026-09-03 | The DOI, in the two places it belongs and checked in one |
+| `draughtsman-f7` | `wire-instruments` | `.claude/settings.json`, `.claude/hooks/session-start.sh`, `.claude/hooks/draughtsman-briefing.sh`, `.claude/hooks/dragnet-before-absence.py`, `.claude/hooks/send-goes-nowhere.py`, `tests/test_hooks.py` | 2026-09-03 | The estate mechanizes its rules and this repo wires none of them |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
