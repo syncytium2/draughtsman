@@ -310,8 +310,12 @@
   ],
   "caption": "Six identical blocks. Showing the residual at all costs one block's worth of width, and the other five are collapsed into three boxes that say 'and again' in prose.",
   "layout": {
-    "wrap": 760,
+    "wrap": 280,
     "orientation": "lr",
     "chrome": "none"
+  },
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
   }
 }
