@@ -562,3 +562,81 @@ def test_the_page_budget_uses_the_smallest_type_there_is():
         "legibility floor would be computed against type that is not the "
         "smallest, so a figure could pass while printing under its own floor."
     )
+
+
+# ---------------------------------------------------------------- legend width
+#
+# THE FIGURE IS AS WIDE AS ITS DRAWING, NOT AS WIDE AS ITS PROSE. render.py has
+# argued this once already, in the comment excluding the caption from the width
+# max: "a 416-character caption made U-Net 1831px wide -- the figure's width set
+# by a sentence rather than by the drawing". The legend's share text was still a
+# term in that same max one line below, and it cost `lenet` 103 units: the glyph
+# note `deepest = 16, tallest = 28, widest = 28 · each edge ∝ √value` reached 792
+# units against a drawing that reached 719.
+#
+# `layout.wrap` could not reach it. Every value from 760 down to 280 left the
+# width at 822.19 to the hundredth and only made the figure taller, because the
+# wrap solver arranges boxes and this was a sentence. A reader of that sweep would
+# conclude the figure was irreducible.
+
+def _viewbox_w(svg: str) -> float:
+    return float(re.search(r'viewBox="0 0 ([\d.]+)', svg).group(1))
+
+
+def test_lenet_is_as_wide_as_its_drawing_and_not_as_wide_as_its_legend():
+    """THE REGRESSION, NAMED BY ITS NUMBER, AND IT IS NARROWER THAN IT LOOKS.
+
+    lenet shipped at 822.19 units while its drawing reached 719: the glyph note
+    `deepest = 16, tallest = 28, widest = 28 · each edge ∝ √value · ...` ran to
+    792 and the figure grew to hold it on one line. `layout.wrap` could not touch
+    it -- 760 down to 280 all left the width at 822.19 to the hundredth and only
+    added height, because the wrap solver arranges boxes and this was a sentence.
+
+    TWO ATTEMPTS AT A GENERAL INVARIANT FAILED, AND BOTH PASSED ON THE DEFECT,
+    which is worth more than this assertion is:
+
+      1. Monkeypatching `_legend` to pad every share. Fired on 1 figure of 10,
+         and not on lenet. The glyph note is not one of `_legend`'s rows -- it is
+         built inside `render` from the glyph axes and appended to them.
+      2. Re-rendering with `layout.legend: false` and comparing widths. Fired on
+         0 of 10, on the shipped code, because that flag gates `_legend`'s rows
+         and the appended glyph row is emitted regardless of it.
+
+    So the rule -- prose wraps to the drawing, the drawing does not stretch to
+    the prose -- is stated in `render.py` and guarded here only by the one case
+    that broke, plus the containment check below. A general form needs the glyph
+    note to come from the same seam as the rest of the legend, which is a change
+    to `render.py` and not to this file.
+    """
+    d = next(p for p in EXAMPLES if p.name == "lenet")
+    svg = (d / "figure.svg").read_text()
+    total = _viewbox_w(svg)
+    assert total < 500, (
+        f"lenet is {total:.2f} units wide. It was 822.19 when its legend set its "
+        "width; anything near that means the legend is back in the width max.")
+
+    shares = [m for m in re.finditer(
+        r'<text class="ds-legend-share"([^>]*)>(.*?)</text>', svg, re.S)]
+    assert len(shares) > 1, (
+        "lenet's legend share is on one line again, so either the note got short "
+        "or it stopped wrapping -- and this test's premise is gone either way")
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_no_legend_line_is_drawn_outside_the_figure(d):
+    """Wrapping prose to the drawing is only half the rule; the other half is
+    that it then FITS. The caption fix had to be made twice for exactly this --
+    fitting exactly left 12px of margin for a text metric to be wrong in, and it
+    was wrong by under one percent, and the last word was cut. So this measures
+    the drawn result rather than trusting the wrap limit that produced it."""
+    svg = (d / "figure.svg").read_text()
+    total = _viewbox_w(svg)
+    for m in re.finditer(r'<text class="ds-legend-share"([^>]*)>(.*?)</text>',
+                         svg, re.S):
+        attrs, body = m.group(1), re.sub(r"<[^>]+>", "", m.group(2))
+        x = float(re.search(r'\bx="([-\d.]+)"', attrs).group(1))
+        size = float(re.search(r"font-size:([\d.]+)px", attrs).group(1))
+        right = x + width(body, size)
+        assert right <= total, (
+            f"{d.name}: a legend line reaches {right:.1f} in a {total:.1f}-unit "
+            f"figure, so it is clipped: {body!r}")

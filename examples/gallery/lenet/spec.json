@@ -210,8 +210,12 @@
   ],
   "caption": "Every operation here is a registered module, so a module enumerator gets this one right. The interest is that the figure is no worse for being derived from the trace.",
   "layout": {
-    "wrap": 760,
+    "wrap": 600,
     "orientation": "lr",
     "chrome": "none"
+  },
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
   }
 }

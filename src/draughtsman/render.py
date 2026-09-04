@@ -208,6 +208,9 @@ PALETTE = {
 
 LEGEND_SIZE = DETAIL_SIZE
 LEGEND_ROW = 15.0
+#: Continuation lines of a wrapped legend share, tighter than the row pitch --
+#: the pitch separates entries, this separates lines of one entry.
+LEGEND_LINE = 11.0
 LEGEND_SWATCH = 9.0
 
 
@@ -495,10 +498,20 @@ def render(spec: Spec, graph: Graph) -> str:
                        if glyphed[0].spec.glyph.scale == "linear"
                        else "each edge ∝ √value"))
         rows.append(("__glyph__", " × ".join(lbl), note))
-    legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True)
-                    + 6 + width(sh, LEGEND_SIZE) + 18
-                    for _, lbl, sh in rows), default=0.0)
-    legend_h = LEGEND_ROW * len(rows) + (8.0 if rows else 0.0)
+    # THE SWATCH AND THE LABEL ARE A NAME; THE SHARE IS PROSE. Only the name is a
+    # width the figure owes the legend, so only the name is in the max below. The
+    # share used to be too, and that is what made `lenet` 822 units wide while its
+    # drawing reached 719: the glyph note `deepest = 16, tallest = 28, widest = 28
+    # · each edge ∝ √value` ran to 792 and the figure grew to hold it on one line.
+    # `layout.wrap` could not touch it -- every value from 760 down to 280 left the
+    # width at 822.19 and only made the figure taller, because the wrap solver
+    # arranges boxes and this was a sentence.
+    #
+    # This is the rule the comment below already states, applied to the other piece
+    # of prose in the file. Prose wraps to the drawing; the drawing does not stretch
+    # to the prose.
+    legend_w = max((LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True) + 18
+                    for _, lbl, _ in rows), default=0.0)
 
     # THE CAPTION IS NOT IN THIS MAX, AND THAT IS THE POINT. Sized to fit its own
     # prose, a 416-character caption made U-Net 1831px wide -- the figure's width
@@ -511,6 +524,18 @@ def render(spec: Spec, graph: Graph) -> str:
                   CAPTION_MIN_W if caption else 0.0)
     caption_lines = _wrap(caption, total_w - 24, CAPTION_SIZE) if caption else []
     foot_h = CAPTION_LINE * len(caption_lines) + 8.0 if caption_lines else 0.0
+
+    # The shares wrap to the width the drawing settled, each into whatever the row
+    # has left after its own swatch and label. A row keeps LEGEND_ROW for its first
+    # line and grows by LEGEND_LINE for each one after, so a legend that wraps costs
+    # height -- which the figure can afford -- instead of width, which it cannot.
+    legend_lines: list[list[str]] = []
+    for _, lbl, sh in rows:
+        sx = 12 + LEGEND_SWATCH + 6 + width(lbl, LEGEND_SIZE, bold=True) + 6
+        legend_lines.append(_wrap(sh, max(total_w - sx - 12, 1.0), LEGEND_SIZE)
+                            if sh else [])
+    legend_h = (sum(LEGEND_ROW + LEGEND_LINE * (max(1, len(ln)) - 1)
+                    for ln in legend_lines) + 8.0) if rows else 0.0
     total_h = drawing.height + head_h + foot_h + legend_h
 
     out: list[str] = []
@@ -562,8 +587,13 @@ def render(spec: Spec, graph: Graph) -> str:
     if rows:
         top = head_h + drawing.height + 8.0
         out.append('<g class="ds-legend">')
+        # CUMULATIVE, NOT `i * LEGEND_ROW`. A row is as tall as the number of lines
+        # its share wrapped to, so a fixed pitch would draw later entries on top of
+        # an earlier one's second line.
+        y = top
         for i, (kind, label, share) in enumerate(rows):
-            y = top + i * LEGEND_ROW
+            if i:
+                y += LEGEND_ROW + LEGEND_LINE * (max(1, len(legend_lines[i - 1])) - 1)
             if kind == "__glyph__":
                 out.append(
                     f'<rect class="ds-legend-glyph" x="12" '
@@ -603,12 +633,16 @@ def render(spec: Spec, graph: Graph) -> str:
                 f'font-weight:600;fill:{PAGE_INK}">{escape(label)}</text>'
             )
             sx = tx + width(label, LEGEND_SIZE, bold=True) + 6
-            out.append(
-                f'<text class="ds-legend-share" x="{_fmt(sx)}" '
-                f'y="{_fmt(y + LEGEND_SWATCH - 0.5)}" '
-                f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
-                f'fill:{PAGE_MUTED}">{escape(share)}</text>'
-            )
+            # CONTINUATION LINES RETURN TO THE LABEL COLUMN, not to the share's own
+            # indent: a second line hanging under the middle of a sentence reads as
+            # a separate entry, which is the one thing a legend must never look like.
+            for k, line in enumerate(legend_lines[i]):
+                out.append(
+                    f'<text class="ds-legend-share" x="{_fmt(sx if not k else tx)}" '
+                    f'y="{_fmt(y + LEGEND_SWATCH - 0.5 + k * LEGEND_LINE)}" '
+                    f'style="font-family:{FONT_STACK};font-size:{LEGEND_SIZE}px;'
+                    f'fill:{PAGE_MUTED}">{escape(line)}</text>'
+                )
         out.append("</g>")
 
     if caption_lines:

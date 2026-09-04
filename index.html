@@ -20,9 +20,16 @@ p{margin:0 0 15px;max-width:62ch}
   color:var(--conv);margin:0 0 10px}
 figure{margin:0}
 .plate{background:#fff;padding:20px;border:1px solid var(--rule);overflow-x:auto}
-/* Figures are shown at the scale their own labels need: body type is 9.5
-   figure units, page body is 17px, so 1.79x. Never scaled to fit a column. */
-.plate img{display:block;height:auto}
+/* Figures are AUTHORED to this page rather than scaled to it. The plate is
+   842px inside its padding, and a figure whose body type is 9.5 units must be
+   842/(17/9.5) = 471 units or narrower to fill it at the page's own 17px body
+   size. dual is 460 and lenet 469, so both are shown at 842 and land at 17.4px
+   and 17.0px. Before this they were 560 and 822 units, served at 1002 and
+   1471px, and overflowed into the scrollbar below.
+   max-width is the narrow-screen floor: under 842px the figure scales down
+   rather than scrolling sideways. Type shrinks with it, which is the lesser of
+   the two evils and only below laptop width. */
+.plate img{display:block;height:auto;max-width:100%}
 .cap{color:var(--muted);margin:10px 0 0}
 header{padding:56px 0 44px;border-bottom:1px solid var(--rule)}
 section{padding:44px 0 0}
@@ -48,9 +55,9 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
 
 <section>
   <figure>
-    <div class="plate"><img src="examples/gallery/dual/figure.svg" width="1002"
+    <div class="plate"><img src="examples/gallery/dual/figure.svg" width="842"
       alt="A dual-branch 1-D network: two parallel branches over one input, rejoining at a concat, then a gate and a conv head."></div>
-    <p class="cap">25,989 parameters. Solved to print at 6 inches — 7.33pt type, so it
+    <p class="cap">25,989 parameters. Solved to print at 6 inches — 8.92pt type, so it
     stays readable in a double column.</p>
   </figure>
 </section>
@@ -79,10 +86,11 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   what they cost is in <a href="DECISIONS.md">DECISIONS.md</a>, which is the most useful
   file here.</p>
   <figure style="margin-top:20px">
-    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="1471"
+    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="842"
       alt="LeNet drawn as stacks of sheets: six countable sheets at the first two stages, then a solid marked times sixteen."></div>
     <p class="cap">Six channels can be counted, so six sheets are drawn. Sixteen cannot,
-    so it becomes one solid of the same depth carrying its number.</p>
+    so it becomes one solid of the same depth carrying its number. Also solved to print at
+    6 inches — 8.75pt type.</p>
   </figure>
 </section>
 
