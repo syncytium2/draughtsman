@@ -96,6 +96,20 @@ def cmd_render(args) -> int:
         svg = render(spec, graph)
     except FactError as exc:
         sys.exit(f"draughtsman: {exc}")
+
+    # AN ICON IS NOT A SCALED FIGURE. At a card or tile size no type survives at
+    # any point size, so the answer is not a smaller floor -- it is no text. See
+    # draughtsman/icon.py for what is removed and why each one is not optional.
+    if args.icon:
+        from draughtsman.icon import IconError, parse_size, render_icon
+        try:
+            w, h = parse_size(args.icon)
+            svg, chosen, scale = render_icon(_read(args.spec), graph, w, h)
+        except IconError as exc:
+            sys.exit(f"draughtsman: {exc}")
+        print(f"icon: {w:g}x{h:g}, {chosen} layout, drawing at {scale:.2f}x, "
+              "no text", file=sys.stderr)
+
     _write(args.output, svg)
     return 0
 
@@ -163,6 +177,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("-o", "--output", type=Path)
     r.add_argument("--no-check", dest="check", action="store_false",
                    help="render even if coverage fails")
+    r.add_argument("--icon", metavar="WxH",
+                   help="drop everything unreadable at this size and crop to "
+                        "what is left, e.g. --icon 420x104")
     r.set_defaults(func=cmd_render, check=True)
 
     c = sub.add_parser("check", help="§5 coverage — every node in exactly one stage")

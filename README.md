@@ -87,8 +87,28 @@ draughtsman trace    models:build_resnet --input-shape 1,3,32,32 -o graph.json
 draughtsman abstract graph.json -o spec.json      # prints the prompt; an agent answers it
 draughtsman check    spec.json graph.json         # every traced node in exactly one stage
 draughtsman render   spec.json -o figure.svg
+draughtsman render   spec.json --icon 420x104 -o icon.svg   # a mark, with no text
 draughtsman ui       examples/                    # review every model in a browser
 ```
+
+### Icons — the figure at a size where nothing can be read
+
+`check` refuses a figure whose type would print under its stated floor. That is
+the right answer when the figure is going somewhere type can survive, and no
+answer at all for a card, a tile or a favicon, where **no type survives at any
+size**: in a 420×104 slot every figure here lands between 1.6px and 3.6px of body
+type. The honest response is not a smaller floor but no text.
+
+`--icon WxH` removes everything that cannot be read at that size and crops to what
+is left — the labels, the legend, sub-pixel detail, and any stage that was only
+text, together with the arrows that pointed at it. What survives is shape: the
+sequence of stages, their relative bulk, and the merges and skips between them.
+It also re-solves the layout, because `layout.wrap` is a page-fitting decision and
+an icon is not on that page; both layouts are rendered and the one that comes out
+larger in the slot wins.
+
+It never crops to fill. An icon may letterbox, but a cropped net is a net with a
+stage missing — a false figure, at the one size where nobody can tell.
 
 That runs against a clone with nothing else installed, and it reproduces the
 committed `graph.json` — byte for byte on the torch it was traced with, and fact
