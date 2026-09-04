@@ -233,17 +233,33 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   is hand-placed and nothing is redrawn: a mark is the figure with everything unreadable
   taken out.</p>
   <p><strong>Three of them work.</strong> <code>--icon</code> prints the scale it drew
-  at, and that number predicts the verdict: at or above 0.30× a mark reads, at or below
-  0.17× it does not, and the two in between are marginal. Read the ordering no more
-  finely than that — the measured values jump 0.30 to 0.21 with nothing between them,
-  then 0.20 to 0.17, so the marginal pair is separated from the readable marks by a
-  real gap and from each other by a hair.</p>
-  <p>Nothing in the tool consumes that number — it is printed and thrown away, so a
-  mark that will not read still ships. The check that exists asserts a mark is
-  complete, uncropped and textless, which is a different question from whether anyone
-  can see it. Nor does anything re-render a committed mark: <code>tube</code>'s moved
-  from 0.15× to 0.20× when its <code>wrap</code> changed for the banner above, and a
-  person caught that, not a check.</p>
+  at, and that number predicts the verdict. The tool calls a mark readable at 0.25× and
+  up and noise below 0.19×, with the pair between marked marginal — and both boundaries
+  sit in the middle of a real gap in the measurements rather than against the nearest
+  one. That is the whole reason they are those numbers: the readable marks stop at
+  0.2975× and the marginal pair starts at 0.2114×, which is 0.086 of empty range to put
+  a line through.</p>
+  <p>It used to print that number and throw it away, so a mark nobody could see shipped
+  as quietly as one anybody could. It now says which band it landed in and warns when
+  that is not the top one. It is a warning and not a refusal, because seven of the ten
+  here are under the line and ship anyway — a gate that fails most of its own corpus is
+  one somebody turns off.</p>
+  <div class="note">
+    <p><strong>The first attempt at those bands was wrong, and the way it was wrong is
+    the reason this page exists.</strong> They were set at 0.30× and 0.20× — read off a
+    contact sheet that prints the scale to two places. <code>lstm</code> prints as
+    <code>0.30×</code> and is really 0.2975, so the boundary put the lowest mark anyone
+    had confirmed readable on the wrong side of its own line, by 0.0025. Every model
+    still rendered and nothing said a word. Rounding a number for a person to read and
+    thresholding it for a machine to decide are different jobs, and one value doing both
+    silently does the second one badly.</p>
+    <p style="margin-top:12px">Nothing re-rendered a committed mark either, until now.
+    <code>tube</code>'s moved from 0.15× to 0.20× when its <code>wrap</code> changed for
+    the banner at the top of this page — a mark crossing a band because of an edit aimed
+    somewhere else — and a person caught it against that same contact sheet. CI now
+    re-renders every committed mark and reads the slot back out of the file, so a mark
+    states the size it was fitted to and the check needs no constant of its own.</p>
+  </div>
   <div class="marks">
     <figure class="mark">
       <div class="plate"><img src="examples/gallery/mlp/icon.svg" width="192" height="96"
