@@ -22,6 +22,20 @@ that nothing checks is decoration until something does.**
    whether `main` was green, and was one `git add -A` from committing it under
    the wrong name.
 
+   **And then it happened, so the near-miss is now a case.** On 2026-09-03
+   `draughtsman-f7` edited this file in the shared checkout; `draughtsman-c9`
+   committed its own row minutes later with `git add CLAIMS.md` and swept the
+   other session's line in with it. `86115f8` therefore landed a claim naming a
+   branch that did not yet exist, under a message about something else, and
+   `main` went red on the wrong session's commit.
+
+   Note what did NOT save anyone: it was a targeted `git add <file>`, not
+   `git add -A`. Naming the file is no protection when two sessions are editing
+   that file, which for this one is every session. **The trap is not only losing
+   your own work — it is your work landing under someone else's name and turning
+   `main` red on their commit.** Rule 6 exempts this file from being claimed; it
+   does not exempt it from being edited somewhere nobody else is standing.
+
 2. **Claim before you write, and land the claim on `main` before the work.**
    A branch's `CLAIMS.md` is a copy nobody else can read.
    *Because:* two sessions were both about to edit `render.py`'s `_box`, caught
