@@ -114,7 +114,7 @@ that nothing checks is decoration until something does.**
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
 | `draughtsman-c4` | `run-suite` | `tools/run_suite.py`, `tests/test_run_suite.py` | 2026-09-04 | No pytest on the working machines, so a session can run no test locally and finds out from CI; both paths are new |
-| `draughtsman-4f` | `site-check` | `tools/site_check.py`, `tests/test_hooks.py` | 2026-09-04 | Nothing ever asked whether the published site answers on HTTPS, and for weeks it did not |
+| `draughtsman-4f` | `site-check` | `tools/site_check.py`, `tests/test_hooks.py`, `.claude/hooks/draughtsman-briefing.sh` | 2026-09-04 | Nothing ever asked whether the published site answers on HTTPS, and for weeks it did not |
 | `draughtsman-a3` | `icon-legibility` | `src/draughtsman/icon.py`, `src/draughtsman/cli.py`, `tests/test_icon.py`, `.github/workflows/test.yml`, `index.html` | 2026-09-04 | Making the icon scale say whether the mark reads, and holding committed icons in CI |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
