@@ -114,6 +114,7 @@ that nothing checks is decoration until something does.**
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
 | `draughtsman-a3` | `site-icons` | `index.html`, `examples/tube/icon.svg`, `examples/gallery/dual/icon.svg`, `examples/gallery/lenet/icon.svg`, `examples/gallery/lstm/icon.svg`, `examples/gallery/mlp/icon.svg`, `examples/gallery/resnet/icon.svg`, `examples/gallery/transformer/icon.svg`, `examples/gallery/unet/icon.svg`, `examples/gallery/vae/icon.svg`, `examples/gallery/whisper/icon.svg` | 2026-09-04 | Committing the 1×2in marks and putting the legibility threshold on the page |
+| `draughtsman-9e` | `name-the-icon-slot` | `src/draughtsman/cli.py` | 2026-09-04 | Naming the icon slot, so `--icon` stops meaning both a render mode and a chosen mark |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
