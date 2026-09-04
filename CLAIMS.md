@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-9e` | `theme-able-fills` | `src/draughtsman/render.py`, `tests/test_render.py`, `examples/gallery/dual/figure.svg`, `examples/gallery/dual/icon.svg`, `examples/gallery/lenet/figure.svg`, `examples/gallery/lenet/icon.svg`, `examples/gallery/lstm/figure.svg`, `examples/gallery/lstm/icon.svg`, `examples/gallery/mlp/figure.svg`, `examples/gallery/mlp/icon.svg`, `examples/gallery/resnet/figure.svg`, `examples/gallery/resnet/icon.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/transformer/icon.svg`, `examples/gallery/unet/figure.svg`, `examples/gallery/unet/icon.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/vae/icon.svg`, `examples/gallery/whisper/figure.svg`, `examples/gallery/whisper/icon.svg`, `examples/tube/figure.svg`, `examples/tube/icon.svg` | 2026-09-04 | Stage fills as CSS variables with the hex as fallback, so a mark can sit on a dark card |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
