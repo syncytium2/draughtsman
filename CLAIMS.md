@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c4` | `crossings-not-sums` | `tools/edge_collisions.py`, `tests/test_edge_collisions.py` | 2026-09-04 | Reporting each contiguous crossing as its own row, so a bypass arc clipping two corners is not summed into one figure that reads as a traversal |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
