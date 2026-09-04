@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-f7` | `edges-through-boxes` | `tools/edge_collisions.py`, `tests/test_edge_collisions.py` | 2026-09-04 | Six edges run through boxes they have nothing to do with, and nothing looks |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
