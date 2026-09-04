@@ -233,11 +233,17 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   is hand-placed and nothing is redrawn: a mark is the figure with everything unreadable
   taken out.</p>
   <p><strong>Three of them work.</strong> <code>--icon</code> prints the scale it drew
-  at, and that number predicts the verdict exactly: at or above 0.30× a mark reads, at
-  or below 0.21× it does not. Nothing in the tool consumes that number yet — it is
-  printed and thrown away, so a mark that will not read still ships. The check that
-  exists asserts a mark is complete, uncropped and textless, which is a different
-  question from whether anyone can see it.</p>
+  at, and that number predicts the verdict: at or above 0.30× a mark reads, at or below
+  0.17× it does not, and the two in between are marginal. Read the ordering no more
+  finely than that — the measured values jump 0.30 to 0.21 with nothing between them,
+  then 0.20 to 0.17, so the marginal pair is separated from the readable marks by a
+  real gap and from each other by a hair.</p>
+  <p>Nothing in the tool consumes that number — it is printed and thrown away, so a
+  mark that will not read still ships. The check that exists asserts a mark is
+  complete, uncropped and textless, which is a different question from whether anyone
+  can see it. Nor does anything re-render a committed mark: <code>tube</code>'s moved
+  from 0.15× to 0.20× when its <code>wrap</code> changed for the banner above, and a
+  person caught that, not a check.</p>
   <div class="marks">
     <figure class="mark">
       <div class="plate"><img src="examples/gallery/mlp/icon.svg" width="192" height="96"
