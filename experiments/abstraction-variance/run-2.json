@@ -1,0 +1,444 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "ResNet",
+  "subtitle": "{model.params} parameters · {model.input_shape} in",
+  "batch_axis": 0,
+  "stages": [
+    {
+      "id": "image",
+      "name": "input image",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{model.input_shape}"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "stem",
+      "name": "stem",
+      "kind": "conv",
+      "nodes": [
+        "n0014",
+        "n0023",
+        "n0024"
+      ],
+      "detail": [
+        "conv kernel {node:n0014.weight_shape[2]}",
+        "BN, ReLU",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "One convolution at full resolution. It fixes the width that every block at this resolution keeps.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "branch",
+      "name": "residual branch",
+      "kind": "conv",
+      "nodes": [
+        "n0048",
+        "n0053",
+        "n0054",
+        "n0060",
+        "n0065"
+      ],
+      "detail": [
+        "two convs kernel {node:n0048.weight_shape[2]}",
+        "each with BN",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "The first block is drawn open — branch and rejoin as two boxes — so a reader learns the unit that every later block repeats. Splitting it is the only way this figure can draw the identity shortcut as an edge: collapsed into one box, the bypass and the trunk are the same arrow and the residual connection disappears, which is exactly the linear-stack reading this tool exists to prevent.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "join",
+      "name": "add the input back",
+      "kind": "op",
+      "nodes": [
+        "n0066",
+        "n0067"
+      ],
+      "detail": [
+        "sum, then ReLU",
+        "{stage.out_shape}"
+      ],
+      "note": "No parameters. This box and the dashed edge reaching it are the residual connection; every stage below named 'residual block' closes the same way, inside its box.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "b1",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": [
+        "n0077",
+        "n0082",
+        "n0083",
+        "n0089",
+        "n0094",
+        "n0095",
+        "n0096"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "The same seven operations as the branch and the add above, collapsed. The five blocks that carry this one name are identical in structure, and giving them one name is the only claim of repetition this figure makes — a `repeat` template cannot verify it here, because the two blocks that change shape carry a projection the others do not.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "proj32",
+      "name": "projection shortcut",
+      "kind": "conv",
+      "nodes": [
+        "n0109",
+        "n0114"
+      ],
+      "detail": [
+        "kernel {node:n0109.weight_shape[2]}, stride {node:n0109.constants.stride}",
+        "{stage.params} params"
+      ],
+      "note": "Where the trunk changes shape the shortcut cannot be the identity, so it becomes a strided pointwise convolution with a BN. This is the one residual path the trace records as a computation of its own, which is why it gets a box while the identity shortcuts get an edge.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "b2",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": [
+        "n0120",
+        "n0125",
+        "n0126",
+        "n0132",
+        "n0137",
+        "n0138",
+        "n0139"
+      ],
+      "detail": [
+        "stride {node:n0120.constants.stride}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "b3",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": [
+        "n0149",
+        "n0154",
+        "n0155",
+        "n0161",
+        "n0166",
+        "n0167",
+        "n0168"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "proj64",
+      "name": "projection shortcut",
+      "kind": "conv",
+      "nodes": [
+        "n0181",
+        "n0186"
+      ],
+      "detail": [
+        "kernel {node:n0181.weight_shape[2]}, stride {node:n0181.constants.stride}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "b4",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": [
+        "n0192",
+        "n0197",
+        "n0198",
+        "n0204",
+        "n0209",
+        "n0210",
+        "n0211"
+      ],
+      "detail": [
+        "stride {node:n0192.constants.stride}",
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "b5",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": [
+        "n0221",
+        "n0226",
+        "n0227",
+        "n0233",
+        "n0238",
+        "n0239",
+        "n0240"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "{stage.params} params"
+      ],
+      "note": "This one block holds more weights than both resolutions above it put together: halving the map and doubling the width multiplies a block's parameters by four.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2,
+          -1
+        ],
+        "labels": [
+          "channels",
+          "height",
+          "width"
+        ],
+        "scale": "sqrt",
+        "style": "sheets"
+      }
+    },
+    {
+      "id": "classifier",
+      "name": "classifier",
+      "kind": "output",
+      "nodes": [
+        "n0244",
+        "n0247",
+        "n0250"
+      ],
+      "detail": [
+        "average the map away",
+        "then linear",
+        "{stage.out_shape[1]} classes",
+        "{stage.params} params"
+      ],
+      "note": "Pool, flatten and linear are one idea: the spatial map is averaged to a single value per channel and those are scored. The pool is why the head is a rounding error in the parameter count. It is the only stage without a glyph — what leaves it is ten logits, and a vector has no map to draw; drawing its input instead would put a tensor in the box that the stage does not produce."
+    }
+  ],
+  "edges": [
+    {
+      "from": "image",
+      "to": "stem"
+    },
+    {
+      "from": "stem",
+      "to": "join",
+      "label": "identity",
+      "style": "dashed"
+    },
+    {
+      "from": "stem",
+      "to": "branch"
+    },
+    {
+      "from": "branch",
+      "to": "join"
+    },
+    {
+      "from": "join",
+      "to": "b1"
+    },
+    {
+      "from": "b1",
+      "to": "proj32"
+    },
+    {
+      "from": "b1",
+      "to": "b2"
+    },
+    {
+      "from": "proj32",
+      "to": "b2"
+    },
+    {
+      "from": "b2",
+      "to": "b3"
+    },
+    {
+      "from": "b3",
+      "to": "proj64"
+    },
+    {
+      "from": "b3",
+      "to": "b4"
+    },
+    {
+      "from": "proj64",
+      "to": "b4"
+    },
+    {
+      "from": "b4",
+      "to": "b5"
+    },
+    {
+      "from": "b5",
+      "to": "classifier"
+    }
+  ],
+  "layout": {
+    "orientation": "lr",
+    "wrap": 400,
+    "legend": true,
+    "chrome": "box"
+  },
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
+  },
+  "caption": "Six residual blocks over three resolutions; every shape is channels × height × width. The first block is drawn open, so the shortcut is an edge a reader can follow: the branch computes, the input arrives unchanged along the dashed line, and the two are summed. Every later block closes the same way inside one box. Where the map halves and the width doubles the shortcut cannot be an identity and becomes a strided pointwise convolution — the only residual path the trace records separately, and the reason those two have a box of their own."
+}

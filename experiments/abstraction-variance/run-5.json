@@ -1,0 +1,163 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "batch_axis": 0,
+  "title": "ResNet",
+  "subtitle": "{model.params} parameters · {model.input_shape} in · {node:n0250.out_shape[1]} classes",
+  "stages": [
+    {
+      "id": "image",
+      "name": "image",
+      "kind": "input",
+      "nodes": ["in1"],
+      "detail": ["{stage.out_shape}"],
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "stem",
+      "name": "stem conv",
+      "kind": "conv",
+      "nodes": ["n0014", "n0023", "n0024"],
+      "detail": ["kernel {node:n0014.weight_shape[2]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "note": "The only convolution outside a block. It lifts the image to the first width and nothing else: no stride, no pooling, which is why the map keeps its full size until the first downsampling block.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res0_branch",
+      "name": "residual branch",
+      "kind": "conv",
+      "nodes": ["n0048", "n0053", "n0054", "n0060", "n0065"],
+      "detail": ["conv · BN · ReLU · conv · BN",
+                 "kernel {node:n0048.weight_shape[2]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "note": "The first block is the only one drawn open. Its branch and its add are the interior every later block box stands for, and a figure that never shows them once has drawn a residual network as a stack of opaque boxes — which is the reading this model exists to refuse.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res0_join",
+      "name": "add input, ReLU",
+      "kind": "concat",
+      "nodes": ["n0066", "n0067"],
+      "detail": ["{stage.out_shape}"],
+      "note": "The rejoin: an elementwise add of the branch and the untouched input, then the activation. No parameters at all, which is the whole argument for the shortcut.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res1",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": ["n0077", "n0082", "n0083", "n0089", "n0094", "n0095", "n0096"],
+      "detail": ["{stage.out_shape}", "{stage.params} params"],
+      "note": "Drawn closed: its fork and add are inside the box, and its operation sequence is identical to the branch-and-join drawn open upstream. Not a `repeat` claim — with two blocks per width, a template that tiles a stage exactly once is a repetition of one, so the count would be the agent's word rather than the graph's.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "proj32",
+      "name": "projection shortcut",
+      "kind": "kernel",
+      "nodes": ["n0109", "n0114"],
+      "detail": ["kernel {node:n0109.weight_shape[2]}",
+                 "stride {node:n0109.constants.stride[0]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "note": "Where the width doubles and the map halves, the shortcut cannot be the identity — the shapes no longer match — so it becomes a strided pointwise convolution with a norm. It is a real second branch off the same tensor in the trace, and it is drawn as one. Held in its own stage rather than folded into the block beside it precisely so the fork is visible.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res2",
+      "name": "downsampling block",
+      "kind": "conv",
+      "nodes": ["n0120", "n0125", "n0126", "n0132", "n0137", "n0138", "n0139"],
+      "detail": ["stride {node:n0120.constants.stride[0]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "note": "The block's own path and its add. The shortcut arriving from the projection stage is added at the end of this box, which is why the dashed arrow lands here rather than passing through.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res3",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": ["n0149", "n0154", "n0155", "n0161", "n0166", "n0167", "n0168"],
+      "detail": ["{stage.out_shape}", "{stage.params} params"],
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "proj64",
+      "name": "projection shortcut",
+      "kind": "kernel",
+      "nodes": ["n0181", "n0186"],
+      "detail": ["kernel {node:n0181.weight_shape[2]}",
+                 "stride {node:n0181.constants.stride[0]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res4",
+      "name": "downsampling block",
+      "kind": "conv",
+      "nodes": ["n0192", "n0197", "n0198", "n0204", "n0209", "n0210", "n0211"],
+      "detail": ["stride {node:n0192.constants.stride[0]}", "{stage.out_shape}",
+                 "{stage.params} params"],
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "res5",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": ["n0221", "n0226", "n0227", "n0233", "n0238", "n0239", "n0240"],
+      "detail": ["{stage.out_shape}", "{stage.params} params"],
+      "note": "The last block carries more parameters than everything before the first downsample put together: the width doubles twice while the map quarters, so depth and cost are not the same axis. The shapes drawn along the spine are where a reader can see that.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "gap",
+      "name": "global average pool",
+      "kind": "reduce",
+      "nodes": ["n0244"],
+      "detail": ["{stage.out_shape}"],
+      "note": "The whole spatial extent becomes one number per channel. Drawn rather than folded into the classifier because it is the step that discards position, and its glyph is the only place a reader sees the map disappear.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "style": "sheets"}
+    },
+    {
+      "id": "head",
+      "name": "linear classifier",
+      "kind": "output",
+      "nodes": ["n0247", "n0250"],
+      "detail": ["{stage.out_shape[1]} classes", "{stage.params} params"],
+      "note": "The flatten sits here rather than with the pool: it changes no value, and the pool has already reduced the axes it drops. No glyph, because past this point there is no spatial shape to draw on the axes every other glyph uses."
+    }
+  ],
+  "edges": [
+    {"from": "image", "to": "stem"},
+    {"from": "stem", "to": "res0_branch"},
+    {"from": "res0_branch", "to": "res0_join"},
+    {"from": "stem", "to": "res0_join", "label": "identity", "style": "dashed"},
+    {"from": "res0_join", "to": "res1"},
+    {"from": "res1", "to": "res2"},
+    {"from": "res1", "to": "proj32", "style": "dashed"},
+    {"from": "proj32", "to": "res2", "label": "shortcut", "style": "dashed"},
+    {"from": "res2", "to": "res3"},
+    {"from": "res3", "to": "res4"},
+    {"from": "res3", "to": "proj64", "style": "dashed"},
+    {"from": "proj64", "to": "res4", "label": "shortcut", "style": "dashed"},
+    {"from": "res4", "to": "res5"},
+    {"from": "res5", "to": "gap"},
+    {"from": "gap", "to": "head"}
+  ],
+  "elided": [],
+  "layout": {"orientation": "lr", "wrap": 550, "legend": true, "chrome": "none"},
+  "output": {"width": "6in", "min_type": "6pt"},
+  "caption": "Shortcut paths are dashed. Every block adds its own input back to its output; the first block is drawn open so that the fork and the add are visible once, and the rest are drawn closed with the same interior. Where the width doubles and the map halves the shortcut cannot be the identity, so it becomes the strided convolution drawn beside those two blocks."
+}

@@ -1,0 +1,351 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "batch_axis": 0,
+  "title": "ResNet",
+  "subtitle": "{model.params} parameters · every activation shape is channels × height × width",
+  "stages": [
+    {
+      "id": "image",
+      "name": "image",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "stem",
+      "name": "stem",
+      "kind": "conv",
+      "nodes": [
+        "n0014",
+        "n0023",
+        "n0024"
+      ],
+      "detail": [
+        "conv, bn, relu",
+        "kernel {node:n0014.weight_shape[2]}",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The only convolution that is not inside a residual block, and the only one nothing bypasses."
+    },
+    {
+      "id": "conv_a",
+      "name": "residual path, full",
+      "kind": "conv",
+      "nodes": [
+        "n0048",
+        "n0053",
+        "n0054",
+        "n0060",
+        "n0065"
+      ],
+      "detail": [
+        "conv, bn, relu, conv, bn",
+        "kernel {node:n0048.weight_shape[2]}",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "Drawn apart from its sum so that the bypass around it is an arrow in the figure rather than a sentence in a box. This is the unit the whole model is built from."
+    },
+    {
+      "id": "sum_a",
+      "name": "sum, identity",
+      "kind": "concat",
+      "nodes": [
+        "n0066",
+        "n0067"
+      ],
+      "detail": [
+        "add, then relu",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The shortcut hands the stem's output through untouched, so the join costs nothing: the empty bar here is a fact about the architecture, not a missing measurement."
+    },
+    {
+      "id": "blk_a2",
+      "name": "second block, full",
+      "kind": "conv",
+      "nodes": [
+        "n0077",
+        "n0082",
+        "n0083",
+        "n0089",
+        "n0094",
+        "n0095",
+        "n0096"
+      ],
+      "detail": [
+        "the same block again",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "Structurally identical to conv_a followed by sum_a, identity shortcut included. Its shortcut is inside this box and is not drawn: the residual pattern is expanded once, where a reader first meets it, and again only where it changes."
+    },
+    {
+      "id": "conv_b",
+      "name": "residual path, half",
+      "kind": "conv",
+      "nodes": [
+        "n0120",
+        "n0125",
+        "n0126",
+        "n0132",
+        "n0137"
+      ],
+      "detail": [
+        "conv, bn, relu, conv, bn",
+        "kernel {node:n0120.weight_shape[2]}, stride {node:n0120.constants.stride}",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The stride sits on the first of the two convolutions. This is where the map halves and the channel count doubles, and it is why the shortcut beside it cannot be the identity."
+    },
+    {
+      "id": "sum_b",
+      "name": "sum, projected shortcut",
+      "kind": "concat",
+      "nodes": [
+        "n0109",
+        "n0114",
+        "n0138",
+        "n0139"
+      ],
+      "detail": [
+        "shortcut: kernel {node:n0109.weight_shape[2]}, stride {node:n0109.constants.stride}",
+        "then add and relu",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "Where the shapes change the shortcut has to be computed, so it carries a pointwise strided convolution and its batch norm. Those two nodes live in the join rather than in a stage of their own, so that the fork out of the previous stage still reads as two routes and not as three boxes."
+    },
+    {
+      "id": "blk_b2",
+      "name": "second block, half",
+      "kind": "conv",
+      "nodes": [
+        "n0149",
+        "n0154",
+        "n0155",
+        "n0161",
+        "n0166",
+        "n0167",
+        "n0168"
+      ],
+      "detail": [
+        "the same block again",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "Shapes no longer change here, so this block's shortcut is the identity again."
+    },
+    {
+      "id": "conv_c",
+      "name": "residual path, quarter",
+      "kind": "conv",
+      "nodes": [
+        "n0192",
+        "n0197",
+        "n0198",
+        "n0204",
+        "n0209"
+      ],
+      "detail": [
+        "conv, bn, relu, conv, bn",
+        "kernel {node:n0192.weight_shape[2]}, stride {node:n0192.constants.stride}",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The second and last halving of the map."
+    },
+    {
+      "id": "sum_c",
+      "name": "sum, projected shortcut",
+      "kind": "concat",
+      "nodes": [
+        "n0181",
+        "n0186",
+        "n0210",
+        "n0211"
+      ],
+      "detail": [
+        "shortcut: kernel {node:n0181.weight_shape[2]}, stride {node:n0181.constants.stride}",
+        "then add and relu",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ]
+    },
+    {
+      "id": "blk_c2",
+      "name": "second block, quarter",
+      "kind": "conv",
+      "nodes": [
+        "n0221",
+        "n0226",
+        "n0227",
+        "n0233",
+        "n0238",
+        "n0239",
+        "n0240"
+      ],
+      "detail": [
+        "the same block again",
+        "{stage.out_shape}"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The widest block in the model, and on its own the largest single share of its parameters."
+    },
+    {
+      "id": "head",
+      "name": "pool and classify",
+      "kind": "output",
+      "nodes": [
+        "n0244",
+        "n0247",
+        "n0250"
+      ],
+      "detail": [
+        "average over the map, then linear",
+        "{stage.out_shape} classes"
+      ],
+      "meters": [
+        {
+          "value": "{stage.params}",
+          "label": "params"
+        }
+      ],
+      "note": "The pool throws the whole spatial map away, so the linear layer sees one number per channel and the classifier is tiny."
+    }
+  ],
+  "edges": [
+    {
+      "from": "image",
+      "to": "stem"
+    },
+    {
+      "from": "stem",
+      "to": "sum_a",
+      "label": "identity",
+      "style": "dashed"
+    },
+    {
+      "from": "stem",
+      "to": "conv_a"
+    },
+    {
+      "from": "conv_a",
+      "to": "sum_a"
+    },
+    {
+      "from": "sum_a",
+      "to": "blk_a2"
+    },
+    {
+      "from": "blk_a2",
+      "to": "sum_b",
+      "label": "shortcut",
+      "style": "dashed"
+    },
+    {
+      "from": "blk_a2",
+      "to": "conv_b"
+    },
+    {
+      "from": "conv_b",
+      "to": "sum_b"
+    },
+    {
+      "from": "sum_b",
+      "to": "blk_b2"
+    },
+    {
+      "from": "blk_b2",
+      "to": "sum_c",
+      "label": "shortcut",
+      "style": "dashed"
+    },
+    {
+      "from": "blk_b2",
+      "to": "conv_c"
+    },
+    {
+      "from": "conv_c",
+      "to": "sum_c"
+    },
+    {
+      "from": "sum_c",
+      "to": "blk_c2"
+    },
+    {
+      "from": "blk_c2",
+      "to": "head"
+    }
+  ],
+  "elided": [],
+  "layout": {
+    "orientation": "lr",
+    "wrap": 560,
+    "legend": true,
+    "chrome": "box"
+  },
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
+  },
+  "caption": "The model is one unit repeated at falling resolution: a pair of convolutions with a shortcut around them. That bypass is drawn where a reader first meets it and wherever it changes — an identity arrow around the first pair, and a computed shortcut at each point where the map halves and the channels double. Every other block is the same structure collapsed into a single box, its own identity shortcut inside it and not drawn. The parameter bars share one scale across the figure and run opposite to the tensor: the map shrinks at every step down while the weights grow, so most of this model sits in the last boxes before the pool, and the joins that make it a ResNet are almost free."
+}

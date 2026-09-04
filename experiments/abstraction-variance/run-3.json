@@ -1,0 +1,122 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "ResNet",
+  "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0250.out_shape[1]} classes out",
+  "batch_axis": 0,
+  "stages": [
+    {
+      "id": "image",
+      "name": "input",
+      "kind": "input",
+      "nodes": ["in1"],
+      "detail": ["{stage.out_shape}"],
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "stem",
+      "name": "stem",
+      "kind": "conv",
+      "nodes": ["n0014", "n0023", "n0024"],
+      "detail": ["{node:n0014.weight_shape[2]}×{node:n0014.weight_shape[3]} conv, BN, ReLU",
+                 "{stage.out_shape}"],
+      "note": "The one convolution outside a residual block. Its output is the tensor the first shortcut carries forward, which is why the arrow to the rejoin starts here.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "block",
+      "name": "residual block",
+      "kind": "conv",
+      "nodes": ["n0048", "n0053", "n0054", "n0060", "n0065"],
+      "detail": ["conv, BN, ReLU, conv, BN", "{stage.params} params"],
+      "note": "One block opened so the reader can see what every later box contains. The shortcut is not drawn inside it: it is the edge that skips this stage entirely.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "join",
+      "name": "shortcut rejoins",
+      "kind": "concat",
+      "nodes": ["n0066", "n0067"],
+      "detail": ["add, then ReLU", "{stage.out_shape}"],
+      "note": "The add is a real fork and rejoin in the trace: it consumes the stem's output and the main path's, which is what makes the bypass edge traced rather than asserted.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "again",
+      "name": "the same block again",
+      "kind": "stack",
+      "nodes": ["n0077", "n0082", "n0083", "n0089", "n0094", "n0095", "n0096"],
+      "detail": ["{stage.nodes} ops · {stage.params} params", "{stage.out_shape}"],
+      "note": "Identical in structure to the two stages before it, shortcut included; collapsed because the anatomy has already been shown once. No repeat template is claimed anywhere in this figure: the widths differ in structure — the first block of each wider group carries a projection shortcut — so nothing tiles more than once, and a repetition that does not tile exactly must not be drawn as one.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "wider",
+      "name": "wider blocks, half the map",
+      "kind": "stack",
+      "nodes": ["n0109", "n0114", "n0120", "n0125", "n0126", "n0132", "n0137",
+                "n0138", "n0139", "n0149", "n0154", "n0155", "n0161", "n0166",
+                "n0167", "n0168"],
+      "detail": ["{stage.nodes} ops · {stage.params} params",
+                 "stride {node:n0120.constants.stride}, {node:n0109.weight_shape[2]}×{node:n0109.weight_shape[3]} projection shortcut"],
+      "note": "Two blocks. The first strides and doubles the channels, so its shortcut cannot be the identity — a 1x1 convolution projects it, and that projection is the fork buried inside this box. The second block is an identity block like the two opened upstream.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "widest",
+      "name": "wider again, quarter the map",
+      "kind": "stack",
+      "nodes": ["n0181", "n0186", "n0192", "n0197", "n0198", "n0204", "n0209",
+                "n0210", "n0211", "n0221", "n0226", "n0227", "n0233", "n0238",
+                "n0239", "n0240"],
+      "detail": ["{stage.nodes} ops · {stage.params} params",
+                 "stride {node:n0192.constants.stride}, {node:n0181.weight_shape[2]}×{node:n0181.weight_shape[3]} projection shortcut"],
+      "note": "The same pair again at the last width, and where most of the model's parameters are — a convolution's cost grows with the square of the channel count while the map it runs over shrinks only linearly in each axis.",
+      "glyph": {"of": "{stage.out_shape}", "axes": [-3, -2, -1],
+                "labels": ["channels", "height", "width"], "scale": "sqrt",
+                "style": "sheets"}
+    },
+    {
+      "id": "pool",
+      "name": "average over the map",
+      "kind": "reduce",
+      "nodes": ["n0244", "n0247"],
+      "detail": ["one number per channel", "{stage.out_shape} features"],
+      "note": "Global average pool and the flatten that follows it: the spatial axes go away here, which is why no glyph is drawn from this stage on — there is no map left to draw."
+    },
+    {
+      "id": "head",
+      "name": "class scores",
+      "kind": "output",
+      "nodes": ["n0250"],
+      "detail": ["{stage.out_shape[1]} classes", "{stage.params} params"]
+    }
+  ],
+  "edges": [
+    {"from": "image", "to": "stem"},
+    {"from": "stem", "to": "join", "label": "identity", "style": "dashed"},
+    {"from": "stem", "to": "block"},
+    {"from": "block", "to": "join"},
+    {"from": "join", "to": "again"},
+    {"from": "again", "to": "wider"},
+    {"from": "wider", "to": "widest"},
+    {"from": "widest", "to": "pool"},
+    {"from": "pool", "to": "head"}
+  ],
+  "elided": [],
+  "layout": {"orientation": "lr", "wrap": 620, "legend": true, "chrome": "box"},
+  "output": {"width": "6in", "min_type": "6pt"},
+  "caption": "The first block is opened — its convolutions beside the shortcut that skips them — so every collapsed box downstream can be read as the same pattern, with a projection standing in for the identity wherever the width changes. Each glyph is the tensor at that point: channels deep, the map as its face."
+}

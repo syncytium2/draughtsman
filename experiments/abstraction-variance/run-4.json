@@ -1,0 +1,367 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "batch_axis": 0,
+  "title": "ResNet",
+  "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0250.out_shape} out",
+  "stages": [
+    {
+      "id": "image",
+      "name": "input image",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{model.input_shape}",
+        "colour × height × width"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "stem",
+      "name": "stem conv",
+      "kind": "conv",
+      "nodes": [
+        "n0014",
+        "n0023",
+        "n0024"
+      ],
+      "detail": [
+        "{node:n0014.weight_shape[2]}×{node:n0014.weight_shape[3]}, BN, ReLU",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "note": "A convolution, its batch-norm and its ReLU are one stage everywhere in this figure. Batch-norm and activation are not a choice a reader weighs, and splitting them would triple the box count without adding a decision to it.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "res1",
+      "name": "residual branch",
+      "kind": "conv",
+      "nodes": [
+        "n0048",
+        "n0053",
+        "n0054",
+        "n0060",
+        "n0065"
+      ],
+      "detail": [
+        "two {node:n0048.weight_shape[2]}×{node:n0048.weight_shape[3]} convs",
+        "{stage.params} params"
+      ],
+      "note": "The first block is the only one drawn open. Its branch and the identity path that skips it are the anatomy that every later block box contains; those boxes are this same pair with the fork buried inside, which is why they are named as blocks and not as convolutions."
+    },
+    {
+      "id": "add1",
+      "name": "add + ReLU",
+      "kind": "concat",
+      "nodes": [
+        "n0066",
+        "n0067"
+      ],
+      "detail": [
+        "branch + shortcut"
+      ],
+      "note": "The rejoin, drawn rather than described: the branch above and the stem's output, which arrives unchanged."
+    },
+    {
+      "id": "blocks16",
+      "name": "residual block",
+      "kind": "stack",
+      "nodes": [
+        "n0077",
+        "n0082",
+        "n0083",
+        "n0089",
+        "n0094",
+        "n0095",
+        "n0096"
+      ],
+      "detail": [
+        "identity shortcut",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "note": "The same operation sequence as res1 + add1, folded into one box. Not claimed with `repeat`: a template that tiles exactly once is not a repetition, and draughtsman says so.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "down32",
+      "name": "downsample block",
+      "kind": "stack",
+      "nodes": [
+        "n0109",
+        "n0114",
+        "n0120",
+        "n0125",
+        "n0126",
+        "n0132",
+        "n0137",
+        "n0138",
+        "n0139"
+      ],
+      "detail": [
+        "stride {node:n0120.constants.stride}",
+        "{node:n0109.weight_shape[2]}×{node:n0109.weight_shape[3]} shortcut",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "note": "Where the shape changes the shortcut cannot be the identity, so this block convolves its skip path instead — the one structural difference among the six blocks. It stays inside the box because opening both transitions would cost four more stages to say the same thing twice.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "blocks32",
+      "name": "residual block",
+      "kind": "stack",
+      "nodes": [
+        "n0149",
+        "n0154",
+        "n0155",
+        "n0161",
+        "n0166",
+        "n0167",
+        "n0168"
+      ],
+      "detail": [
+        "identity shortcut",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "down64",
+      "name": "downsample block",
+      "kind": "stack",
+      "nodes": [
+        "n0181",
+        "n0186",
+        "n0192",
+        "n0197",
+        "n0198",
+        "n0204",
+        "n0209",
+        "n0210",
+        "n0211"
+      ],
+      "detail": [
+        "stride {node:n0192.constants.stride}",
+        "{node:n0181.weight_shape[2]}×{node:n0181.weight_shape[3]} shortcut",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "blocks64",
+      "name": "residual block",
+      "kind": "stack",
+      "nodes": [
+        "n0221",
+        "n0226",
+        "n0227",
+        "n0233",
+        "n0238",
+        "n0239",
+        "n0240"
+      ],
+      "detail": [
+        "identity shortcut",
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape[2]}×{stage.out_shape[3]} map",
+        "{stage.params} params"
+      ],
+      "note": "Most of the model's parameters sit in the last pair of blocks: a square kernel costs the product of its channel counts, and the channels have doubled twice.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "pool",
+      "name": "average pool",
+      "kind": "reduce",
+      "nodes": [
+        "n0244"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} channel means"
+      ],
+      "note": "The spatial axes go to one here, which is why the glyph collapses to a column: past this point the network has no picture left, only channels.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -2
+        ],
+        "labels": [
+          "channels",
+          "height"
+        ],
+        "scale": "sqrt",
+        "style": "block"
+      }
+    },
+    {
+      "id": "head",
+      "name": "class scores",
+      "kind": "output",
+      "nodes": [
+        "n0247",
+        "n0250"
+      ],
+      "detail": [
+        "flatten, linear",
+        "{stage.out_shape[1]} classes",
+        "{stage.params} params"
+      ],
+      "note": "The flatten is grouped with the linear layer it feeds rather than with the pool: it is bookkeeping for the classifier, and alone it would be a box that changes no number."
+    }
+  ],
+  "edges": [
+    {
+      "from": "image",
+      "to": "stem"
+    },
+    {
+      "from": "stem",
+      "to": "res1"
+    },
+    {
+      "from": "stem",
+      "to": "add1",
+      "label": "identity",
+      "style": "dashed"
+    },
+    {
+      "from": "res1",
+      "to": "add1"
+    },
+    {
+      "from": "add1",
+      "to": "blocks16"
+    },
+    {
+      "from": "blocks16",
+      "to": "down32"
+    },
+    {
+      "from": "down32",
+      "to": "blocks32"
+    },
+    {
+      "from": "blocks32",
+      "to": "down64"
+    },
+    {
+      "from": "down64",
+      "to": "blocks64"
+    },
+    {
+      "from": "blocks64",
+      "to": "pool"
+    },
+    {
+      "from": "pool",
+      "to": "head"
+    }
+  ],
+  "layout": {
+    "orientation": "lr",
+    "wrap": 620,
+    "legend": true,
+    "chrome": "box"
+  },
+  "output": {
+    "width": "6in",
+    "min_type": "6pt"
+  },
+  "caption": "Six residual blocks in three widths. The first is opened so the branch and the shortcut that skips it can be seen; the rest are one box each, with that fork inside. Rectangles are channels by map height on a shared square-root scale, and the maps are square: the map halves and the channels double at each downsample block, where the shortcut stops being the identity and becomes a strided convolution."
+}
