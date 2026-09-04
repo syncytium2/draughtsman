@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c4` | `edge-clearance` | `src/draughtsman/layout.py`, `src/draughtsman/render.py`, `tests/test_edge_collisions.py`, `examples/gallery/dual/figure.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/whisper/figure.svg`, `examples/tube/figure.svg` | 2026-09-04 | Giving an edge clearance from boxes it does not belong to: dual's traversal, vae's border ride, and the three bypass arcs that clip the corners of the stage they skip |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
