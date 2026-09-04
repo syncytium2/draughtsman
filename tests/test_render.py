@@ -742,3 +742,29 @@ def test_which_glyphs_are_estimated_is_pinned_rather_than_silent():
         + " ".join(f"U+{ord(c):04X} {c!r}" for c in sorted(new))
         + ". Measure them into `_W`, or add them here and say why they are "
           "acceptable as estimates.")
+
+
+# A FILL IS RESTATABLE, AND THE FALLBACK IS WHAT KEEPS TODAY'S FIGURES TODAY'S.
+# tonydefazio.com could not put a mark on a dark card because the fills were
+# literal hex for a light plate. They are now var(--ds-fill-<kind>, <hex>), so a
+# host restates the ground and a standalone file does not move.
+
+def test_every_stage_fill_is_restatable_and_falls_back_to_the_palette():
+    from draughtsman.render import PALETTE, paint
+    for kind, (fill, stroke) in PALETTE.items():
+        f, s = paint(kind)
+        assert f == f"var(--ds-fill-{kind},{fill})", kind
+        assert s == f"var(--ds-stroke-{kind},{stroke})", kind
+    # an unknown kind falls to "op" in BOTH the name and the value, so a host
+    # restating --ds-fill-op catches it rather than it going unreachable
+    assert paint("no-such-kind") == paint("op")
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_no_stage_fill_is_emitted_as_bare_hex(d):
+    """The fallback lives inside the var(), never beside it. A bare palette hex
+    in the output is a fill some host can never restate."""
+    from draughtsman.render import PALETTE
+    svg = (d / "figure.svg").read_text()
+    bare = {h for h, _ in PALETTE.values() if f"fill:{h}" in svg}
+    assert not bare, f"{d}/figure.svg emits unrestatable fills: {sorted(bare)}"

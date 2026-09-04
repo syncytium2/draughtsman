@@ -206,6 +206,39 @@ PALETTE = {
     "op":      ("#f0f0ef", "#8a8a86"),
 }
 
+
+# A FILL IS A STATED COLOUR ON A GROUND THIS FILE DOES NOT OWN.
+#
+# The ink above already splits on exactly this: pinned where it sits on a box
+# fill, `currentColor` where it sits on the page. The fills themselves were left
+# pinned, which is right for a figure on a white page and wrong for a MARK on a
+# card -- tonydefazio.com could not use an icon because these pale fills glow on
+# a dark plate, and flattening them host-side would have discarded the stage-kind
+# distinction they encode.
+#
+# So each fill is emitted as `var(--ds-fill-<kind>, <hex>)`. The hex is the
+# fallback, so a standalone file, a PNG export and every committed figure render
+# exactly as before; a host that wants a dark ground restates the nine variables
+# and nothing else. This is a deliberate reversal of "inline so a host rule
+# cannot repaint it" -- for fills only, and only through a name the host must
+# opt into. An unset variable cannot repaint anything by accident.
+#
+# WHAT THIS DOES NOT DO. It does not compute a dark palette. "Hue is the family,
+# value is the kind" is a constraint on the VALUES, and a host that restates them
+# owns keeping the convolutional kinds apart in a greyscale print. The variables
+# make that possible; they do not make it automatic.
+#
+# AND IT ONLY WORKS IN A BROWSER. librsvg does not implement custom properties:
+# `rsvg-convert` takes the fallback even when the variable is set on the root
+# element, measured. That is the right default -- every PNG in this repo renders
+# as it always did -- but it means a dark PNG cannot be produced by restating
+# these and rasterising. Verified in WebKit, where it does work.
+def paint(kind: str) -> tuple[str, str]:
+    """(fill, stroke) for *kind*, each host-restatable with the hex as fallback."""
+    key = kind if kind in PALETTE else "op"
+    fill, stroke = PALETTE[key]
+    return f"var(--ds-fill-{key},{fill})", f"var(--ds-stroke-{key},{stroke})"
+
 LEGEND_SIZE = DETAIL_SIZE
 LEGEND_ROW = 15.0
 #: Continuation lines of a wrapped legend share, tighter than the row pitch --
@@ -618,7 +651,7 @@ def render(spec: Spec, graph: Graph) -> str:
                     f'style="fill:currentColor;fill-opacity:0.55"/>'
                 )
             else:
-                fill, stroke = PALETTE.get(kind, PALETTE["op"])
+                fill, stroke = paint(kind)
                 out.append(
                     f'<rect class="ds-legend-swatch ds-kind-{escape(kind)}" x="12" '
                     f'y="{_fmt(y)}" width="{_fmt(LEGEND_SWATCH)}" '
@@ -825,7 +858,7 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
     there is nothing else to carry it, so the sheets take the fill and the stroke
     and the reader still sees convolution green against join purple.
     """
-    fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
+    fill, stroke = paint(m.spec.kind)
     top = box.y - box.h / 2.0
     cx = box.x + box.w / 2.0
     # THE FOOTPRINT IS STATED ONLY WHERE THE INK NO LONGER ANSWERS IT. A boxed
@@ -900,7 +933,7 @@ def _box(box, m: _Stage, scales: dict[str, float],
          gscale: tuple[float, float]) -> str:
     if m.chrome == "none":
         return _bare(box, m, gscale)
-    fill, stroke = PALETTE.get(m.spec.kind, PALETTE["op"])
+    fill, stroke = paint(m.spec.kind)
     top = box.y - box.h / 2.0
     # data-stage is how `draughtsman ui` binds a click in the figure back to the
     # stage in the spec, and it costs an embedding page nothing.

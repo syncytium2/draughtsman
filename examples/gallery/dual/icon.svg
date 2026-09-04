@@ -12,13 +12,13 @@
 <path class="ds-edge ds-edge-solid" data-from="concat" data-to="gate" d="M136.3 292.59 C163.3 292.59 163.3 272 190.3 272" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="gate" data-to="head" d="M339.96 272 L387.81 272 Q396.81 272 396.81 281 L396.81 342.59 Q396.81 351.59 387.81 351.59 L25 351.59 Q16 351.59 16 360.59 L16 408.45 Q16 417.45 25 417.45 L43 417.45" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="head" data-to="score" d="M164.16 417.45 C191.16 417.45 191.16 410.59 218.16 410.59" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
-<g class="ds-stage ds-kind-input" data-stage="signal"><rect x="43" y="56.65" width="132.16" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-conv" data-stage="slow"><rect x="229.16" y="16" width="140.66" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-conv" data-stage="fast"><rect x="246.84" y="112.5" width="105.29" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-concat" data-stage="concat"><rect x="43" y="263.59" width="93.3" height="58" rx="4" style="fill:#ece6f2;stroke:#8d7ba8;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-kernel" data-stage="gate"><rect x="190.3" y="243" width="149.66" height="58" rx="4" style="fill:#eef6f1;stroke:#7fae99;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-stack" data-stage="head"><rect x="43" y="382.2" width="121.16" height="70.5" rx="4" style="fill:#d1e4d9;stroke:#5a8a71;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-output" data-stage="score"><rect x="218.16" y="381.59" width="93.97" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-input" data-stage="signal"><rect x="43" y="56.65" width="132.16" height="58" rx="4" style="fill:var(--ds-fill-input,#f2f2f0);stroke:var(--ds-stroke-input,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="slow"><rect x="229.16" y="16" width="140.66" height="70.5" rx="4" style="fill:var(--ds-fill-conv,#e2eee7);stroke:var(--ds-stroke-conv,#6f9c85);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="fast"><rect x="246.84" y="112.5" width="105.29" height="70.5" rx="4" style="fill:var(--ds-fill-conv,#e2eee7);stroke:var(--ds-stroke-conv,#6f9c85);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-concat" data-stage="concat"><rect x="43" y="263.59" width="93.3" height="58" rx="4" style="fill:var(--ds-fill-concat,#ece6f2);stroke:var(--ds-stroke-concat,#8d7ba8);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-kernel" data-stage="gate"><rect x="190.3" y="243" width="149.66" height="58" rx="4" style="fill:var(--ds-fill-kernel,#eef6f1);stroke:var(--ds-stroke-kernel,#7fae99);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-stack" data-stage="head"><rect x="43" y="382.2" width="121.16" height="70.5" rx="4" style="fill:var(--ds-fill-stack,#d1e4d9);stroke:var(--ds-stroke-stack,#5a8a71);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-output" data-stage="score"><rect x="218.16" y="381.59" width="93.97" height="58" rx="4" style="fill:var(--ds-fill-output,#f2f2f0);stroke:var(--ds-stroke-output,#8a8a86);stroke-width:1.2"/></g>
 </g>
 
 

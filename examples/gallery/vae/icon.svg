@@ -15,16 +15,16 @@
 <path class="ds-edge ds-edge-solid" data-from="sample" data-to="lift" d="M805.82 74.05 C832.82 74.05 832.82 60.36 859.82 60.36" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="lift" data-to="dec" d="M996.24 60.36 C1023.24 60.36 1023.24 51.25 1050.24 51.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
 <path class="ds-edge ds-edge-solid" data-from="dec" data-to="recon" d="M1217.76 51.25 C1244.76 51.25 1244.76 46.7 1271.76 46.7" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
-<g class="ds-stage ds-kind-input" data-stage="image"><rect x="16" y="41.51" width="131.73" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-conv" data-stage="enc"><rect x="201.73" y="44.81" width="142.07" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-op" data-stage="flat"><rect x="397.8" y="71.61" width="76" height="45.5" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-op" data-stage="mu"><rect x="542.68" y="42.37" width="84.72" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-op" data-stage="sigma"><rect x="527.8" y="126.37" width="114.49" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-input" data-stage="noise"><rect x="41.41" y="149.81" width="80.91" height="45.5" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-concat" data-stage="sample"><rect x="696.29" y="45.05" width="109.53" height="58" rx="4" style="fill:#ece6f2;stroke:#8d7ba8;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-op" data-stage="lift"><rect x="859.82" y="31.36" width="136.42" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-conv" data-stage="dec"><rect x="1050.24" y="16" width="167.52" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
-<g class="ds-stage ds-kind-output" data-stage="recon"><rect x="1271.76" y="17.7" width="103.88" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-input" data-stage="image"><rect x="16" y="41.51" width="131.73" height="58" rx="4" style="fill:var(--ds-fill-input,#f2f2f0);stroke:var(--ds-stroke-input,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="enc"><rect x="201.73" y="44.81" width="142.07" height="70.5" rx="4" style="fill:var(--ds-fill-conv,#e2eee7);stroke:var(--ds-stroke-conv,#6f9c85);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="flat"><rect x="397.8" y="71.61" width="76" height="45.5" rx="4" style="fill:var(--ds-fill-op,#f0f0ef);stroke:var(--ds-stroke-op,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="mu"><rect x="542.68" y="42.37" width="84.72" height="58" rx="4" style="fill:var(--ds-fill-op,#f0f0ef);stroke:var(--ds-stroke-op,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="sigma"><rect x="527.8" y="126.37" width="114.49" height="58" rx="4" style="fill:var(--ds-fill-op,#f0f0ef);stroke:var(--ds-stroke-op,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-input" data-stage="noise"><rect x="41.41" y="149.81" width="80.91" height="45.5" rx="4" style="fill:var(--ds-fill-input,#f2f2f0);stroke:var(--ds-stroke-input,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-concat" data-stage="sample"><rect x="696.29" y="45.05" width="109.53" height="58" rx="4" style="fill:var(--ds-fill-concat,#ece6f2);stroke:var(--ds-stroke-concat,#8d7ba8);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="lift"><rect x="859.82" y="31.36" width="136.42" height="58" rx="4" style="fill:var(--ds-fill-op,#f0f0ef);stroke:var(--ds-stroke-op,#8a8a86);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="dec"><rect x="1050.24" y="16" width="167.52" height="70.5" rx="4" style="fill:var(--ds-fill-conv,#e2eee7);stroke:var(--ds-stroke-conv,#6f9c85);stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-output" data-stage="recon"><rect x="1271.76" y="17.7" width="103.88" height="58" rx="4" style="fill:var(--ds-fill-output,#f2f2f0);stroke:var(--ds-stroke-output,#8a8a86);stroke-width:1.2"/></g>
 </g>
 
 </svg>
