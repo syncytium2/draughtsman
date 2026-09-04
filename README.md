@@ -12,6 +12,56 @@ silently dropped.
 > spec left open and records three places building found it mistaken — read that
 > second, and before changing the trace layer.
 
+## Whisper tiny, drawn from the model card
+
+![A draughtsman figure of Whisper tiny: eleven named stages on two spines that meet — a log-mel spectrogram through a conv frontend into the audio encoder, token ids through the token embedding into masked self-attention, the two joining at a cross-attention block whose six heads are drawn as lanes, then a feed-forward, a box standing for three more decoder blocks, and vocabulary logits](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/gallery/whisper/figure.svg)
+
+*Whisper tiny — speech recognition, encoder–decoder, two inputs. 37,184,640
+parameters over 271 traced operations, log-mel spectrogram to vocabulary logits.
+The weights are random: this draws the architecture, not the trained model.*
+
+OpenAI's speech recogniser at its published dimensions, written out in PyTorch in
+[`examples/gallery/whisper_tiny.py`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/whisper_tiny.py) and traced
+from that source — 80 mel bins, four encoder blocks against four decoder blocks, six
+heads, sinusoidal audio positions against learned text positions, cross-attention in
+every decoder block, and the output projection tied to the token embedding. Attention
+is written out with explicit q/k/v projections, which is what Whisper itself does, so
+the heads are a shape in the figure: `nn.MultiheadAttention` fuses into a single traced
+node and takes its heads with it.
+
+Most production ASR architectures are unpublished, so this is the one that can be drawn
+from a public description. It is also the model that broke two parts of the tool, and
+both fixes are what the tool now is.
+
+**`trace` took one input.** It built a single dummy tensor, so every encoder–decoder,
+two-tower and masked model was excluded — not by difficulty, by signature. Whisper's
+`forward` wants the mel spectrogram and the token ids together:
+
+```
+draughtsman trace whisper_tiny:build_whisper_tiny \
+    --input-shape 1,80,3000 --dtype float32 \
+    --input-shape 1,12      --dtype int64 \
+    -o whisper/graph.json
+```
+
+`--input-shape` repeats, with an optional `--dtype` per input, and one shape still
+produces byte-identical output, so nothing traced before this means anything different.
+A model with several inputs has no singular `{model.input_shape}` fact: asking for one
+raises rather than quietly describing half the input.
+
+**A tied weight was charged twice.** Whisper's output projection *is* its token
+embedding — one tensor reached through two `prim::GetAttr` nodes, both billed — and the
+trace reported the model as having 54% more parameters than it has. **Coverage was green
+throughout**: every node sat in exactly one stage, and the figure would have printed a
+total this model does not have. A parameter is now charged to the earliest substantive
+consumer in trace order, which also decides where it is drawn — the 19.9M-entry table
+appears at the embedding, where a reader meets it, rather than at a matmul four hundred
+nodes later. Fixed in [`tracing.py`](https://github.com/syncytium2/draughtsman/blob/main/src/draughtsman/tracing.py), pinned by
+`test_a_tied_weight_is_counted_once` in [`tests/test_trace.py`](https://github.com/syncytium2/draughtsman/blob/main/tests/test_trace.py).
+
+Every other model, and what each was chosen to break, is in
+[`examples/gallery/`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/).
+
 ## Why this exists
 
 A 1,149-parameter model was drawn by five existing tools. Every one of them
