@@ -631,7 +631,7 @@ each stopped being able to fail without saying so.
 | `draughtsman-briefing.sh --selftest` | asserted on the briefing's printed output, which stops at three rows; a third session claiming pushed the smuggled fenced row into "+1 more" | **shipped** — `main` red at `570f377`, on a commit that added one board row and nothing else |
 | `_stage_boxes` | skipped stages that drew no rect, so a figure built from them had nothing to collide with and came back clean | in review |
 | the crossing report | summed an edge's separate crossings into one, so a bypass and a traversal reported as the same kind of thing | in review |
-| the icon bands | `0.30`/`0.20` were read off a contact sheet printing two decimals; `lstm` prints `0.30x` and is `0.2975`, so the boundary sat `0.0025` below the lowest mark anyone had confirmed readable | in review, and **every model still rendered** |
+| the icon bands | `0.30`/`0.20` were read off a contact sheet printing two decimals; `lstm` prints `0.30x` and is `0.2975`, so the boundary put the lowest mark anyone had confirmed READABLE on the unreadable side of its own line, by `0.0025` | in review, and it would otherwise have **shipped** |
 
 Fixed at `8e78183`, `f78a6ce`, `7bb32db`, `ef3f340` and `c01c308`.
 
@@ -640,6 +640,22 @@ anything. `dual` was made better and its guard went blind; a session claimed a
 row, correctly, following rule 2, and the briefing's guard went blind. That is
 what makes this one correction rather than five fixes: the defect is not in any
 of the five instruments, it is in what they were pointed at.
+
+**The icon case is the one to read first, because it is the only one that would
+have shipped.** The other four announced themselves with a red build. This one
+had every model still rendering, every existing test passing, the committed icons
+byte-identical — and the CLI printing `0.30x — reads` for the very model it had
+just misclassified, **because the same rounding that produced the error also
+concealed it.** The number a person would have checked it against was the number
+that was wrong.
+
+Its sub-class is worth naming on its own: *rounding a value for a person to read
+and thresholding it for a machine to decide are different jobs, and one value
+doing both does the second one badly and quietly.* Note also how it was found —
+by a throwaway script its author wrote to check their own expectations, because
+there was no way to run the test they had just written. `tools/run_suite.py`
+landed hours later and would have caught it directly, which is the argument for
+that tool stated better than any case for it made in advance.
 
 **The distinction that matters is not whether a check depends on external state.
 It is whether the dependency is declared.** Three positions, and only the last is
@@ -671,6 +687,12 @@ number.** This is the sentence worth carrying out of all five.
     sides                                to make — drawing a boundary against a
                                          neighbour — and survives the right value
                                          changing
+
+`tests/test_icon.py::test_each_threshold_sits_in_a_gap_and_not_against_a_neighbour`
+requires `0.01` of measured room on both sides of each boundary and names the
+neighbours when it fails. The shipped bands are `0.25` and `0.19`, sitting in gaps
+`0.086` and `0.031` wide, with the measured table and the reasoning in the comment
+above them in `src/draughtsman/icon.py`.
 
 `DRAUGHTSMAN_BRIEF_ALL` is the same move: the selftest asks the parse, which is
 what was being claimed, instead of the display, which was incidental to it. The
