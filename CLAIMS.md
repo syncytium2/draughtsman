@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-f7` | `gate-says-when-it-is-off` | `src/draughtsman/check.py`, `tests/test_coverage.py`, `tests/test_trace.py`, `tests/test_hooks.py`, `README.md`, `.github/workflows/test.yml` | 2026-09-04 | Four places where a check that did not run reads like a check that passed |
 | `draughtsman-4f` | `abstract-variance` | `tools/abstract_variance.py`, `experiments/abstraction-variance/README.md`, `experiments/abstraction-variance/run-1.json`, `experiments/abstraction-variance/run-2.json`, `experiments/abstraction-variance/run-3.json`, `experiments/abstraction-variance/run-4.json`, `experiments/abstraction-variance/run-5.json` | 2026-09-04 | Measuring how far the agent's grouping moves between independent runs — the one step nothing verifies |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
