@@ -1,0 +1,30 @@
+<svg width="192" height="96" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="Convolutional VAE" viewBox="-11.19 24.81 1414.03 254.76">
+<title>Convolutional VAE</title>
+<desc>Convolutional VAE: 10 stages over 18 traced operations, 52481 parameters.</desc>
+<defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
+
+
+<g class="ds-body" transform="translate(0 36)">
+<path class="ds-edge ds-edge-solid" data-from="image" data-to="enc" d="M147.73 70.51 C174.73 70.51 174.73 80.06 201.73 80.06" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="enc" data-to="flat" d="M343.8 80.06 C370.8 80.06 370.8 94.36 397.8 94.36" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="flat" data-to="mu" d="M473.8 94.36 C508.24 94.36 508.24 71.37 542.68 71.37" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="flat" data-to="sigma" d="M473.8 94.36 C500.8 94.36 500.8 155.37 527.8 155.37" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-dashed" data-from="noise" data-to="sample" d="M122.32 172.56 C162.02 172.56 162.02 182.35 201.73 182.35 C272.76 182.35 272.76 182.35 343.8 182.35 C370.8 182.35 370.8 196.98 397.8 196.98 C435.8 196.98 435.8 196.98 473.8 196.98 C500.8 196.98 500.8 216.37 527.8 216.37 C585.04 216.37 585.04 216.37 642.29 216.37 C669.29 216.37 669.29 74.05 696.29 74.05" style="fill:none;stroke:currentColor;stroke-width:1.4;stroke-dasharray:5 3" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="mu" data-to="sample" d="M627.4 71.37 C661.85 71.37 661.85 74.05 696.29 74.05" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="sigma" data-to="sample" d="M642.29 155.37 C669.29 155.37 669.29 74.05 696.29 74.05" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="sample" data-to="lift" d="M805.82 74.05 C832.82 74.05 832.82 60.36 859.82 60.36" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="lift" data-to="dec" d="M996.24 60.36 C1023.24 60.36 1023.24 51.25 1050.24 51.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="dec" data-to="recon" d="M1217.76 51.25 C1244.76 51.25 1244.76 46.7 1271.76 46.7" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<g class="ds-stage ds-kind-input" data-stage="image"><rect x="16" y="41.51" width="131.73" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="enc"><rect x="201.73" y="44.81" width="142.07" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="flat"><rect x="397.8" y="71.61" width="76" height="45.5" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="mu"><rect x="542.68" y="42.37" width="84.72" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="sigma"><rect x="527.8" y="126.37" width="114.49" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-input" data-stage="noise"><rect x="41.41" y="149.81" width="80.91" height="45.5" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-concat" data-stage="sample"><rect x="696.29" y="45.05" width="109.53" height="58" rx="4" style="fill:#ece6f2;stroke:#8d7ba8;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="lift"><rect x="859.82" y="31.36" width="136.42" height="58" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="dec"><rect x="1050.24" y="16" width="167.52" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-output" data-stage="recon"><rect x="1271.76" y="17.7" width="103.88" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+</g>
+
+</svg>

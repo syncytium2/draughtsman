@@ -1,0 +1,22 @@
+<svg width="192" height="96" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="MLP — the floor" viewBox="6.76 42.76 480.32 194.47">
+<title>MLP — the floor</title>
+<desc>MLP — the floor: 6 stages over 7 traced operations, 235146 parameters.</desc>
+<defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
+
+
+<g class="ds-body" transform="translate(0 36)">
+<path class="ds-edge ds-edge-solid" data-from="pixels" data-to="flatten" d="M174.73 45 C201.73 45 201.73 45 228.73 45" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="flatten" data-to="h1" d="M304.73 45 C331.73 45 331.73 45 358.73 45" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="h1" data-to="drop" d="M450.85 45 L468.85 45 Q477.85 45 477.85 54 L477.85 95 Q477.85 104 468.85 104 L25 104 Q16 104 16 113 L16 154 Q16 163 25 163 L43 163" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="drop" data-to="h2" d="M119 163 C146 163 146 163 173 163" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="h2" data-to="logits" d="M265.12 163 C292.12 163 292.12 163 319.12 163" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<g class="ds-stage ds-kind-input" data-stage="pixels"><rect x="43" y="16" width="131.73" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="flatten"><rect x="228.73" y="22.25" width="76" height="45.5" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-stack" data-stage="h1"><rect x="358.73" y="16" width="92.11" height="58" rx="4" style="fill:#d1e4d9;stroke:#5a8a71;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-op" data-stage="drop"><rect x="43" y="140.25" width="76" height="45.5" rx="4" style="fill:#f0f0ef;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-stack" data-stage="h2"><rect x="173" y="134" width="92.11" height="58" rx="4" style="fill:#d1e4d9;stroke:#5a8a71;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-output" data-stage="logits"><rect x="319.12" y="134" width="86.2" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+</g>
+
+
+</svg>

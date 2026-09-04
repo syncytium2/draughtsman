@@ -6,9 +6,9 @@
 <style>
 /* Two sizes. --a for headings, --b for everything else. */
 :root{--a:clamp(30px,4.2vw,46px);--b:17px;
-  --paper:#f6f6f3;--ink:#15171a;--muted:#5d635e;--rule:#dcded7;--conv:#4d7a63}
+  --paper:#f6f6f3;--ink:#15171a;--muted:#5d635e;--rule:#dcded7;--conv:#4d7a63;--warn:#8a6d2f;--bad:#9a4f4a}
 @media(prefers-color-scheme:dark){:root{
-  --paper:#101311;--ink:#e8eae4;--muted:#9aa39c;--rule:#262c27;--conv:#7fae99}}
+  --paper:#101311;--ink:#e8eae4;--muted:#9aa39c;--rule:#262c27;--conv:#7fae99;--warn:#c9a35e;--bad:#d99a94}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font-size:var(--b);
   line-height:1.6;font-family:"IBM Plex Sans",system-ui,sans-serif;
@@ -74,6 +74,18 @@ section{padding:44px 0 0}
   font-size:.88em;color:var(--ink)}
 @media(prefers-color-scheme:dark){.opts code,p code{color:var(--ink)}}
 .opts h3 code{font-size:.94em;color:var(--conv)}
+/* MARKS ARE SHOWN AT ACTUAL SIZE -- 192x96 is the 1x2in slot at 96dpi, and the
+   whole question is whether the thing reads at that size. Scaling them up to
+   fill a grid cell would answer a question nobody asked. */
+.marks{display:grid;gap:24px 20px;margin:24px 0 0;
+  grid-template-columns:repeat(auto-fill,minmax(192px,1fr))}
+.mark .plate{padding:0;width:192px;height:96px}
+.mark .plate img{width:192px;height:96px}
+.mk{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.mk .sc{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted)}
+.mk .v{font-size:.82em;letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.v.good{color:var(--conv)}.v.warn{color:var(--warn)}.v.bad{color:var(--bad)}
+.mn{margin:2px 0 0;color:var(--muted);font-size:.92em;max-width:34ch}
 .note{border-left:2px solid var(--rule);padding:0 0 0 16px;margin:20px 0 0}
 .note p{color:var(--muted);margin:0}
 a{color:var(--conv)}
@@ -195,12 +207,12 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
     </div>
     <div>
       <h3>At a size where nothing can be read — <code>--icon</code></h3>
-      <p>In a 420×104 slot no type survives at any point size, so the honest response
-      is not a smaller floor but no text. <code>render --icon WxH</code> removes what
-      cannot be read — labels, key, sub-pixel detail, any stage that was only text,
-      and the arrows into it — and crops to what is left: the sequence, the relative
-      bulk, the merges and skips. It never crops to fill, because a cropped net is a
-      net with a stage missing at the one size where nobody can tell.</p>
+      <p>At a card or tile size no type survives at any point size, so the honest
+      response is not a smaller floor but no text. <code>render --icon WxH</code>
+      removes what cannot be read — labels, key, sub-pixel detail, any stage that was
+      only text, and the arrows into it — and crops to what is left. It never crops to
+      fill, because a cropped net is a net with a stage missing at the one size where
+      nobody can tell. <a href="#marks">Every model as a mark, below.</a></p>
     </div>
     <div>
       <h3>Saying what was left out — <code>elided</code>, <code>batch_axis</code>,
@@ -211,6 +223,105 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
       <code>constants</code> is required before a spec may quote a traced constant
       the tracer warned it had baked out of a tensor.</p>
     </div>
+  </div>
+</section>
+
+<section id="marks">
+  <h2>Every model as a mark, at the size it will be used.</h2>
+  <p>Each of these is <code>render --icon 192x96</code> against the same committed spec
+  that draws the figure above it — one by two inches, shown here at actual size. Nothing
+  is hand-placed and nothing is redrawn: a mark is the figure with everything unreadable
+  taken out.</p>
+  <p><strong>Three of them work.</strong> <code>--icon</code> prints the scale it drew
+  at, and that number predicts the verdict exactly: at or above 0.30× a mark reads, at
+  or below 0.21× it does not. Nothing in the tool consumes that number yet — it is
+  printed and thrown away, so a mark that will not read still ships. The check that
+  exists asserts a mark is complete, uncropped and textless, which is a different
+  question from whether anyone can see it.</p>
+  <div class="marks">
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/mlp/icon.svg" width="192" height="96"
+        alt="The mlp figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>mlp</b> <span class="sc">0.40×</span>
+        <span class="v good">reads</span></p>
+      <p class="mn">Reads, and says nothing. Boxes and arrows — nothing in it identifies the tool that drew it.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/lenet/icon.svg" width="192" height="96"
+        alt="The lenet figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>lenet</b> <span class="sc">0.39×</span>
+        <span class="v good">reads</span></p>
+      <p class="mn">The best mark here, and the only one that is not plain rectangles.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/lstm/icon.svg" width="192" height="96"
+        alt="The lstm figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>lstm</b> <span class="sc">0.30×</span>
+        <span class="v good">reads</span></p>
+      <p class="mn">Reads, slightly busy where the wrapped return crosses back.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/dual/icon.svg" width="192" height="96"
+        alt="The dual figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>dual</b> <span class="sc">0.21×</span>
+        <span class="v warn">marginal</span></p>
+      <p class="mn">Legible with nothing near it. The merge is already soft.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/tube/icon.svg" width="192" height="96"
+        alt="The tube figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>tube</b> <span class="sc">0.20×</span>
+        <span class="v warn">marginal</span></p>
+      <p class="mn">The model in the banner above, and it does not survive the shrink.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/resnet/icon.svg" width="192" height="96"
+        alt="The resnet figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>resnet</b> <span class="sc">0.17×</span>
+        <span class="v bad">does not read</span></p>
+      <p class="mn">Flecks and hairlines.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/transformer/icon.svg" width="192" height="96"
+        alt="The transformer figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>transformer</b> <span class="sc">0.15×</span>
+        <span class="v bad">does not read</span></p>
+      <p class="mn">Flecks and hairlines.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/vae/icon.svg" width="192" height="96"
+        alt="The vae figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>vae</b> <span class="sc">0.14×</span>
+        <span class="v bad">does not read</span></p>
+      <p class="mn">Flecks and hairlines.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/unet/icon.svg" width="192" height="96"
+        alt="The unet figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>unet</b> <span class="sc">0.12×</span>
+        <span class="v bad">does not read</span></p>
+      <p class="mn">Dirt on the glass.</p>
+    </figure>
+    <figure class="mark">
+      <div class="plate"><img src="examples/gallery/whisper/icon.svg" width="192" height="96"
+        alt="The whisper figure reduced to a textless mark at 192 by 96 pixels."></div>
+      <p class="mk"><b>whisper</b> <span class="sc">0.11×</span>
+        <span class="v bad">does not read</span></p>
+      <p class="mn">Dirt on the glass.</p>
+    </figure>
+  </div>
+  <div class="note">
+    <p><strong>LeNet wins because it loses the most.</strong> Its figure has nine
+    stages and its mark keeps four: the image, the flatten, both dense layers and the
+    class logits draw only text, so they go with the text. What is left reads as a bare
+    conv stack and gives no hint the classifier head was ever there. That is a real loss
+    of information, and it is exactly why the mark works — four large glyphs instead of
+    nine cramped ones. As a figure it is wrong; as a mark it is the best of them. It is
+    going on a card, so it is a mark.</p>
+    <p style="margin-top:12px"><strong>One stated limit.</strong> <code>--icon</code>
+    post-processes a rendered figure rather than re-solving the layout without labels,
+    so boxes still carry the size of text nobody is drawing. The boxed nets pay for it
+    and the glyph nets come out tight.</p>
   </div>
 </section>
 

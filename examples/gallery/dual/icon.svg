@@ -1,0 +1,25 @@
+<svg width="192" height="96" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="Dual-branch 1-D net — tube's shape, generalised" viewBox="30.86 43.27 398.28 454.17">
+<title>Dual-branch 1-D net — tube's shape, generalised</title>
+<desc>Dual-branch 1-D net — tube's shape, generalised: 7 stages over 16 traced operations, 25989 parameters.</desc>
+<defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
+
+
+<g class="ds-body" transform="translate(23.59 36)">
+<path class="ds-edge ds-edge-solid" data-from="signal" data-to="slow" d="M175.16 85.65 C202.16 85.65 202.16 51.25 229.16 51.25" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="signal" data-to="fast" d="M175.16 85.65 C211 85.65 211 147.75 246.84 147.75" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="slow" data-to="concat" d="M369.81 51.25 L387.81 51.25 Q396.81 51.25 396.81 60.25 L396.81 204 Q396.81 213 387.81 213 L25 213 Q16 213 16 222 L16 283.59 Q16 292.59 25 292.59 L43 292.59" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="fast" data-to="concat" d="M352.13 147.75 L387.81 147.75 Q396.81 147.75 396.81 156.75 L396.81 204 Q396.81 213 387.81 213 L25 213 Q16 213 16 222 L16 283.59 Q16 292.59 25 292.59 L43 292.59" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="concat" data-to="gate" d="M136.3 292.59 C163.3 292.59 163.3 272 190.3 272" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="gate" data-to="head" d="M339.96 272 L387.81 272 Q396.81 272 396.81 281 L396.81 342.59 Q396.81 351.59 387.81 351.59 L25 351.59 Q16 351.59 16 360.59 L16 408.45 Q16 417.45 25 417.45 L43 417.45" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="head" data-to="score" d="M164.16 417.45 C191.16 417.45 191.16 410.59 218.16 410.59" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<g class="ds-stage ds-kind-input" data-stage="signal"><rect x="43" y="56.65" width="132.16" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="slow"><rect x="229.16" y="16" width="140.66" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-conv" data-stage="fast"><rect x="246.84" y="112.5" width="105.29" height="70.5" rx="4" style="fill:#e2eee7;stroke:#6f9c85;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-concat" data-stage="concat"><rect x="43" y="263.59" width="93.3" height="58" rx="4" style="fill:#ece6f2;stroke:#8d7ba8;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-kernel" data-stage="gate"><rect x="190.3" y="243" width="149.66" height="58" rx="4" style="fill:#eef6f1;stroke:#7fae99;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-stack" data-stage="head"><rect x="43" y="382.2" width="121.16" height="70.5" rx="4" style="fill:#d1e4d9;stroke:#5a8a71;stroke-width:1.2"/></g>
+<g class="ds-stage ds-kind-output" data-stage="score"><rect x="218.16" y="381.59" width="93.97" height="58" rx="4" style="fill:#f2f2f0;stroke:#8a8a86;stroke-width:1.2"/></g>
+</g>
+
+
+</svg>

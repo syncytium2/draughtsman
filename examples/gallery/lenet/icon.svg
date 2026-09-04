@@ -1,0 +1,28 @@
+<svg width="192" height="96" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="LeNet — the canonical image CNN" viewBox="180.36 69.63 487.33 82.78">
+<title>LeNet — the canonical image CNN</title>
+<desc>LeNet — the canonical image CNN: 9 stages over 12 traced operations, 61706 parameters.</desc>
+<defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
+
+
+<g class="ds-body" transform="translate(0 36)">
+
+<path class="ds-edge ds-edge-solid" data-from="conv1" data-to="pool1" d="M269.8 86.27 C296.8 86.27 296.8 86.27 323.8 86.27" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="pool1" data-to="conv2" d="M399.8 86.27 C426.8 86.27 426.8 86.27 453.8 86.27" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+<path class="ds-edge ds-edge-solid" data-from="conv2" data-to="pool2" d="M535.68 86.27 C562.68 86.27 562.68 86.27 589.68 86.27" style="fill:none;stroke:currentColor;stroke-width:1.4" marker-end="url(#ds-arrow)"/>
+
+
+
+
+
+<g class="ds-stage ds-bare ds-kind-conv" data-stage="conv1" data-box="185.73 16 84.07 140.54"><rect class="ds-sheet" x="213.8" y="43" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="208.99" y="45.41" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="204.17" y="47.81" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="199.36" y="50.22" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="194.54" y="52.63" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="189.73" y="55.04" width="52" height="52" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/></g>
+<g class="ds-stage ds-bare ds-kind-pool" data-stage="pool1" data-box="323.8 29.87 76 112.81"><rect class="ds-sheet" x="355.45" y="56.87" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="350.64" y="59.27" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="345.82" y="61.68" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="341.01" y="64.09" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="336.2" y="66.49" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/><rect class="ds-sheet" x="331.38" y="68.9" width="36.77" height="36.77" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/></g>
+<g class="ds-stage ds-bare ds-kind-conv" data-stage="conv2" data-box="453.8 22.65 81.88 127.23"><polygon class="ds-sheet ds-sheet-top" points="459.55,69.31 498.86,49.65 529.93,49.65 490.62,69.31" style="fill:#6f9c85;fill-opacity:0.46;stroke:#6f9c85;stroke-width:0.7;stroke-linejoin:round"/><polygon class="ds-sheet ds-sheet-side" points="490.62,69.31 529.93,49.65 529.93,80.73 490.62,100.38" style="fill:#6f9c85;fill-opacity:0.60;stroke:#6f9c85;stroke-width:0.7;stroke-linejoin:round"/><rect class="ds-sheet" x="459.55" y="69.31" width="31.08" height="31.08" style="fill:#e2eee7;fill-opacity:0.94;stroke:#6f9c85;stroke-width:0.9;stroke-linejoin:round"/></g>
+<g class="ds-stage ds-bare ds-kind-pool" data-stage="pool2" data-box="589.68 33.45 76 105.63"><polygon class="ds-sheet ds-sheet-top" points="597.04,80.11 636.35,60.45 658.32,60.45 619.01,80.11" style="fill:#6f93a8;fill-opacity:0.46;stroke:#6f93a8;stroke-width:0.7;stroke-linejoin:round"/><polygon class="ds-sheet ds-sheet-side" points="619.01,80.11 658.32,60.45 658.32,82.43 619.01,102.08" style="fill:#6f93a8;fill-opacity:0.60;stroke:#6f93a8;stroke-width:0.7;stroke-linejoin:round"/><rect class="ds-sheet" x="597.04" y="80.11" width="21.97" height="21.97" style="fill:#e4eef5;fill-opacity:0.94;stroke:#6f93a8;stroke-width:0.9;stroke-linejoin:round"/></g>
+
+
+
+
+</g>
+
+
+</svg>
