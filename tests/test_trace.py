@@ -1,11 +1,29 @@
 """SPEC.md §1, §3, §4 — stage 1 produces facts, and produces all of them.
 
 Runs against `tests/fixtures/branchy.py` rather than bugarach's `tube`, so it
-needs nothing but torch — which is in the dev extra, so this never skips.
+needs nothing but torch — which is in the dev extra, so this never skips in CI.
+
+WHY THE IMPORT IS GUARDED WHEN THE DEPENDENCY IS PROMISED. `import torch` at
+module scope makes a clone without it fail at COLLECTION, and a collection error
+is not a test result: pytest reports an error before any test has run, the exit
+code is the same one a real failure produces, and the reader is told the suite
+is broken rather than that a dependency is missing. "Could not check" arrives
+wearing the clothes of "checked, and wrong" — which is this repository's whole
+subject, in its own test suite.
+
+`importorskip` turns that into one named skip. In CI it never fires, because the
+workflow installs `.[dev]` and torch is there; and CI sets `DRAUGHTSMAN_NO_SKIPS`,
+so if it ever did fire the run would go red and print which tests went quiet. The
+conftest arrangement — "a skip is what silence looks like when it is being
+careful" — is preserved rather than weakened: this skip is loud where it matters
+and helpful where it does not.
 """
 
 import pytest
-import torch
+
+torch = pytest.importorskip(
+    "torch",
+    reason="tests/test_trace.py needs torch — pip install -e '.[dev]'")
 
 from draughtsman.facts import FactError, Graph, resolve
 from draughtsman.tracing import STRUCTURAL_KINDS, trace

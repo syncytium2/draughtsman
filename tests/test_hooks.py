@@ -25,7 +25,9 @@ forbidden to fetch (they sit on the blocking path to session start).
 
 from __future__ import annotations
 
+import hashlib
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -222,3 +224,77 @@ def test_the_settings_file_wires_hooks_that_exist():
     assert "draughtsman-briefing.sh" in session_start[0], (
         "the repo-specific briefing must run FIRST so that truncation costs the "
         f"generic tail rather than the rules. Order is: {session_start}")
+
+
+# ------------------------------------------------------- the stamp's own claim
+#
+# The vendored files carry `UNMODIFIED below this block. md5 of the upstream
+# body: <hash>`, and until now the only test read the FIRST line of that stamp to
+# confirm an origin was named. Nothing compared the hash. A vendored file could
+# be edited in place -- the exact thing the next line of the stamp asks nobody to
+# do -- and every test stayed green while the file went on claiming to be
+# byte-identical to an upstream it no longer matched.
+#
+# That is DECISIONS.md correction 5 inside the commit that vendored these
+# instruments in order to prevent it: a quantity with one correct answer, written
+# down, checked by nothing. Raised by draughtsman-4f reading the two outside
+# reviews.
+#
+# WHAT THIS CAN AND CANNOT SEE. It verifies the file against its OWN recorded
+# hash, which catches an edit here. It cannot verify against upstream, because
+# armory and interface2 are not present in a clone and CI has neither -- a check
+# that needs a sibling repository would skip, and a skip is what silence looks
+# like when it is being careful. Drift from upstream is a `propagation` problem
+# and armory's instrument ledger reports that family as the one that does not
+# travel; it belongs there, not here.
+
+STAMP_LINES = 4
+
+
+def _upstream_body(text: str) -> str:
+    """The file as it arrived, before the stamp was inserted.
+
+    The vendoring step puts the stamp immediately after the shebang and changes
+    nothing else, so removing those lines reconstructs what was hashed.
+    """
+    lines = text.split("\n")
+    start = 1 if lines and lines[0].startswith("#!") else 0
+    return "\n".join(lines[:start] + lines[start + STAMP_LINES:])
+
+
+@pytest.mark.parametrize("rel", [
+    ".claude/hooks/session-start.sh",
+    ".claude/hooks/dragnet-before-absence.py",
+    "tools/dragnet.py",
+    "tools/estate.py",
+])
+def test_a_vendored_file_still_matches_the_hash_it_claims(rel):
+    """UNMODIFIED is a claim, so it is checked like one."""
+    text = (ROOT / rel).read_text(encoding="utf-8")
+    m = re.search(r"md5 of the upstream body: ([0-9a-f]{32})", text)
+    assert m, f"{rel} carries no upstream md5, so its UNMODIFIED claim is unbacked"
+    got = hashlib.md5(_upstream_body(text).encode("utf-8")).hexdigest()
+    assert got == m.group(1), (
+        f"{rel} has been edited: its body hashes to {got} and its stamp claims "
+        f"{m.group(1)}. These files are vendored byte-identical on purpose -- a "
+        "local fix here is a fork nobody else gets. Change it upstream and "
+        "re-copy, or, if the edit is deliberate and stated, say so in the stamp "
+        "the way bugarach's mutation_check.sh names its one deviation.")
+
+
+def test_the_hash_check_notices_an_edited_body():
+    """THE ONLY VERSION OF THE TEST ABOVE THAT MEANS ANYTHING.
+
+    A hash test passes on a file nobody has touched whether or not it is
+    comparing anything -- which is exactly how the stamp got shipped unchecked in
+    the first place. So one byte is changed here and the check is required to
+    notice.
+    """
+    src = (ROOT / "tools" / "dragnet.py").read_text(encoding="utf-8")
+    edited = src.replace("CAP_TREES = 400", "CAP_TREES = 401", 1)
+    assert edited != src, "the mutation no longer applies; this guard is stale"
+    m = re.search(r"md5 of the upstream body: ([0-9a-f]{32})", edited)
+    got = hashlib.md5(_upstream_body(edited).encode("utf-8")).hexdigest()
+    assert got != m.group(1), (
+        "a one-line edit to a vendored file did not change the hash the check "
+        "compares, so the check cannot see an edit at all")

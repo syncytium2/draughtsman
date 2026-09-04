@@ -92,8 +92,22 @@ draughtsman ui       examples/                    # review every model in a brow
 
 That runs against a clone with nothing else installed, and it reproduces the
 committed `graph.json` — byte for byte on the torch it was traced with, and fact
-for fact on any, which is the durable claim and the one the tests assert
-([`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 3). Every model in
+for fact otherwise. The facts are the durable claim, and
+[`tests/test_reproduces.py`](https://github.com/syncytium2/draughtsman/blob/main/tests/test_reproduces.py) asserts them
+by re-deriving the trace rather than by comparing bytes, because `torch.jit.trace`'s
+value names are not stable across releases
+([`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 3).
+
+**What is measured is one torch at a time.** CI installs the current CPU wheel
+across four Python versions, so that assertion is exercised against whichever
+torch that is on the day, not across a range — a matrix of one, four times over.
+"On any torch" is the reason the comparison is semantic instead of byte-exact and
+it is the design intent; it is not something this repository has yet measured, and
+the sentence used to claim it was. Earning it means pinning two or three torch
+minors in the workflow matrix, which is not a free change: the minors do not span
+3.10 to 3.13 uniformly, so the matrix has to exclude as well as include.
+
+Every model in
 [`examples/gallery/`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/) is written out in full in this repo — no
 torchvision, no downloads, no pinned third-party version — so the whole pipeline
 reproduces from here.

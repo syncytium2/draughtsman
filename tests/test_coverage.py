@@ -688,3 +688,73 @@ def test_a_negatively_indexed_glyph_is_not_warned_about(tube_spec_doc, tube_grap
     result = check(load(doc), tube_graph)
     assert result.ok
     assert not any("leading axis is hidden" in w for w in result.warnings)
+
+
+# --------------------------------------------------- the gate that does not run
+#
+# `output.width` is opt-in, and the legibility gate is the only question in
+# `check` asked of some specs and not others. So its absence produced exactly the
+# output its success produces: a clean green run. Six of the ten gallery specs
+# were in that state, and an outside review found it by setting the field on them
+# and re-running -- "they pass check only because the field that would catch it is
+# absent". A confident answer to a question nobody asked is the defect this
+# repository convicts other tools of, arriving in its own gate.
+
+def test_check_says_out_loud_when_the_legibility_gate_did_not_run(
+        tube_spec_doc, tube_graph):
+    """The silence is the bug, so the message is the fix."""
+    doc = copy.deepcopy(tube_spec_doc)
+    doc.pop("output", None)
+    result = check(load(doc), tube_graph)
+    assert any("LEGIBILITY GATE DID NOT RUN" in w for w in result.warnings), (
+        "a spec with no output.width was checked and said nothing about the one "
+        "question that was skipped:\n" + "\n".join(result.warnings))
+
+
+def test_not_running_the_gate_is_a_warning_and_never_an_error(
+        tube_spec_doc, tube_graph):
+    """OPTING OUT IS LEGAL AND MUST STAY LEGAL. A figure for a slide or a README
+    has no printed size to be measured against, and making the declaration
+    mandatory would turn `output.width` into a formality typed to silence a
+    checker rather than a claim about where the figure is going. What is not
+    legal is saying nothing."""
+    doc = copy.deepcopy(tube_spec_doc)
+    doc.pop("output", None)
+    result = check(load(doc), tube_graph)
+    assert result.ok, (
+        "declining to state an output size turned coverage red: " +
+        "; ".join(result.errors))
+
+
+def test_the_gate_reports_the_number_when_it_does_run(tube_spec_doc, tube_graph):
+    """THE PASSING CASE WAS SILENT TOO, which is the other half.
+
+    A gate that reports only failures is indistinguishable from a gate that is
+    switched off, so a green run left the reader unable to tell which they had.
+    Six units is a floor nothing in the gallery misses at a generous width, so
+    this asserts the report rather than the verdict.
+    """
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["output"] = {"width": "20in", "min_type": "1pt"}
+    result = check(load(doc), tube_graph)
+    assert result.ok, result.errors
+    assert any("legibility:" in n and "clearing" in n for n in result.notes), (
+        "the gate ran and cleared its floor without saying so:\n"
+        + "\n".join(result.notes))
+    assert not any("DID NOT RUN" in w for w in result.warnings)
+
+
+def test_the_caveat_does_not_contradict_the_line_above_it(
+        tube_spec_doc, tube_graph):
+    """`report` printed "says NOTHING about whether ... the figure is legible"
+    directly underneath a line reporting the measured point size. Both were in
+    one screen of output and one of them was wrong."""
+    from draughtsman.check import report
+
+    doc = copy.deepcopy(tube_spec_doc)
+    doc["output"] = {"width": "20in", "min_type": "1pt"}
+    text = report(check(load(doc), tube_graph))
+    assert "legibility:" in text
+    assert "or the figure is legible" not in text, (
+        "the caveat still claims legibility is unchecked while the report "
+        "states the measured size:\n" + text)

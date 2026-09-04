@@ -45,6 +45,15 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
 
+      # UNPINNED, AND THAT IS A GAP THE README NOW STATES RATHER THAN HIDES.
+      # This installs whatever torch is current, so the fact-for-fact
+      # reproduction in tests/test_reproduces.py is exercised against ONE torch
+      # version, four times over — once per Python. The README used to say the
+      # property holds "on any" torch; nothing here measures that. Earning the
+      # stronger sentence means adding a torch dimension with two or three
+      # minors, and it is not a one-line change: the minors do not span 3.10 to
+      # 3.13 uniformly, so the matrix needs `exclude:` entries as well.
+      #
       # The CPU wheel, not the default CUDA build: only `trace` needs torch and
       # nothing here needs a GPU.
       - name: install

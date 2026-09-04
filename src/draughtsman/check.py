@@ -313,6 +313,17 @@ def check(spec: Spec, graph: Graph) -> Result:
         if units:
             got = type_pt(spec, units)
             floor = length_pt(spec.output.min_type, "output.min_type")
+            if got is not None and got >= floor:
+                # THE PASSING CASE WAS SILENT TOO, which is half the same defect.
+                # A gate that reports only its failures cannot be told apart from
+                # a gate that is switched off, so the reader of a green run
+                # learned nothing about which of the two they had. This says the
+                # number it measured, so "checked and cleared" and "not checked"
+                # read differently at a glance.
+                notes.append(
+                    f"legibility: smallest type is {got:.2f}pt at "
+                    f"{spec.output.width}, clearing the {spec.output.min_type} "
+                    f"floor. The figure is {units:.0f} units wide.")
             if got is not None and got < floor:
                 budget = width_budget(spec)
                 errors.append(
@@ -323,6 +334,31 @@ def check(spec: Spec, graph: Graph) -> Result:
                     f"(layout.wrap around {budget * 0.92:.0f}), drop a detail "
                     f"line, or collapse a stage. Do not shrink the type: the "
                     f"floor is the point.")
+    else:
+        # A GATE THAT DID NOT RUN LOOKS EXACTLY LIKE A GATE THAT PASSED, and this
+        # is the one place in the file where that is true by construction: every
+        # other question above is asked of every spec, and this one is asked only
+        # of a spec that opted in. So a figure whose type would print at 2.49pt
+        # produces the same clean green run as one that was measured and cleared
+        # its floor.
+        #
+        # An outside review found it by setting the field on the specs that lack
+        # it and re-running: "they pass check only because the field that would
+        # catch it is absent." That is the shape of the defect this repository
+        # convicts other tools of -- a confident answer to a question nobody
+        # asked -- arriving in its own gate.
+        #
+        # A WARNING AND NOT AN ERROR, deliberately. Opting out is legal: a figure
+        # for a slide or a README has no printed size to be measured against, and
+        # forcing a declaration would make the field a formality rather than a
+        # claim. What is not legal is saying nothing.
+        warnings.append(
+            "output.width is not set, so THE LEGIBILITY GATE DID NOT RUN. This "
+            "figure has not been checked at any printed size, and coverage "
+            "passing says nothing about it. Set output.width and "
+            'output.min_type (e.g. "6in" and "6pt") to turn it on. To ask the '
+            "same question about the rendered file without editing the spec: "
+            "tools/measure_type.py --print 6in --floor 6pt <figure.svg>")
 
     if spec.layout.chrome not in ("box", "none"):
         errors.append(
@@ -582,10 +618,17 @@ def _cycle(nodes: list[str], edges: list[tuple[str, str]]) -> list[str]:
     return []
 
 
+# LEGIBILITY LEFT THIS SENTENCE WHEN IT STOPPED BEING TRUE OF EVERY RUN. The
+# caveat used to say coverage says nothing about whether the figure is legible,
+# and printed directly under a line reporting the measured point size — a
+# contradiction in one screen of output. It is now conditional in the same way
+# the gate is: checked where `output.width` is set, reported above when it runs,
+# and named as absent by a warning when it does not.
 CAVEAT = (
     "Coverage passing means no traced operation was silently dropped. It says "
-    "NOTHING about whether the names are good, the grouping is natural, or the "
-    "figure is legible. A person still has to look at it."
+    "NOTHING about whether the names are good or the grouping is natural. "
+    "Legibility is checked only where output.width is set, and reported above "
+    "when it is. A person still has to look at it."
 )
 
 
