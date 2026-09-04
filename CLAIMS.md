@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c4` | `every-stage-is-a-box` | `tools/edge_collisions.py`, `tests/test_edge_collisions.py` | 2026-09-04 | A chrome-less stage draws no rect, so the detector could not see it and reported those figures clean for want of anything to collide with |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
