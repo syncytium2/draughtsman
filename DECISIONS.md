@@ -628,7 +628,7 @@ each stopped being able to fail without saying so.
 | instrument | what it lost | found |
 |---|---|---|
 | `test_the_detector_can_fail` | ran against `dual` because the gallery happened to contain a crossing; `8e78183` moved the wrap connector into its own gutter, `dual` came out clean, and the guard could no longer tell the mutated clipper from the real one | in review, by its author |
-| `draughtsman-briefing.sh --selftest` | asserted on the briefing's printed output, which stops at three rows; a third session claiming pushed the smuggled fenced row into "+1 more" | **shipped** — `main` red at `570f377`, on a commit that added one board row and nothing else |
+| `draughtsman-briefing.sh --selftest` | asserted on the briefing's printed output, which stops at three rows; a third session claiming pushed the smuggled fenced row into "+1 more" | **shipped** — `main` red at `8238208`, a claim of one inserted row and nothing else, taking the board from two to three |
 | `_stage_boxes` | skipped stages that drew no rect, so a figure built from them had nothing to collide with and came back clean | in review |
 | the crossing report | summed an edge's separate crossings into one, so a bypass and a traversal reported as the same kind of thing | in review |
 | the icon bands | `0.30`/`0.20` were read off a contact sheet printing two decimals; `lstm` prints `0.30x` and is `0.2975`, so the boundary put the lowest mark anyone had confirmed READABLE on the unreadable side of its own line, by `0.0025` | in review, and it would otherwise have **shipped** |
@@ -664,9 +664,10 @@ the defect:
 - **Controlled.** The guard builds its own subject. A fixture board, a synthetic
   spec. Nothing outside the test can move it.
 - **Declared.** The guard reads the world, and an assertion says what it needs.
-  `test_the_briefing_skips_the_fenced_worked_example` asserts the fenced example
-  is present — *"has moved or gone, so this test no longer reproduces the case it
-  guards"*. Tidy that row away and the suite goes red naming exactly what broke.
+  `test_the_briefing_does_not_report_the_worked_example_as_a_live_claim` asserts
+  the fenced example is present — *"has moved or gone, so this test no longer
+  reproduces the case it guards"*. Tidy that row away and the suite goes red
+  naming exactly what broke.
 - **Incidental.** The guard reads the world and nothing records that it depends on
   what it found there. This is the only one that fails silently, and it is the
   one that cost a day.
@@ -698,6 +699,27 @@ above them in `src/draughtsman/icon.py`.
 what was being claimed, instead of the display, which was incidental to it. The
 cap was moved from parse time to display time so the parse became observable
 again, and the environment variable suppresses only the display.
+
+**THIS CORRECTION GOT TWO OF ITS OWN CITATIONS WRONG, and they are fixed above
+rather than quietly.** It cited `570f377` for the shipped case — a commit that
+changed a row rather than adding one, landing when the board was already at three
+and `main` already red. The sentence's whole force is that a CORRECT claim
+following rule 2, adding one row and nothing else, blinded a guard; `8238208` is
+the commit that shows it. And it cited a test name that does not exist: the
+assertion message was verified by grep, and then a function name was written from
+the selftest's own label string without being checked. **That is this correction's
+subject, committed inside this correction** — a citation that looks verified
+because part of it was. Found by `draughtsman-b2`, checking these citations the
+way this file had just asked them to check theirs.
+
+**The guard is now board-length independent, and the demonstration is not.**
+Re-verified with ZERO rows on the board: the mutated hook exits 1 and the
+unmutated exits 0, where the old code needed the board short to catch anything at
+all. But that also means the mutation test passes today whether or not the fix is
+present, because an empty board lets the old code catch it too. Demonstrating the
+fix requires three or more open rows. A guard that cannot be shown working in the
+conditions you happen to have is the same problem one turn further out, and it is
+the reason the fixture board is still the right end state.
 
 **One note on reading the evidence, because it is easy to get wrong here.** `main`
 going green after the briefing fix proves nothing: releasing any one claim drops
