@@ -86,3 +86,31 @@ jobs:
               exit 1
             fi
           done
+
+      # THE MARKS ARE COMMITTED ARTIFACTS TOO, AND NOTHING RE-RENDERED THEM.
+      # The step above has held every figure since figures were committed; the
+      # icons went in beside them held by nothing, and `tube`'s promptly moved
+      # 0.15x -> 0.20x when its `layout.wrap` changed for an unrelated banner.
+      # A person caught that by comparing against a contact sheet on a Dropbox
+      # mount, which is not a check.
+      #
+      # THE SLOT COMES OUT OF THE FILE. Each mark declares the size it was
+      # fitted to, so this needs no constant of its own to keep in step with
+      # the artifacts, and a mark committed at some other slot is still held.
+      - name: every committed mark is current
+        run: |
+          set -euo pipefail
+          for icon in examples/*/icon.svg examples/*/*/icon.svg; do
+            [ -f "$icon" ] || continue
+            dir=$(dirname "$icon")
+            slot=$(sed -n 's/^<svg width="\([0-9.]*\)" height="\([0-9.]*\)".*/\1x\2/p' "$icon" | head -1)
+            if [ -z "$slot" ]; then
+              echo "::error file=$icon::does not declare the slot it was fitted to"
+              exit 1
+            fi
+            draughtsman render "$dir/spec.json" --icon "$slot" -o /tmp/icon.svg
+            if ! diff -q /tmp/icon.svg "$icon" > /dev/null; then
+              echo "::error file=$icon::stale — re-run draughtsman render --icon $slot and commit it"
+              exit 1
+            fi
+          done

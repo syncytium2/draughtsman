@@ -107,8 +107,25 @@ def cmd_render(args) -> int:
             svg, chosen, scale = render_icon(_read(args.spec), graph, w, h)
         except IconError as exc:
             sys.exit(f"draughtsman: {exc}")
-        print(f"icon: fitted to {w:g}x{h:g}, {chosen} layout, "
-              f"drawing at {scale:.2f}x, no text", file=sys.stderr)
+        from draughtsman.icon import NOISE, READS, READS_AT, verdict
+        how = {"single": "one layout, the candidates being identical",
+               "as committed": "as committed layout",
+               "unwrapped": "unwrapped layout"}[chosen]
+        seen = verdict(scale)
+        print(f"icon: fitted to {w:g}x{h:g}, {how}, "
+              f"drawing at {scale:.2f}x, no text — {seen}", file=sys.stderr)
+        # THE SCALE WAS ALWAYS PRINTED AND NEVER MEANT ANYTHING TO ANYONE. It
+        # predicts legibility and now says so, in the one place a person is
+        # already looking. Not a refusal: seven of the ten committed marks are
+        # under the floor and ship anyway, so failing here would fail the
+        # corpus. It has to be impossible to miss and possible to ignore.
+        if seen != READS:
+            trouble = ("will not read at this size"
+                       if seen == NOISE else "is marginal at this size")
+            print(f"  warning: this mark {trouble}. Measured at 192x96 across "
+                  f"the committed models, {READS_AT:.2f}x and above reads. "
+                  f"Give it a larger slot, or ship a mark that survives one.",
+                  file=sys.stderr)
 
     _write(args.output, svg)
     return 0

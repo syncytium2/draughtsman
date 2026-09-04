@@ -56,6 +56,65 @@ SUBPIXEL_CLASSES = ("ds-mark", "ds-mark-bar")
 #: Fraction of the drawn extent added as breathing room on each side.
 MARGIN = 0.02
 
+# WHETHER A MARK READS, AS A NUMBER RATHER THAN AS SOMEONE'S OPINION.
+#
+# `render --icon` has always printed the scale it drew at and nothing has ever
+# consumed it, so a mark that cannot be seen shipped exactly as quietly as one
+# that can. The other checks here ask whether an icon is COMPLETE, UNCROPPED and
+# TEXTLESS -- all necessary, none of them the question a reader asks, which is
+# whether they can make it out.
+#
+# MEASURED, 2026-09-04, all ten committed models in a 192x96 slot (1x2in at
+# 96dpi), by rasterising each one and looking at it:
+#
+#     mlp     0.3997  |  read
+#     lenet   0.3940  |
+#     lstm    0.2975  |
+#     ------------------ gap 0.086 --------------------------- READS_AT = 0.25
+#     dual    0.2114  |  marginal
+#     tube    0.2047  |
+#     ------------------ gap 0.031 ------------------------- NOISE_BELOW = 0.19
+#     resnet  0.1737  |  do not read: flecks and hairlines
+#     transformer 0.1483
+#     vae     0.1358  |
+#     unet    0.1241  |  dirt on the glass
+#     whisper 0.1143  |
+#
+# BOTH NUMBERS SIT IN THE MIDDLE OF A REAL GAP, and that is the whole reason
+# they are these numbers. The three bands are separated by 0.086 and 0.031 of
+# empty range; a boundary in the middle of one survives a model landing near it,
+# where a boundary drawn against its nearest neighbour is an artefact of the
+# sample rather than a fact about legibility.
+#
+# THE FIRST ATTEMPT USED 0.30 AND 0.20 AND WAS WRONG, in the way this repository
+# keeps finding things wrong. Those came from the printed table, where the CLI
+# renders the scale to two places -- and `lstm`, printed as `0.30x`, is actually
+# 0.2975. A boundary at 0.30 put the lowest mark anyone had confirmed READS on
+# the wrong side of the line, by 0.0025. Rounding for a person to read and
+# thresholding for a machine to decide are different jobs, and a number that
+# does both silently does the second one badly.
+#
+# TWO THINGS THIS IS NOT. It is not a refusal: seven of the ten committed marks
+# are under READS_AT, the repository ships them anyway as the honest record of
+# what this size costs, and a gate that fails the majority of the corpus it
+# measures is one somebody turns off. And it is not slot-independent -- the
+# scale is a ratio, so it travels, but the LOOKING that produced these numbers
+# happened at one size. A different slot deserves its own look before these are
+# trusted there.
+READS_AT = 0.25
+NOISE_BELOW = 0.19
+
+READS, MARGINAL, NOISE = "reads", "marginal", "does not read"
+
+
+def verdict(scale: float) -> str:
+    """`READS`, `MARGINAL` or `NOISE` for a scale `render_icon` reported."""
+    if scale >= READS_AT:
+        return READS
+    if scale >= NOISE_BELOW:
+        return MARGINAL
+    return NOISE
+
 NUM = r"-?\d+\.?\d*"
 _DRAWN = re.compile(r"<(rect|path|polygon|polyline|circle|ellipse)\b")
 
@@ -239,6 +298,10 @@ def render_icon(doc: dict, graph, width: float, height: float):
     being told. The chosen name is returned so the caller can say which it used
     rather than leaving the reader to wonder why the icon does not match the
     figure.
+
+    That name is `"as committed"`, `"unwrapped"`, or `"single"` -- the last
+    meaning the two candidates came out identical and nothing was chosen. See
+    the comment at the pick.
     """
     import copy
 
@@ -250,17 +313,32 @@ def render_icon(doc: dict, graph, width: float, height: float):
     lay["wrap"] = 10 ** 6            # effectively: do not wrap
     lay["legend"] = False            # a legend is prose and there is no text here
 
-    best = None
+    drawn = []
     for name, candidate in (("as committed", doc), ("unwrapped", unwrapped)):
         try:
             svg = iconify(render(load(candidate), graph), width, height)
         except IconError:
             continue
-        s = scale_of(svg, width, height)
-        if best is None or s > best[2]:
-            best = (svg, name, s)
-    if best is None:
+        drawn.append((svg, name, scale_of(svg, width, height)))
+    if not drawn:
         raise IconError(
             "no layout of this figure leaves anything drawable once the text is "
             "removed")
-    return best
+
+    # A CHOOSER THAT CANNOT SAY IT HAD NOTHING TO CHOOSE BETWEEN IS REPORTING A
+    # DECISION IT DID NOT MAKE. `vae`, `unet` and `whisper` state no
+    # `output.width`, so `width_budget` returns None, the automatic fold in
+    # `render` never fires, and setting `wrap` to a number no figure reaches
+    # changes nothing: both candidates come out BYTE-IDENTICAL. The old code
+    # kept the first on a strict `>` and announced "as committed layout", which
+    # reads as the committed form having won something. It won nothing; there
+    # was one drawing wearing two names.
+    #
+    # This matters more than the wording. A reader who sees a layout named
+    # believes the alternative was tried and was worse, and stops looking for
+    # the reason their mark is unreadable -- when the reason may be that no
+    # alternative was ever available to try.
+    if len({svg for svg, _, _ in drawn}) == 1:
+        svg, _, s = drawn[0]
+        return svg, "single", s
+    return max(drawn, key=lambda c: c[2])

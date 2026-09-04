@@ -22,8 +22,9 @@ import pytest
 
 from conftest import EXAMPLES, IDS
 from draughtsman.facts import Graph
-from draughtsman.icon import (IconError, _body_offset, _drawn_bounds, iconify,
-                              parse_size, render_icon, scale_of)
+from draughtsman.icon import (MARGINAL, NOISE, NOISE_BELOW, READS, READS_AT,
+                              IconError, _body_offset, _drawn_bounds, iconify,
+                              parse_size, render_icon, scale_of, verdict)
 from draughtsman.render import render
 from draughtsman.spec import load
 
@@ -169,3 +170,125 @@ def test_an_icon_still_draws_something(d):
     assert re.search(r"<(rect|path|polygon)\b", svg), f"{d.name}'s icon is empty"
     assert scale > 0, d.name
     assert scale_of(svg, *SLOT) == pytest.approx(scale)
+
+
+# --------------------------------------------------------------------------------
+# WHETHER THE MARK READS, WHICH IS THE QUESTION THE OTHER CHECKS DO NOT ASK.
+
+#: The slot the marks in `examples/**/icon.svg` were fitted to, and the one the
+#: bands in `icon.py` were measured at. 1x2 inches at 96dpi.
+MARK_SLOT = (192.0, 96.0)
+
+#: WHAT EACH COMMITTED MARK WAS MEASURED TO DO, by rasterising it and looking,
+#: 2026-09-04. This is a record of an observation, not a target: if one of these
+#: fails, the honest response is to LOOK AT THE MARK AGAIN and find out what
+#: moved, not to edit the expectation until it passes.
+MEASURED = {
+    "mlp": READS, "lenet": READS, "lstm": READS,
+    "dual": MARGINAL, "tube": MARGINAL,
+    "resnet": NOISE, "transformer": NOISE, "vae": NOISE,
+    "unet": NOISE, "whisper": NOISE,
+}
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_the_bands_still_say_what_was_seen(d):
+    """The scale was printed and consumed by nothing, so a mark nobody could
+    read shipped as quietly as one anybody could.
+
+    `tube` is why this is a test rather than a note. Its mark moved 0.15x ->
+    0.20x when `layout.wrap` changed for an unrelated banner, which is a mark
+    crossing a band because of an edit aimed somewhere else entirely. That was
+    caught by a person comparing against a contact sheet; nothing would have
+    said so.
+    """
+    assert d.name in MEASURED, (
+        f"{d.name} has no recorded mark verdict. Render it at "
+        f"{MARK_SLOT[0]:g}x{MARK_SLOT[1]:g}, LOOK at it, and record what you "
+        "see -- the table is observations, so it cannot be filled in by "
+        "arithmetic.")
+    _, _, scale = _icon(d, *MARK_SLOT)
+    assert verdict(scale) == MEASURED[d.name], (
+        f"{d.name}'s mark now draws at {scale:.2f}x, which is "
+        f"{verdict(scale)!r} where {MEASURED[d.name]!r} was seen. Look at it "
+        "before changing this line.")
+
+
+def test_the_bands_are_ordered_and_cover_every_scale():
+    """A scale must land in exactly one band, including at the boundaries."""
+    assert 0 < NOISE_BELOW < READS_AT <= 1
+    assert verdict(READS_AT) == READS and verdict(READS_AT - 1e-9) == MARGINAL
+    assert verdict(NOISE_BELOW) == MARGINAL and verdict(NOISE_BELOW - 1e-9) == NOISE
+    assert verdict(0.0) == NOISE
+
+
+def test_each_threshold_sits_in_a_gap_and_not_against_a_neighbour():
+    """THE TEST THAT WOULD HAVE CAUGHT THE FIRST ATTEMPT.
+
+    The bands were first written as 0.30 and 0.20, read off the CLI's
+    two-decimal output -- where `lstm` prints `0.30x` and is really 0.2975. That
+    put the lowest confirmed-readable mark on the wrong side of its own
+    boundary by 0.0025, and every committed model still rendered, so nothing
+    else would have said a word.
+
+    A threshold is only meaningful if the measurements leave room around it. So
+    assert the room: each boundary must be a clear distance from the nearest
+    observation on either side, which is false for a number rounded off a
+    neighbour and true for one placed in a gap.
+    """
+    scales = sorted(_icon(d, *MARK_SLOT)[2] for d in EXAMPLES)
+    for name, edge in (("READS_AT", READS_AT), ("NOISE_BELOW", NOISE_BELOW)):
+        below = max((s for s in scales if s < edge), default=None)
+        above = min((s for s in scales if s >= edge), default=None)
+        assert below is not None and above is not None, (
+            f"{name}={edge} has no measurement on one side of it, so nothing "
+            "here supports it")
+        assert edge - below >= 0.01 and above - edge >= 0.01, (
+            f"{name}={edge} sits within 0.01 of a measured mark "
+            f"({below:.4f} below, {above:.4f} above). That is a boundary drawn "
+            "against its nearest neighbour rather than through a gap — look at "
+            "the marks either side before moving it.")
+
+
+def test_a_layout_nobody_chose_is_not_reported_as_a_choice():
+    """`vae`, `unet` and `whisper` state no `output.width`, so the automatic
+    fold never fires and both candidates come out byte-identical. Announcing
+    "as committed layout" there tells a reader the alternative was tried and
+    was worse, and sends them looking for the wrong reason their mark is
+    unreadable."""
+    for name in ("vae", "unet", "whisper"):
+        d = next(p for p in EXAMPLES if p.name == name)
+        svg_a, chosen, _ = _icon(d, *MARK_SLOT)
+        assert chosen == "single", (
+            f"{name} reported {chosen!r}, but its two candidates are the same "
+            "drawing and nothing was chosen")
+
+    # and where there IS a difference, it still names the winner.
+    d = next(p for p in EXAMPLES if p.name == "lenet")
+    assert _icon(d, *MARK_SLOT)[1] == "unwrapped"
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_every_committed_mark_is_current(d):
+    """The marks are committed artifacts and nothing re-rendered them.
+
+    CI re-renders each spec and diffs `figure.svg`; no check did the same for
+    `icon.svg`, so a spec change moved a committed mark in silence -- which is
+    exactly what happened to `tube`. THE SLOT IS READ BACK OUT OF THE FILE
+    rather than hardcoded here: the mark declares the size it was fitted to, so
+    a mark committed at some other slot is still held, and this test needs no
+    constant to keep in step with the artifacts.
+    """
+    icon = d / "icon.svg"
+    assert icon.is_file(), (
+        f"{d.name} has a figure but no committed mark. Run "
+        f"`draughtsman render {d}/spec.json --icon 192x96 -o {icon}`.")
+    text = icon.read_text()
+    m = re.search(r'<svg width="(%s)" height="(%s)"' % (NUM, NUM), text)
+    assert m, f"{icon} does not declare the slot it was fitted to"
+    w, h = float(m.group(1)), float(m.group(2))
+    svg, _, _ = _icon(d, w, h)
+    assert svg == text, (
+        f"{icon} is stale — re-run "
+        f"`draughtsman render {d}/spec.json --icon {w:g}x{h:g} -o {icon}` "
+        "and commit it")
