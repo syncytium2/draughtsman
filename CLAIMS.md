@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-f7` | `icon-mode` | `src/draughtsman/icon.py`, `src/draughtsman/cli.py`, `tests/test_icon.py`, `README.md` | 2026-09-04 | A figure too small to read should drop what cannot be read |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
