@@ -224,17 +224,22 @@ other consumer will hit it. Worth a line in the README.
 **0b. What the murderboard found and nobody has fixed.** The run records lived in
 a session scratchpad, which dies with the session; this is what survived it.
 
-**On `DECISIONS.md`, and it is `draughtsman-c9`'s** — that file is on their row:
-- The wrap table is **two rows stale**. It claims resnet 1.6:1 and unet 4.1:1;
-  they render 1.3:1 and 5.2:1. Axis naming moved them and nothing recomputes the
-  table. It cannot be recomputed in full — the "was" column describes figures that
-  no longer exist — so **date it as a measurement** rather than repair it.
-- **U-Net's caption asserts a shape the figure cannot show.** It offers channels ×
-  height staying constant as the glyphs carrying the U. That product is pinned at
-  1024 across all four encoder stages *by construction* — channels double as
-  height halves — and the U lives in channels × height × width, which the two-axis
-  glyph projects away. The figure reports a constant. Measured by `draughtsman-c9`
-  and confirmed here.
+**On `DECISIONS.md`. Unclaimed as of 2026-09-03 evening** — this said "it is
+`draughtsman-c9`'s", which was true when written and stopped being true when that
+row was released. Anyone may take it.
+- The wrap table is **stale, and more so than this entry says**. It claimed resnet
+  1.6:1 and unet 4.1:1 against 1.3:1 and 5.2:1 rendered — and every figure has
+  since been re-rendered twice more, for two type sizes and for one shared glyph
+  scale, so the ratios have moved again. It cannot be recomputed in full: the
+  "was" column describes figures that no longer exist. **Date it as a measurement**
+  rather than repair it.
+- ~~**U-Net's caption asserts a shape the figure cannot show.**~~ **Fixed
+  2026-09-03.** The finding was right and it turned out to be the largest one of
+  the day: channels × height is pinned at 1024 across all four encoder stages *by
+  construction*, so the figure reported the architecture as unchanging while every
+  check stayed green. The U lives in channels × height × width. `style: "sheets"`
+  draws the third axis, the caption no longer claims the two-axis product carries
+  anything, and it is written up as `DECISIONS.md` correction 9.
 
 **On the argument, and it is Tony's call:**
 - **The agent's own quality is stated nowhere.** The README says an agent supplies
