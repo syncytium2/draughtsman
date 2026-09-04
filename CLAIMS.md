@@ -84,6 +84,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-4f` | `text-metrics` | `src/draughtsman/text.py`, `src/draughtsman/render.py`, `tests/test_render.py`, `examples/gallery/dual/figure.svg`, `examples/gallery/lenet/figure.svg`, `examples/gallery/lstm/figure.svg`, `examples/gallery/mlp/figure.svg`, `examples/gallery/resnet/figure.svg`, `examples/gallery/transformer/figure.svg`, `examples/gallery/unet/figure.svg`, `examples/gallery/vae/figure.svg`, `examples/gallery/whisper/figure.svg`, `examples/tube/figure.svg` | 2026-09-03 | The figure's font metrics and the reader's are computed twice and reconciled nowhere |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
