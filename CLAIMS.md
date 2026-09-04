@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c4` | `run-suite` | `tools/run_suite.py`, `tests/test_run_suite.py` | 2026-09-04 | No pytest on the working machines, so a session can run no test locally and finds out from CI; both paths are new |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
