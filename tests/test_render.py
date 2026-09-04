@@ -304,7 +304,7 @@ def test_the_glyph_scales_both_edges_and_never_resizes_the_box(tube_spec_doc,
     assert max(w for w, _ in g) == GLYPH_W
     assert max(h for _, h in g) == GLYPH_H
     assert all(w <= GLYPH_W + 0.01 and h <= GLYPH_H + 0.01 for w, h in g)
-    assert "each edge ∝ value" in svg, "the legend must name the scale"
+    assert "each edge scales with value" in svg, "the legend must name the scale"
 
 
 def test_sqrt_is_the_default_and_compresses_less_faithfully_but_visibly(
@@ -315,7 +315,12 @@ def test_sqrt_is_the_default_and_compresses_less_faithfully_but_visibly(
     lin = render(load(_glyphed(tube_spec_doc, {"dog", "head"}, scale="linear")),
                  tube_graph)
     sq = render(load(_glyphed(tube_spec_doc, {"dog", "head"})), tube_graph)
-    assert "each edge ∝ √value" in sq and "each edge ∝ value" in lin
+    # SPELLED OUT, NOT ∝ AND √. Those two codepoints are not carried by
+    # Liberation Sans or by many Arial builds, so the sentence that explains the
+    # compression rendered as boxes on the machines least likely to have
+    # Helvetica. What is asserted is unchanged: the legend must say WHICH scale.
+    assert "each edge scales with the square root of value" in sq
+    assert "each edge scales with value" in lin
 
     # tube's extent is 600 at every stage, so width is constant and carries
     # nothing here — which is itself the honest reading. Height is the axis that
