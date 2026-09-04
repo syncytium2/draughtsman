@@ -485,18 +485,18 @@ def render(spec: Spec, graph: Graph) -> str:
             # is a stack that stopped being countable, not an axis of one.
             note = (f"deepest = {_fmt(gscale[0])}, tallest = {_fmt(gscale[1])}, "
                     f"widest = {_fmt(gscale[2])} · "
-                    + ("each edge ∝ value"
+                    + ("each edge scales with value"
                        if glyphed[0].spec.glyph.scale == "linear"
-                       else "each edge ∝ √value")
+                       else "each edge scales with the square root of value")
                     + " · sheets are drawn only where they separate; past "
                     + str(sheet_ceiling(BARE_SPAN if bare_glyphs
                                         else SHEET_SPAN))
                     + " the stack is one slab carrying its count")
         else:
             note = (f"tallest = {_fmt(gscale[0])}, widest = {_fmt(gscale[1])} · "
-                    + ("each edge ∝ value"
+                    + ("each edge scales with value"
                        if glyphed[0].spec.glyph.scale == "linear"
-                       else "each edge ∝ √value"))
+                       else "each edge scales with the square root of value"))
         rows.append(("__glyph__", " × ".join(lbl), note))
     # THE SWATCH AND THE LABEL ARE A NAME; THE SHARE IS PROSE. Only the name is a
     # width the figure owes the legend, so only the name is in the max below. The

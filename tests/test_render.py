@@ -640,3 +640,100 @@ def test_no_legend_line_is_drawn_outside_the_figure(d):
         assert right <= total, (
             f"{d.name}: a legend line reaches {right:.1f} in a {total:.1f}-unit "
             f"figure, so it is clipped: {body!r}")
+
+
+# --------------------------------------------------------------------------------
+# THE FIGURE'S METRICS AND THE READER'S.
+#
+# `text.py` computes advance widths from a table; the reader's font engine computes
+# them again at display time; the figure is correct only while those agree. That is
+# the last two-place quantity in this repository that nothing reconciles, and it is
+# the one a reader actually sees. These three tests hold the two places together
+# from the only side a test can reach without a rasteriser: what we emit, and what
+# we admit we are guessing.
+
+
+def test_the_font_stack_survives_the_attribute_it_is_written_into():
+    """`Helvetica Neue` unquoted is not a valid CSS family name, and engines that
+    reject it drop the WHOLE declaration rather than the one bad token — falling
+    through to the platform default, which on Linux is DejaVu Sans and is wider
+    than Helvetica at every size. That is how an outside reviewer rasterised this
+    gallery and found the ResNet legend overrunning its own viewBox.
+
+    The quotes must be SINGLE. `FONT_STACK` is interpolated into `style="..."` on
+    every text element, so double quotes would close the attribute and produce a
+    broken file — the fix for an unquoted font name being far worse than the
+    defect. The XML parse below is what would catch that.
+    """
+    from draughtsman.text import FONT_STACK
+
+    assert "'Helvetica Neue'" in FONT_STACK, (
+        f"the multi-word family is unquoted in {FONT_STACK!r}; engines that "
+        "reject it fall through to the platform default and the figure is then "
+        "laid out to metrics it is not being drawn with")
+    assert '"' not in FONT_STACK, (
+        f"{FONT_STACK!r} carries a double quote, which closes the style "
+        'attribute it is written into')
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_every_committed_figure_is_well_formed_xml(d):
+    """The cheap half of the check above, run against the artifact rather than the
+    constant. A malformed attribute is invisible in a diff and total in a reader."""
+    from xml.dom.minidom import parseString
+
+    parseString((d / "figure.svg").read_text())
+
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_no_figure_asks_for_a_glyph_the_pinned_stack_cannot_draw(d):
+    """U+221D PROPORTIONAL TO and U+221A SQUARE ROOT are not carried by Liberation
+    Sans or by many Arial builds, so the legend that explained the glyph scale
+    rendered as two boxes on exactly the machines least likely to have Helvetica.
+
+    `render.py` used to emit both, in `each edge ∝ √value`. It now spells the
+    relation out. This is the assertion that keeps them from coming back, and it
+    is about OUR text: the Greek in a spec is the author's word for their own
+    model and is not ours to refuse.
+    """
+    svg = (d / "figure.svg").read_text()
+    for ch, name in (("∝", "U+221D PROPORTIONAL TO"),
+                     ("√", "U+221A SQUARE ROOT")):
+        assert ch not in svg, (
+            f"{d.name}/figure.svg contains {name}, which the pinned font stack "
+            "does not reliably carry — it renders as a box. Spell the relation "
+            "out in words instead.")
+
+
+def test_which_glyphs_are_estimated_is_pinned_rather_than_silent():
+    """`width()` CANNOT FAIL ON AN UNKNOWN GLYPH — it must return a number, so an
+    unmeasured character is absorbed at `_DEFAULT` and nothing says so. That is a
+    hand-maintained value with one correct answer going quiet, which is
+    `DECISIONS.md` correction 5 arriving in the type case.
+
+    So the gap is pinned instead of asserted away. These eleven characters have no
+    advance width in `text.py` and are estimated; `×`, `—`, `–` and `·` were in
+    this set until they were measured, and `×` alone appears 146 times across the
+    gallery because every shape string carries one.
+
+    A NEW estimated glyph fails this test. That is the point: adding one is a
+    decision, and it should cost a line here rather than nothing.
+    """
+    import re as _re
+
+    from draughtsman.text import unmeasured
+
+    known = set("εμσ₁₂₃₄₅₆"
+                "→⊙")
+    found: set[str] = set()
+    for d in EXAMPLES:
+        svg = (d / "figure.svg").read_text()
+        for m in _re.finditer(r">([^<]*)</text>", svg):
+            found |= unmeasured(m.group(1))
+    new = found - known
+    assert not new, (
+        "the gallery renders characters with no advance width in text.py, so "
+        "their boxes are sized from a guess: "
+        + " ".join(f"U+{ord(c):04X} {c!r}" for c in sorted(new))
+        + ". Measure them into `_W`, or add them here and say why they are "
+          "acceptable as estimates.")
