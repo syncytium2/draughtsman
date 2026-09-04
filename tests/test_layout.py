@@ -28,7 +28,21 @@ def test_a_skipping_edge_gets_a_dummy_at_every_rank_it_crosses():
     assert len(dummies) == 2                      # ranks 1 and 2
     assert all(b.h == DUMMY_H for b in dummies)
     bypass = next(r for r in d.routes if r.label == "bypass")
-    assert len(bypass.points) == 4                # exit, two dummies, entry
+    # Exit, BOTH ENDS of each dummy, entry. A dummy is as wide as the rank it
+    # crosses so the bypass runs level beneath that stage; one point per dummy was
+    # the old shape and it is what let the curve bow up into the skipped box's
+    # bottom corners on either side of it.
+    assert len(bypass.points) == 6
+
+    # THE COUNT IS NOT THE PROPERTY -- the flatness is, and a count passes just as
+    # happily on two points at different heights. Each dummy's pair must share a y,
+    # which is what makes the run between them level.
+    interior = bypass.points[1:-1]
+    pairs = list(zip(interior[::2], interior[1::2]))
+    assert len(pairs) == 2
+    for (x0, y0), (x1, y1) in pairs:
+        assert x1 > x0, "the flat run has no width"
+        assert abs(y1 - y0) < 1e-6, "the run beneath the skipped stage is not level"
 
 
 def test_the_skipping_edge_does_not_run_through_the_boxes_it_skips():
