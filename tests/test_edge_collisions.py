@@ -15,26 +15,32 @@ measuring type size, unit width and print points, and none of those asks whether
 the drawing reads as a drawing.
 
 WHY THIS IS A BASELINE AND NOT A FLOOR, WHICH IS THE UNCOMFORTABLE PART.
-Nine crossings exist right now. A test that simply forbade them would be red on
-arrival, and a red test on `main` is one the next session learns to skip past. So
-this pins the inventory exactly and allows movement in one direction only:
-a figure may lose a crossing or make one shallower, never gain one or make one
-deeper.
+One crossing exists right now, and this still pins rather than forbids. A floor
+set at zero goes red the moment anything regresses, with no record of what was
+tolerated or why, and a red test on `main` is one the next session learns to skip
+past. Movement is allowed in one direction only: a figure may lose a crossing or
+make one shallower, never gain one or make one deeper. **Do not add a row here to
+make a red run green** -- a new crossing means the layout put an edge through a
+box, and the fix is the layout, not the table.
 
-That is deliberately not the same as "this is fine". Nine crossings, four kinds:
-`dual` is one unbroken traversal and is the defect awaiting the router change;
-`vae` is a dashed edge riding a border it has no business touching; `whisper`
-cuts one corner. The other six are three bypass arcs, each clipping two corners
-of the stage it skips, and they want clearance rather than a route. When any of that lands, the entries it fixes come out of this
-table and the rest get tighter. **Do not add a row here to make a red run green**
--- a new crossing means the layout put an edge through a box, and the fix is the
-layout, not the table.
+That is deliberately not the same as "this is fine". `dual` is a figure claiming a
+path the trace does not contain, it is on a figure the project page publishes, and
+it is the last one left.
 
-THE COUNT WENT FROM SIX TO NINE WITHOUT A FIGURE CHANGING, which is worth saying
-plainly: the detector used to sum an edge's separate meetings with one box into a
-single row. Nothing got worse. Three rows became six, three more stayed as they
-were, and the sums that had been standing in for them were retired. See the BASELINE
-comment for what the split showed.
+IT IS NOT A BYPASS, which is why the change that cleared the other eight did not
+touch it. `slow` and `concat` sit on rows the layout wrapped, so the edge takes the
+wrap route: out to the right margin, down, back along a RETURN LANE, and in. The
+lane's height is the midpoint between the source's bottom and the target's top --
+and nothing asks whether a stage is standing there. In `dual` one is: the lane sits
+at y=175.0 and `fast` spans y=112.5..183.0, so the run back to the left margin
+crosses it end to end. That is the 100%, and the fix is how the lane is chosen, not
+how a skip is drawn.
+
+THE COUNT WENT SIX -> NINE -> ONE, and only the last step changed a figure.
+Splitting an edge's separate meetings with a box into their own rows added no
+defect and removed none; it stopped three bypasses from reading as near-traversals
+and made the shape of the remaining work legible. Giving a bypass room then took
+eight rows away at once. See the BASELINE comment for what the split showed.
 """
 
 from __future__ import annotations
@@ -52,46 +58,24 @@ from edge_collisions import collisions            # noqa: E402
 
 TOOL = ROOT / "tools" / "edge_collisions.py"
 
-#: figure -> {(from, to, box, nth): percent of the box crossed}, re-measured
-#: 2026-09-04 after the detector began reporting each contiguous crossing on its
-#: own row. A figure absent from this table must be clean.
+#: figure -> {(from, to, box, nth): percent of the box crossed}. One row now, and
+#: how it got to one is worth more than the row.
 #:
-#: THE KEY CARRIES `nth` BECAUSE THE OLD ONE COULD NOT HOLD THESE ROWS. Keyed on
-#: (from, to, box) alone, an edge meeting a box twice has one slot, and the two
-#: numbers collapse back into the single summed figure this change exists to undo.
+#: It was six, across five figures. Splitting an edge's separate meetings with a
+#: box into their own rows made it nine and showed the six were never six of a
+#: kind: `dual` was one unbroken traversal, `vae` a dashed edge riding a border,
+#: `whisper` one corner cut, and the other six rows were three bypass arcs, each
+#: clipping the near corner of the stage it skips going down and the far corner
+#: coming up. The pairs were symmetric to the unit -- 26/26, 27/27, 70/70 --
+#: because an arc bowing under a box is symmetric about it, and summing the halves
+#: had hidden exactly that signature.
 #:
-#: WHAT THE SPLIT REVEALED, AND IT IS THE REASON TO READ THIS TABLE AGAIN.
-#: The six rows were never six of a kind:
-#:
-#:   dual        100%, ONE run          an edge straight through `fast`, in one
-#:                                      side and out the other. The defect this
-#:                                      tool was built for, and still the only
-#:                                      one of its kind in the gallery.
-#:   vae          79%, ONE run          the dashed noise edge rides up the right
-#:                                      border of `sigma`, which it has nothing
-#:                                      to do with. Real, and a clearance fault
-#:                                      rather than a routing one.
-#:   transformer  21% + 21%, 13% + 13%  a residual arc dipping under the stage it
-#:   tube         38% + 38%             skips, clipping the near corner going down
-#:                                      and the far corner coming up. `tube`
-#:                                      labels its arc `bypass` in the figure.
-#:   whisper      10%, ONE run          a single corner cut.
-#:
-#: The pairs are symmetric to the unit -- 26/26, 27/27, 70/70 -- because an arc
-#: that bows under a box is symmetric about it. That symmetry is the signature of
-#: a bypass, and summing the halves is what hid it: `tube` read 76% and
-#: `transformer` 42%, both close enough to `dual`'s 100% to look like the same
-#: fault, and neither one was.
+#: Giving a bypass the WIDTH of the rank it crosses, so it runs flat beneath the
+#: stage instead of dipping to a point at its centre, cleared eight of the nine and
+#: re-routed three more skips that had never registered. No figure changed size.
+#: What is left was never a bypass.
 BASELINE: dict[str, dict[tuple[str, str, str, int], float]] = {
     "dual": {("slow", "concat", "fast", 1): 100.0},
-    "transformer": {("pos", "join1", "attn", 1): 21.0,
-                    ("pos", "join1", "attn", 2): 21.0,
-                    ("join1", "join2", "ff", 1): 13.0,
-                    ("join1", "join2", "ff", 2): 13.0},
-    "vae": {("noise", "sample", "sigma", 1): 79.0},
-    "whisper": {("audio", "drest", "dcross", 1): 10.0},
-    "tube": {("mean", "concat", "dog", 1): 38.0,
-             ("mean", "concat", "dog", 2): 38.0},
 }
 
 TOLERANCE = 1.0          # percentage points; re-rendering moves numbers slightly

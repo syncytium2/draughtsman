@@ -322,7 +322,26 @@ def build(nodes: list[tuple[str, float, float]],
         prev = a
         for r in range(rank[a] + 1, rank[b]):
             did = f"~{a}>{b}@{r}"
-            boxes[did] = Box(id=did, w=0.0, h=DUMMY_H, rank=r,
+            # A DUMMY IS AS WIDE AS THE RANK IT CROSSES, and that is the whole
+            # of the clearance fix.
+            #
+            # A zero-width dummy is a single point below the skipped stage, and
+            # the cubic drawn to it leaves the source horizontally and only
+            # descends around the midpoint -- so at the skipped box's left and
+            # right edges the curve is still up at the source's height and clips
+            # both bottom corners. It was symmetric to the unit in every figure
+            # that had it (26/26, 27/27, 70/70), which is the signature of a bow
+            # rather than a route, and `tools/edge_collisions.py` reported the
+            # halves separately once it stopped summing them.
+            #
+            # Depth was the wrong lever and was tried first: DUMMY_H from 12 to 44
+            # moved transformer 21% -> 14% and tube 38% -> 34% and cleared nothing,
+            # because it lowers the point without flattening the approach. Width
+            # gives the run two endpoints at the same height, so the bypass travels
+            # LEVEL beneath the whole stage and the corners are never near it.
+            # Eight of nine crossings went away and no figure changed size.
+            span_w = max((boxes[i].w for i in ids if rank[i] == r), default=0.0)
+            boxes[did] = Box(id=did, w=span_w, h=DUMMY_H, rank=r,
                              order=order[a], dummy=True)
             dummy_edges.append((prev, did))
             chain.append(did)
@@ -358,7 +377,12 @@ def build(nodes: list[tuple[str, float, float]],
                                 style=style, wrapped=True))
             continue
         pts = [(boxes[a].x + boxes[a].w, boxes[a].y)]
-        pts += [(boxes[d].x, boxes[d].y) for d in chains[(a, b)]]
+        for d in chains[(a, b)]:
+            # Both ends of the dummy, so the segment between them is the flat run.
+            # Emitting only one point would waste the width: the curve would still
+            # be drawn to a single place and bow around it exactly as before.
+            pts.append((boxes[d].x, boxes[d].y))
+            pts.append((boxes[d].x + boxes[d].w, boxes[d].y))
         pts.append((boxes[b].x, boxes[b].y))
         routes.append(Route(src=a, dst=b, points=pts, label=label, style=style))
 
