@@ -37,11 +37,12 @@ figure{margin:0}
    shrinks with it, which is the lesser of the two evils and only below laptop
    width.
 
-   TWO FIGURES ARE TOO WIDE FOR THAT COLUMN AND SAY SO. `.banner` and `.wide`
+   THREE FIGURES ARE TOO WIDE FOR THAT COLUMN AND SAY SO. `.banner` and `.wide`
    break out to 1440px, and even there the arithmetic does not reach 17px:
    at a full 1440px inner width `tube`'s 934 units draw about 1051px in the 2:1
-   banner and land at 10.7px, and `transformer`'s 1277 units fill 1384px and land
-   at 10.3px. Narrower viewports take both down by another point or so. That gap is
+   banner and land at 10.7px, `transformer`'s 1277 units fill 1384px and land
+   at 10.3px, and `whisper`, the widest at 1647 units, fills the same 1384px and
+   lands at 8.0px. Narrower viewports take both down by another point or so. That gap is
    not a page bug, it is the measurement this tool exists to make legible, and
    the captions state it rather than letting the reader assume it was solved. */
 .plate img{display:block;height:auto;max-width:100%}
@@ -97,19 +98,20 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
 
 <!-- LEAD WITH THE FIGURE. The page's whole claim is that the picture is right,
      so the picture goes before the sentence that says so. -->
-<section class="bleed banner" style="padding-top:40px">
+<section class="bleed wide" style="padding-top:40px">
   <div class="inner">
     <figure>
-      <div class="plate"><img src="examples/tube/figure.svg"
-        alt="tube, a coordinated-event detector, drawn as seven named stages wrapped across two rows: an onset raster, a max-pool, a mean over cells, a four-lane difference-of-Gaussian bank, a concatenate the bypass rejoins at, a dilated conv stack and a per-frame score, with a legend counting operations and parameters by colour family."></div>
-      <p class="cap">1,149 parameters over 47 traced operations. Every quantity —
-      the parameter counts, <code>kernel 257</code>, <code>dilation 1 → 32</code>, the
-      four lanes — is looked up from a trace of the model at render time; none of it
-      is typed into the spec. The spine wraps into two rows and the bypass returns
-      through the gutter reserved for it. Detail type lands at about 10–11px here against
-      the page's 17px: the figure is 934 units wide, and holding the page's own body
-      size would take a slot 1,671px across. It is solved to print at 10 inches, where it clears its 6pt floor
-      at 7.33pt.</p>
+      <div class="plate"><img src="examples/gallery/whisper/figure.svg" width="1384"
+        alt="Whisper tiny drawn as eleven named stages on two spines that meet: a log-mel spectrogram through a conv frontend into the audio encoder along the top, token ids through the token embedding into masked self-attention along the bottom, the two joining at a cross-attention block whose six heads are drawn as lanes, then a feed-forward, a box standing for three more decoder blocks, and vocabulary logits."></div>
+      <p class="cap"><b>Whisper tiny — speech recognition, encoder–decoder, two
+      inputs.</b> 37,184,640 parameters over 271 traced operations, log-mel spectrogram
+      to vocabulary logits. The six attention heads are drawn as lanes because this model
+      writes q, k and v out rather than calling <code>nn.MultiheadAttention</code>, which
+      fuses into a single traced node and takes its heads with it. Decoder block one is
+      opened; the remaining three are one box, and <code>repeat</code> counted them by
+      tiling that opened unit against the traced nodes. Its 1,647 units put detail type
+      at about 8px here against the page's 17px, and it clears a 6pt floor at 14.5
+      inches — a slide or a poster, not a column.</p>
     </figure>
   </div>
 </section>
@@ -123,6 +125,34 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   model at render time.</p>
   <p>A coverage check then proves no traced operation was silently dropped.</p>
 </header>
+
+<section>
+  <h2>The model above is Whisper tiny, and it broke two things.</h2>
+  <p>OpenAI's speech recogniser at its published dimensions, written out in PyTorch from
+  the model card and traced from that source: 80 mel bins, four encoder blocks against
+  four decoder blocks, six heads, sinusoidal audio positions against learned text
+  positions, cross-attention in every decoder block, and the output projection tied to
+  the token embedding. The weights are random — this draws the architecture, not the
+  trained model. It is the only encoder–decoder in the gallery, and it is the reason two
+  parts of the tool are what they are.</p>
+  <div class="note">
+    <p><strong><code>trace</code> took one input.</strong> It built a single dummy tensor,
+    so every encoder–decoder, two-tower and masked model was excluded — not by
+    difficulty, by signature. Whisper's <code>forward</code> wants the mel spectrogram
+    and the token ids together. <code>--input-shape</code> now repeats, with an optional
+    <code>--dtype</code> per input, and one shape still produces byte-identical output.
+    A model with several inputs has no singular input shape, so a spec asking for one
+    raises rather than quietly describing half the input.</p>
+    <p style="margin-top:12px"><strong>A tied weight was charged twice.</strong>
+    Whisper's output projection <em>is</em> its token embedding — one tensor reached
+    through two <code>prim::GetAttr</code> nodes, both billed — and the trace reported
+    the model as having 54% more parameters than it has. Coverage was green throughout:
+    every node sat in exactly one stage, and the figure would have printed a total this
+    model does not have. A parameter is now charged to the earliest substantive consumer,
+    which also decides where it is drawn: the 19.9M-entry table appears at the embedding,
+    where a reader meets it, rather than at a matmul four hundred nodes later.</p>
+  </div>
+</section>
 
 <section>
   <h2>Three stages.</h2>
@@ -226,6 +256,24 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   </div>
 </section>
 
+<section class="bleed banner">
+  <div class="inner">
+    <figure>
+      <div class="plate"><img src="examples/tube/figure.svg"
+        alt="tube, a coordinated-event detector, drawn as seven named stages wrapped across two rows: an onset raster, a max-pool, a mean over cells, a four-lane difference-of-Gaussian bank, a concatenate the bypass rejoins at, a dilated conv stack and a per-frame score, with a legend counting operations and parameters by colour family."></div>
+      <p class="cap"><b>Most of that at once, on the model this tool was built
+      for.</b> 1,149 parameters over 47 traced operations. Every quantity —
+      the parameter counts, <code>kernel 257</code>, <code>dilation 1 → 32</code>, the
+      four lanes — is looked up from a trace of the model at render time; none of it
+      is typed into the spec. The spine wraps into two rows and the bypass returns
+      through the gutter reserved for it. Detail type lands at about 10–11px here against
+      the page's 17px: the figure is 934 units wide, and holding the page's own body
+      size would take a slot 1,671px across. It is solved to print at 10 inches, where it clears its 6pt floor
+      at 7.33pt.</p>
+    </figure>
+  </div>
+</section>
+
 <section id="marks">
   <h2>Every model as a mark, at the size it will be used.</h2>
   <p>Each of these is <code>render --icon 192x96</code> against the same committed spec
@@ -255,7 +303,7 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
     silently does the second one badly.</p>
     <p style="margin-top:12px">Nothing re-rendered a committed mark either, until now.
     <code>tube</code>'s moved from 0.15× to 0.20× when its <code>wrap</code> changed for
-    the banner at the top of this page — a mark crossing a band because of an edit aimed
+    the banner further up this page — a mark crossing a band because of an edit aimed
     somewhere else — and a person caught it against that same contact sheet. CI now
     re-renders every committed mark and reads the slot back out of the file, so a mark
     states the size it was fitted to and the check needs no constant of its own.</p>
@@ -329,7 +377,8 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
         alt="The whisper figure reduced to a textless mark at 192 by 96 pixels."></div>
       <p class="mk"><b>whisper</b> <span class="sc">0.11×</span>
         <span class="v bad">does not read</span></p>
-      <p class="mn">Dirt on the glass.</p>
+      <p class="mn">The figure this page opens with, and the lowest mark in the set:
+        at 0.11× none of it survives.</p>
     </figure>
   </div>
   <div class="note">
