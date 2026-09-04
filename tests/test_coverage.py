@@ -57,7 +57,26 @@ def test_the_pytorch_graph_omissions_are_all_drawn(tube_spec, tube_graph):
 
 
 def _mutate(spec_doc, fn):
+    """Mutate tube's spec for a COVERAGE assertion, with the print gate removed.
+
+    THESE TESTS ARE ABOUT WHAT COVERAGE MEANS, and `output` makes `check` answer a
+    second, unrelated question: would this figure be legible at the size it
+    declares. Once tube declared `6in`/`6pt`, every mutation here was judged on
+    both, and a mutation that adds an edge is exactly the kind that widens a
+    figure — `test_an_untraced_arrow_may_be_declared_with_a_reason` adds one that
+    forks the graph and takes tube from 589 units to 934, at every wrap value
+    from 455 down to 105.
+
+    That test then failed, under a name that says nothing about legibility. A test
+    that fails for a reason its name does not describe has stopped saying what it
+    means, and the next person to read the failure looks in the wrong file.
+
+    So the gate comes off here and stays on where it belongs: the committed specs,
+    and `tests/test_layout_shape.py`, which is where a declared output size is
+    actually asserted.
+    """
     doc = copy.deepcopy(spec_doc)
+    doc.pop("output", None)
     fn(doc)
     return load(doc)
 
