@@ -200,6 +200,137 @@ list is what stands between here and that flip, in order:
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
 
+**0d. HANDOFF — what is left after the night of 2026-09-03/04.**
+*Written 2026-09-04 by `draughtsman-f7` (routable as `draughtsman-69`) with
+context filling. Everything below is measured against `main` at `7bf937e`, which
+is green with an empty board.*
+
+**What changed, so the numbers below are read against the right baseline.** The
+two figures the project page publishes now fit it — dual 560→460 units, lenet
+822→470 — and the legibility gate is armed on six of ten specs, up from three.
+`tools/measure_type.py`, `tools/edge_collisions.py` and `--icon` are new. The
+session-start hooks are wired.
+
+---
+
+**1. THE ROUTER PUTS EDGES THROUGH BOXES. Detector landed, fix unclaimed.**
+
+    dual         slow -> concat   through 'fast'    104/104 (100%) CROSSES IT
+    vae          noise -> sample  through 'sigma'    45/57   (79%)
+    tube         mean -> concat   through 'dog'     140/184  (76%)
+    transformer  pos -> join1     through 'attn'     51/122  (42%)
+    transformer  join1 -> join2   through 'ff'       54/208  (26%)
+    whisper      audio -> drest   through 'dcross'   20/208  (10%)
+
+An arrow through a stage is a figure claiming a path the trace does not contain.
+In `dual` the wide branch's output crosses the narrow branch end to end. It
+passes coverage, the legibility gate and the byte-exact render test;
+`tests/test_edge_labels.py` checks an edge's LABEL against boxes and never its
+path. **Found by Tony looking at a rendering**, not by any measurement here.
+
+`tools/edge_collisions.py --floor 80 <svg>` reports and gates.
+`tests/test_edge_collisions.py` pins the six as a BASELINE that may only improve.
+**Do not add a row to make a red run green** — a new entry means the layout put
+an edge through a box.
+
+The fix is `layout.py`'s router and it re-renders all ten figures, so it is a
+large claim. Not started.
+
+**Three figures are outside the check entirely.** `lenet`, `resnet` and `unet`
+set `layout.chrome: "none"` and draw no stage rects, so they report clean because
+there is nothing to collide with. Extending to glyph bounds is unclaimed.
+
+---
+
+**2. FOUR SPECS STILL DECLARE NO SIZE, and they are the hard four.**
+
+    transformer  1277u  3.21pt at 6in
+    unet         1607u  2.55pt
+    vae          1392u  2.95pt
+    whisper      1647u  2.49pt
+
+`draughtsman-4f` armed resnet (846→516) and tube (1248→589) from the spec alone
+and found the other four cannot be: they need fewer detail lines, more
+collapsing, or a second orientation, not a wrap value. The budget is 684 units
+for 6in/6pt.
+
+**And queue item 3's 3.5in target is unreachable as written.** `CAPTION_MIN_W =
+460.0` in `render.py` is a hard floor in the width computation for any figure
+carrying a caption; item 3 wants ≤399. dual sitting at exactly 460 is that floor
+binding. **Start there, not at the layout levers.**
+
+---
+
+**3. `examples/tube` MIS-NAMES ITS OWN AXES, and it blocks another repo.**
+
+Raised by `bugarach-c4`: the figure states `1×30×600` against "cells × frames" —
+three numbers, two names — and the middle axis silently changes from ROIs to
+channels at the kernel bank. bugarach's `docs/DEPLOY_HOLD.md` holds their publish
+on a revised figure from here, and their architecture doc is vendored FROM
+`examples/tube/spec.json`, so this copy is upstream of their front page. Fixing it
+needs a re-vendor on their side.
+
+---
+
+**4. ICON MODE IS BUILT AND HAS ONE STATED LIMIT.**
+
+`draughtsman render spec.json --icon 420x104 -o icon.svg`. It removes text, the
+legend, sub-pixel detail, and stages that were only text along with the arrows
+that pointed at them; it re-solves the layout, because `layout.wrap` is a
+page-fitting decision and an icon is not on that page.
+
+It **post-processes a rendered figure and does not re-lay it out without the
+labels**, so a boxed figure carries more empty box than it needs. A glyph figure
+comes out tight. Re-laying out is a renderer change and unclaimed.
+
+Nothing checks that an icon is *legible as a mark* — only that it is complete,
+uncropped and textless. That judgement is still a person's.
+
+---
+
+**5. TONY'S, NOT A SESSION'S.**
+
+- **tonydefazio.com is 5 commits ahead of a public `origin`** and cannot push
+  without a grant. Version is bumped to 1.6.0, README §3 fixed; **deploy was
+  explicitly withheld** — the live site is still five cards. Held by
+  `tonydefazio-com-ad`.
+- **`draughtsman.tonydefazio.com` has no certificate.** The Pages API reports
+  `https_certificate: state=None` — GitHub never requested one, because the domain
+  was set by committing a `CNAME` rather than through the Pages settings. Re-set
+  the custom domain to fire provisioning. Their tile points at the GitHub URL
+  until it answers.
+- **This repo's Pages site loads Google Fonts** — the only destination in the
+  estate that makes an external request on load, in a repo whose pitch is zero
+  dependencies. A committed `@font-face` or a system stack removes it.
+- **The card can now carry a real figure**, since `--icon` exists. The
+  measurement that made the schematic right has not changed: a figure WITH text
+  at 420×104 is still 1.6–3.6px. Only the textless form is new.
+
+---
+
+**6. THE BOARD CANNOT BE DIALLED.** A reader of this file cannot message the
+session holding a row: the board tag (`draughtsman-f7`, from the session id) and
+the routable `ListAgents` name (`draughtsman-69`) are different strings and
+nothing maps them, while titles move under you — `bugarach-c5` became
+`bugarach-c4` between drafting a message and sending it. Rule 7 says the board
+cannot see a session that never claims; this is the inverse and it is mechanical.
+Adding the routable name to the row shrinks both. Unclaimed.
+
+---
+
+**7. WHAT THE NIGHT ACTUALLY TAUGHT, and it is not in any of the above.**
+
+Every defect that mattered was found by *looking*, and none by measuring:
+
+- the edges through boxes — Tony, from a screenshot
+- three arrows pointing at nothing in an icon, a stray legend swatch, and 78
+  one-pixel marks — by rasterising and viewing
+- an icon cropped by exactly its `ds-body` transform — two files with identical
+  viewBoxes and identical element counts that did not look the same
+
+`rsvg-convert -w 1260 -h 312 -b white FIG.svg -o FIG.png` and then read the PNG.
+This suite has 400-odd assertions and every one of those defects was green.
+
 **0c. HANDOFF — denser figures for the web page, without losing legibility.**
 *Written 2026-09-03 by `draughtsman-c9` at the end of a long session. Everything
 below is measured, not estimated.*
