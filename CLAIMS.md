@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-4f` | `abstract-variance` | `tools/abstract_variance.py`, `experiments/abstraction-variance/README.md`, `experiments/abstraction-variance/run-1.json`, `experiments/abstraction-variance/run-2.json`, `experiments/abstraction-variance/run-3.json`, `experiments/abstraction-variance/run-4.json`, `experiments/abstraction-variance/run-5.json` | 2026-09-04 | Measuring how far the agent's grouping moves between independent runs — the one step nothing verifies |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
