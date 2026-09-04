@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c4` | `flat-bypass-contract` | `tests/test_layout.py` | 2026-09-04 | main is RED: a bypass now emits both ends of each dummy, and this test still asserts one point per dummy |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
