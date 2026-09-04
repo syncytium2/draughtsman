@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-4f` | `arm-the-six` | `examples/gallery/resnet/spec.json`, `examples/gallery/resnet/figure.svg`, `examples/gallery/transformer/spec.json`, `examples/gallery/transformer/figure.svg`, `examples/gallery/unet/spec.json`, `examples/gallery/unet/figure.svg`, `examples/gallery/vae/spec.json`, `examples/gallery/vae/figure.svg`, `examples/gallery/whisper/spec.json`, `examples/gallery/whisper/figure.svg`, `examples/tube/spec.json`, `examples/tube/figure.svg`, `tests/test_coverage.py` | 2026-09-04 | The six figures that pass the legibility gate only because they do not declare a size |
 | `draughtsman-f7` | `edges-through-boxes` | `tools/edge_collisions.py`, `tests/test_edge_collisions.py` | 2026-09-04 | Six edges run through boxes they have nothing to do with, and nothing looks |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
