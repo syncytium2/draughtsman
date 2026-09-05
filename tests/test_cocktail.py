@@ -205,16 +205,39 @@ def test_the_trace_carries_no_parameters_at_all(graph):
         "trained.\n" + _summary(graph))
 
 
-def test_one_traced_step_does_not_contain_the_phenomenon(graph):
-    """A figure of this graph is a figure of the update rule.
+def test_one_traced_step_is_twenty_four_elementwise_operations(graph):
+    """It traces cleanly. That was never the question.
 
-    Segregation is a transient over hundreds of steps. There is no forward pass
-    that holds it, so no draughtsman figure of a trace can show it. This asserts
-    the shape of that problem: the whole graph is small, because one step of a
-    21-unit system is a handful of elementwise operations.
+    Segregation is a transient over hundreds of steps, so no forward pass holds
+    it, and a figure of this graph is a figure of the update rule.
     """
     nodes = graph.get("nodes", [])
-    # PINNED rather than bounded: a range hides a change in the graph, and the
-    # whole argument here is about what the trace does and does not contain.
-    assert len(nodes) == -1, (
-        f"one step traced to {len(nodes)} nodes.\n" + _summary(graph))
+    assert len(nodes) == 24, (
+        f"one step traced to {len(nodes)} nodes, not 24.\n" + _summary(graph))
+
+
+def test_the_trace_gives_a_figure_tool_nothing_to_say(graph):
+    """THE ANSWER TO "how would draughtsman draw this", as an assertion.
+
+    draughtsman has exactly two fact-types to put in a box: the shape a stage
+    outputs, and how many parameters it holds. Both degenerate here.
+
+    Parameters are zero on all 24 nodes. And every shape is 20 or 1 -- the cells,
+    or the single inhibitory unit. Nothing changes dimension, because there are no
+    channels, no spatial extent and no projections; the model is 21 units talking
+    to each other for a thousand steps.
+
+    So a faithful figure would be two dozen boxes, each labelled `20`, each
+    reading `0 params`. Compare resnet, where `1x64x8x8` and `36864 params` carry
+    the story of downsampling, widening, and where the model's mass sits.
+
+    THE TOOL IS NOT BROKEN AND NEITHER IS THE MODEL. The vocabulary does not fit
+    the subject. That is worth having demonstrated rather than argued.
+    """
+    nodes = graph.get("nodes", [])
+    shapes = {tuple(n["out_shape"]) for n in nodes if n.get("out_shape")}
+    assert shapes <= {(20,), (1,)}, (
+        f"the trace now carries shapes beyond the cell count and the scalar: "
+        f"{sorted(shapes)}. If a dimension actually changes somewhere, a figure "
+        "of this model has something to say after all.\n" + _summary(graph))
+    assert all(int(n.get("params") or 0) == 0 for n in nodes)
