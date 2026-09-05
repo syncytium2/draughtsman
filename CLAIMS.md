@@ -565,6 +565,45 @@ last of those at `787b1d4`, where `tests/test_versions.py` ties the README, the
 `pyproject` floor and the CI matrix together. Not done: no `CONTRIBUTING` or issue
 template for a repo that may be read as a record of working with Claude Code.
 
+**8. Why some icons wrap and some do not is written down only on the mount.**
+*Raised by Tony 2026-09-05; not decided.* `--icon` renders both layout candidates
+and keeps whichever fills the slot larger, so an icon routinely does not match its
+figure, and three different mechanisms produce that. `mlp` and `lstm` set no
+`layout.wrap`, so the automatic width-budget fold fires. `lenet` and `resnet` set
+one and the icon **overrules** it, because their committed form is taller than
+wide. `vae`, `unet` and `whisper` state no `output.width`, so `width_budget`
+returns `None`, the fold never fires, and both candidates come out byte-identical
+— nothing is chosen, and the CLI still reports "as committed layout" as though
+something had been.
+
+So **"as committed layout" does not mean "wrapped"**, which is the part that
+misleads. None of this is in the repository; it is in a README on the Dropbox
+mount, which is the same failure this file's rule 1 is about. `DECISIONS.md` is
+where it belongs. Two sessions independently reached that conclusion and neither
+moved it without Tony.
+
+**9. Two fills inside a box are still literal white.** `ds-lane` (lane label
+plates) and `ds-meter-track` are `fill:#ffffff;fill-opacity:0.62`, at
+`render.py:987` and `render.py:1039` as of `7e83e9b`. Every *stage* fill became
+`var(--ds-fill-<kind>, <hex>)` so a mark can sit on a dark card; these two did
+not, because they sit on a box fill rather than on the page and the file's ink
+doctrine pins them there. That doctrine is right only while the box fill is light.
+
+**No icon is affected** — both carry text and do not survive the text removal, at
+420x104 or 192x96. A full figure embedded on a dark page is. Whoever takes this
+should decide whether the doctrine wants a third case, not just patch the two.
+
+**10. The darkroom now duplicates the ten committed icons, and it went stale.**
+Item 7 above is out of date: `<darkroom>/draughtsman/` exists, and now holds
+`icons-1x2/` — the same ten marks the repository commits as `examples/**/icon.svg`,
+plus a contact sheet and the legibility findings, which the repo does not have.
+
+The duplication is the problem. Those copies went stale within a day of being
+made, twice: once when `tube`'s `layout.wrap` moved, once when stage fills became
+restatable. Both times a person caught it. Either delete the copies and point at
+the repo, keeping only the sheet and the write-up, or add a check — but two
+uncoordinated copies of a generated artifact is the arrangement that just failed.
+
 **7. Darkroom has no `draughtsman/` folder.** Every figure lives in git and in a
 published artifact; none is in the estate's figure store, whose own README says a
 figure nobody can re-run, date or attribute is one the next session re-derives.
