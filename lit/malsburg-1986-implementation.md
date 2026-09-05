@@ -69,25 +69,36 @@ Two things needed judgement and both are marked `INTERPOLATED`:
 
 Two of the paper's own reported results do not come out.
 
-**The burst period is wrong, and the paper is internally inconsistent about it.**
-Section 4 reports *T* between 5.838 (n=20) and 6.971 (n=1) steps. But eq 6 gives
-a lower threshold of 0.01, and eq 5 decays the gliding average by (1−δ) = 0.65
-per step, so falling from *g*<sub>u</sub> = 0.4 to *g*<sub>l</sub> = 0.01 takes
-ln(0.025)/ln(0.65) = **8.6 steps of refractory alone**. The two statements cannot
-both hold. `test_the_papers_threshold_does_not_reproduce_the_papers_period` asserts
-the inconsistency so it cannot quietly disappear.
+**RETRACTED: the paper is not internally inconsistent, and I said it was.** An
+earlier version of this note argued that Section 4's *T* = 5.838 to 6.971 could
+not be squared with eq 6's 8.6-step refractory. That took those numbers as the
+*period*. The sentence says **"the duration of bursts"**, and Fig. 6 names the
+burst duration *T*<sub>a</sub> — so the sentence is loose with its symbol, but a
+loose symbol is not a contradiction, and I published one on the strength of it.
+
+On the plain reading there is nothing to reconcile: a burst near 6 with a
+refractory near 8.6 gives a period near 15. This transcription measures **13.98**,
+and a literature agent measuring the paper's own Fig. 8 off the page got roughly
+15–17. I had reported that agreement as evidence of a discrepancy.
+
+**What remains is a real but much smaller gap.** At the paper's own constants the
+burst duration here is **4.48 steps against a reported 5.838** for *n* = 20 —
+about 23% low, not a factor of two.
 
 **The model synchronises instead of segregating.** Measured over 600 steps, one
 onset step of asynchrony, seed 0:
 
-    g_l     period   antiphase   within    between   H/step
-    0.01     13.98     +0.999   0.02117   0.02160   0.070
-    0.03     11.00     +0.995   0.02117   0.02160   0.090
-    0.06     10.03     +1.000   0.02139   0.02160   0.100
-    0.10      9.98     +1.000   0.02149   0.02160   0.100
-    0.15      9.97     +1.000   0.02149   0.02160   0.100
+    g_l     period   burst   antiphase   within    between   H/step
+    0.01     13.98    4.48     +0.999   0.02117   0.02160   0.070
+    0.03     11.00    4.69     +0.995   0.02117   0.02160   0.090
+    0.06     10.03    5.41     +1.000   0.02139   0.02160   0.100
+    0.10      9.98    6.22     +1.000   0.02149   0.02160   0.100
+    0.15      9.97    7.21     +1.000   0.02149   0.02160   0.100
 
-Two things to read off it. **The period floors near 10 whatever the threshold**,
+Three things to read off it. At *g*<sub>l</sub> = 0.10 the burst duration is
+6.22, inside the paper's reported band — but the desynchronisation is no better
+there, so matching that number buys nothing. **The period floors near 10 whatever
+the threshold**,
 so *g*<sub>l</sub> is not what sets it — raising it was the obvious fix and it is
 the wrong one. And **`between` is 0.0216 = *s*<sub>0</sub>(1 + *s*<sub>d</sub>)
 exactly**: every between-group synapse has run to the upper clamp of eq 8. The
