@@ -1002,14 +1002,10 @@ number.
 
 ### What is declared here and NOT yet checked
 
-**`chrome` is a figure-level field, and the rule is per stage.** So a figure is
-all-boxed or all-bare, and `tube` — which is on the page — draws `marks` glyphs
-inside boxes. Making the whole figure bare would strip the boxes off its word
-stages, which the rule forbids in the other direction. The fix is `chrome` per
-stage, in `spec.py` and `render.py`, and it is its own change: it moves layout, so
-it owes the mark contact sheet a re-run, this page having already recorded `tube`
-crossing a readability band because of an edit aimed at the banner.
-`tests/test_page.py` names `tube` as the one exemption, so anything new fails.
+**`chrome` is a figure-level field, and the rule is per stage.** *Closed — the
+field is per stage now. See "chrome per stage" below, including what happened when
+it was pointed at `tube`.* `tests/test_page.py` still names `tube` as the one
+exemption, and the reason is a measurement rather than a missing feature.
 
 Two conditions before that work starts, both from this repository's own precedent.
 It is a **signature change to the spec**, not a fix, so it owes what the multi-input
@@ -1039,3 +1035,60 @@ fails when a number rises. It fires on zero correct figures today, makes no clai
 about which stages are right, and takes a deliberate re-baseline to move. What it
 catches is the thing the collision test cannot see — silent drift back to the
 defaults on regeneration, which is the failure this whole entry exists for.
+
+
+## `chrome` per stage, and the figure that declined it
+
+*2026-09-05. The change the entry above said was owed, plus the thing it found.*
+
+`chrome` is a field of a **stage** as well as of a figure. A stage that says
+nothing inherits the figure's, so no committed spec means anything different —
+`tests/test_render.py` moves `layout.chrome` onto every stage of all ten committed
+models and requires byte-identical output, which is what the multi-input change
+paid when `--input-shape` became repeatable. And `check` now warns when a glyph is
+left inside a box, which the page had asserted in prose since the field existed
+and nothing had ever asked.
+
+### Three things the bare path was dropping, found by rendering one figure
+
+The only figures ever drawn bare were `sheets` figures, so `_bare` handled sheets
+and fell through to `pass` for everything else. The first bare `tube` came out as
+seven names and their numbers **with every mark gone** — coverage green, type
+clearing its floor, the committed SVG exactly what the spec produced, and the one
+thing the figure exists to show absent. Found by looking at it.
+
+Then its lanes: `dog`'s four kernels are drawn against the stage's width, which a
+bare stage has — the layout engine sizes it the same way and simply draws no rect.
+And then its meters, which `test_meters_scale_against_the_largest_in_their_series`
+caught by putting two on stages that had just become bare. A dropped bar is worse
+than a missing decoration: the bar is drawn on a scale shared across the figure, so
+a stage that loses one drops out of a comparison the others are still making, and
+nothing in the picture says it was ever in it.
+
+All three are drawn now. The marks and the block glyph moved into the band above
+the name, where `sheets` already drew, because after the detail a mark column hangs
+below its own labels and `mean over cells` becomes a speck under three lines of
+text.
+
+### And then `tube` kept its boxes
+
+The re-spec was written — six glyph stages bare, the per-frame score boxed, which
+is what the rule asks for — and the contact sheet refused it.
+
+| | figure | mark | verdict |
+|---|---|---|---|
+| boxed, as committed | 934 units, 7.33pt at 10in | **0.20×**, marginal | ships |
+| bared | 854 units, 8.01pt at 10in | 0.34×, "reads" | **refused** |
+
+The scale went UP and the mark got worse. `--icon` strips everything that cannot
+be read at 192×96, which for this model is every mark column and every bar; with
+the boxes gone there is no bulk left to survive, and what remains is four lane
+strips and one box in an empty field. 0.34× is the scale of what is left, not a
+measure of whether anything is — the band is answering a question the collapse has
+already changed.
+
+**So the rule holds and this figure is its exception, on evidence rather than for
+want of a way to say otherwise.** That is the sequencing working: the mark was
+decided before the sheet was believed, which is the failure this page documents
+happening the other way — `tube` crossing a band because of an edit aimed at the
+banner, and a person catching it afterwards.

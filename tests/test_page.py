@@ -36,9 +36,17 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 PAGE = ROOT / "index.html"
 
-# `tube` draws `marks` glyphs inside boxes. Making the whole figure bare would
-# strip the boxes off its word stages, which the decision forbids in the other
-# direction, so the fix is `chrome` per stage and it is its own change.
+# `tube` draws `marks` glyphs inside boxes, and it stays that way ON EVIDENCE
+# rather than for want of a way to say otherwise. `chrome` is a field of a stage
+# now, so the figure can be written the other way in one line -- it was, and the
+# contact sheet refused it. Bared, tube's mark keeps its four lane strips and one
+# box and loses everything else: `--icon` strips the mark columns as sub-pixel
+# detail, and with no boxes there is no bulk left to survive. The scale rises
+# from 0.20x to 0.34x and the band calls that "reads", which is the band
+# measuring the size of what is left rather than whether anything is.
+#
+# So the rule holds and this figure is the exception, with the measurement as its
+# reason. DECISIONS.md, "What the page leads with", carries it.
 GLYPH_IN_A_BOX_EXEMPT = {"tube"}
 
 
