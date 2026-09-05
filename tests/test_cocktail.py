@@ -103,9 +103,10 @@ def test_the_burst_duration_is_what_the_paper_reports(sweep):
     So this asserts the paper's numbers against the quantity they name.
     """
     d = sweep[0.01]
-    assert 4.0 < d["burst"] < 9.5, (
-        f"burst duration is {d['burst']:.2f} steps at the paper's own constants; "
-        "Section 4 reports 5.838 to 6.971 for the duration of bursts.\n"
+    assert 5.838 <= d["burst"] <= 6.971, (
+        f"burst duration is {d['burst']:.3f} steps at the paper's own constants. "
+        "Section 4 reports 5.838 (n=20) to 6.971 (n=1) for the duration of "
+        "bursts, and this run is n=20 -- so the low end is the one to match.\n"
         + _table(sweep))
 
 
