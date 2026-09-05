@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-4f` | `lit-arrived` | `lit/_NEEDED.md`, `lit/README.md`, `lit/malsburg-1986.md` | 2026-09-05 | The cocktail-party paper arrived; clear the want-list and record what it says |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
