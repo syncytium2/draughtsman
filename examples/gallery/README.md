@@ -234,6 +234,39 @@ come from graph.json". It is a warning rather than an error, which is the right
 severity, and it is **left in the committed spec** — a reader should see what the
 heuristic costs.
 
+## What torchview draws for the same model
+
+`whisper/torchview.png` is committed beside `whisper/figure.svg`, and it is there for
+the same reason `../2-torchview-traced.png` is: the bar this tool has to clear is an
+artifact, not an assertion. It is torchview 0.2.7 on the same `build_whisper_tiny`,
+called the way its own documentation calls it, with `depth` left at its default of 3:
+
+```
+pip install torch torchview                     # graphviz binaries also required
+python - <<'EOF'
+import torch, torchview
+from whisper_tiny import build_whisper_tiny      # PYTHONPATH=examples/gallery
+g = torchview.draw_graph(
+    build_whisper_tiny().eval(),
+    input_data=[torch.randn(1, 80, 3000), torch.randint(0, 51865, (1, 12))],
+    graph_name="whisper_tiny", device="cpu")
+g.visual_graph.format = "png"
+g.visual_graph.render(filename="examples/gallery/whisper/torchview", cleanup=True)
+EOF
+```
+
+74 boxes, 96 edges, **547 × 4,896 pixels**. At `depth=10`, which is the level of detail
+`whisper/figure.svg` accounts for, it is 234 boxes at **2,088 × 14,688 pixels**. Both
+are correct: every box is a real operation carrying its real input and output shapes.
+Neither fits on a page, and that is the whole of the gap — the same one
+[`../README.md`](../README.md) measures on `tube`, arriving again on a model three
+orders of magnitude larger.
+
+Random weights change nothing about the layout, so the committed file is stable across
+runs. It is a PNG rather than an SVG for the same reason the tube artifacts are: it is
+evidence of what a tool produced, and a raster cannot be mistaken for something this
+repository rendered.
+
 ## Reproducing
 
 ```
