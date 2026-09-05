@@ -436,7 +436,7 @@ def render(spec: Spec, graph: Graph) -> str:
     stages = {s.id: s.nodes for s in spec.stages}
     counts = repeat_counts(spec.stages, graph)
     measured = {s.id: _Stage(s, graph, stages, counts, spec.batch_axis,
-                             spec.layout.chrome)
+                             s.chrome or spec.layout.chrome)
                 for s in spec.stages}
 
     if not measured:
@@ -450,10 +450,11 @@ def render(spec: Spec, graph: Graph) -> str:
     # the box sizes, so the second pass has to finish first.
     gscale = _glyph_scales(measured)
     if gscale and any(m.sheets for m in measured.values()):
-        _bare = spec.layout.chrome == "none"
         for _m in measured.values():
             if _m.sheets:
-                *_, _gw, _gh = _sheet_geom(_m, gscale, _bare)
+                # PER STAGE, because the padding a stack is fitted to depends on
+                # whether THAT stage draws a box, not on whether the figure does.
+                *_, _gw, _gh = _sheet_geom(_m, gscale, _m.chrome == "none")
                 _m.fit_glyph(_gw, _gh)
 
     nodes_in = [(sid, m.w, m.h) for sid, m in measured.items()]
@@ -500,7 +501,11 @@ def render(spec: Spec, graph: Graph) -> str:
     rows += [("__meter__", label, f"full bar = {_fmt(full)}")
              for label, full in sorted(scales.items())]
     glyphed = [m for m in measured.values() if m.spec.glyph]
-    bare_glyphs = spec.layout.chrome == "none"
+    # THE KEY STATES A CEILING THE GLYPH STAGES WERE ACTUALLY FITTED TO, so it
+    # is read off those stages rather than off the figure. They agree in every
+    # well-formed figure: a glyph inside a box is the thing the page decision
+    # forbids, and `check` warns when one turns up.
+    bare_glyphs = bool(glyphed) and all(m.chrome == "none" for m in glyphed)
     if glyphed:
         lbl = glyphed[0].spec.glyph.labels
         if glyphed[0].spec.glyph.style == "marks":

@@ -138,6 +138,18 @@ class Stage:
     meters: list[Meter] = field(default_factory=list)
     glyph: Glyph | None = None
     repeat: Repeat | None = None
+    # PER STAGE, AND None MEANS "WHATEVER THE FIGURE SAYS". The rule the page
+    # runs on is about a stage, not a figure: a box is right when the content is
+    # words and wrong when the content is a drawing of the tensor, and a figure
+    # normally holds both. `layout.chrome` was the only way to say it, so a
+    # figure was all boxes or none of them -- which made `tube` draw its marks
+    # inside boxes because its last stage is words, and made the alternative
+    # strip the box off that stage to fix the other six.
+    #
+    # Inheriting rather than defaulting to "box" is what keeps every committed
+    # figure byte-identical: a spec that says nothing here renders exactly as it
+    # did, through the same path.
+    chrome: str | None = None
 
 
 @dataclass
@@ -262,6 +274,18 @@ class Spec:
         return {s.id: s for s in self.stages}
 
 
+def _stage_chrome(raw: dict) -> str | None:
+    """A typo here would silently draw a box, so it is refused instead."""
+    value = raw.get("chrome")
+    if value is None:
+        return None
+    if value not in ("box", "none"):
+        raise ValueError(
+            f"stage {raw.get('id')!r}: chrome must be 'box' or 'none', not "
+            f"{value!r}. A stage that says nothing takes the figure's.")
+    return value
+
+
 def load(doc: dict) -> Spec:
     stages = []
     for raw in doc.get("stages", []):
@@ -277,6 +301,7 @@ def load(doc: dict) -> Spec:
                     for m in raw.get("meters", [])],
             repeat=(Repeat(template=list(raw["repeat"]["template"]))
                     if raw.get("repeat") else None),
+            chrome=_stage_chrome(raw),
             glyph=(Glyph(of=raw["glyph"]["of"],
                          axes=list(raw["glyph"]["axes"]),
                          labels=list(raw["glyph"]["labels"]),
@@ -323,6 +348,8 @@ def dump(spec: Spec) -> dict:
                              for m in s.meters]
         if s.repeat:
             rec["repeat"] = {"template": s.repeat.template}
+        if s.chrome is not None:
+            rec["chrome"] = s.chrome
         if s.glyph:
             rec["glyph"] = {"of": s.glyph.of, "axes": s.glyph.axes,
                             "labels": s.glyph.labels}
