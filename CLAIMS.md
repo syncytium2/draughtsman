@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-c4` | `one-handoff` | `tests/test_handoff.py` | 2026-09-05 | Three handoffs are stacked and nothing expires one; their numbers are typed and nothing regenerates them |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
