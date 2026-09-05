@@ -103,6 +103,67 @@ def check(nodes: dict[int, tuple[float, float]]) -> None:
         raise SystemExit("ASSIGNMENT and ORDER name different stages")
 
 
+def regions(svg: str) -> dict[str, tuple[float, float, float, float]]:
+    """The regions a committed figure says it drew."""
+    out = {}
+    for m in re.finditer(
+            r'<rect class="ds-region" data-stage="(\w+)" x="([-\d.]+)" '
+            r'y="([-\d.]+)" width="([\d.]+)" height="([\d.]+)"', svg):
+        sid, x, y, w, h = m.group(1), *(float(v) for v in m.groups()[1:])
+        out[sid] = (x, y, x + w, y + h)
+    return out
+
+
+def overlapping(boxes: dict[str, tuple[float, float, float, float]]):
+    """Every pair of regions that share area, with how much.
+
+    WHY A TOOL AND NOT AN EYE. Two regions overlapped by 5.0 x 65.7 units in the
+    committed figure and nobody saw it here -- it was found on a phone, zoomed
+    in, by the person the figure is for. At page width the encoder's tint runs
+    five units into the first decoder block and reads as a rounded corner.
+
+    A region is a claim that THESE nodes are that stage. Two regions over one
+    node claim it twice, which is the coverage rule this repository runs on
+    arriving in the picture instead of the spec.
+    """
+    names = list(boxes)
+    out = []
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            ax0, ay0, ax1, ay1 = boxes[a]
+            bx0, by0, bx1, by1 = boxes[b]
+            w = min(ax1, bx1) - max(ax0, bx0)
+            h = min(ay1, by1) - max(ay0, by0)
+            if w > 0 and h > 0:
+                out.append((a, b, w, h))
+    return out
+
+
+def pad_without_touching(boxes, pad: float, floor: float = 0.5):
+    """Breathing room, but never more than the gap that is there.
+
+    A fixed pad is what caused this: the encoder's nodes and the first decoder
+    block's are about one unit apart, and three units on each side closed that
+    and then some. So the pad is capped per axis at half the smallest gap to any
+    other region -- full pad where there is room, none where there is not.
+    """
+    out = {}
+    for name, (x0, y0, x1, y1) in boxes.items():
+        gaps = []
+        for other, (ox0, oy0, ox1, oy1) in boxes.items():
+            if other == name:
+                continue
+            if min(y1, oy1) - max(y0, oy0) > 0:          # they share a band
+                if ox0 >= x1:
+                    gaps.append(ox0 - x1)
+                elif ox1 <= x0:
+                    gaps.append(x0 - ox1)
+        room = min(gaps, default=pad * 2) / 2 - floor
+        px = max(0.0, min(pad, room))
+        out[name] = (x0 - px, y0 - pad, x1 + px, y1 + pad)
+    return out
+
+
 def stage_text(svg: str) -> dict[str, tuple[str, list[str], str]]:
     """Every label in the right-hand column, lifted out of the committed figure."""
     out = {}
@@ -199,17 +260,25 @@ def build(nodes, bb, frame, labels, height=1560.0) -> str:
     boxes, order_by_y = {}, []
     for stage in ORDER:
         xs = [nodes[n] for n in ASSIGNMENT[stage]]
-        bx0 = X(min(b[0] for b in xs)) - PAD
-        by0 = Y(max(b[3] for b in xs)) - PAD
-        bx1 = X(max(b[2] for b in xs)) + PAD
-        by1 = Y(min(b[1] for b in xs)) + PAD
-        boxes[stage] = (bx0, by0, bx1, by1)
+        boxes[stage] = (X(min(b[0] for b in xs)), Y(max(b[3] for b in xs)),
+                        X(max(b[2] for b in xs)), Y(min(b[1] for b in xs)))
+    boxes = pad_without_touching(boxes, PAD)
+    overlaps = overlapping(boxes)
+    if overlaps:
+        raise SystemExit(
+            "regions overlap and the figure would be a claim about a grouping "
+            "that is not the one drawn:\n" + "\n".join(
+                f"  {a} x {b}: {w:.1f} x {h:.1f} units" for a, b, w, h in overlaps))
+
+    for stage in ORDER:
+        bx0, by0, bx1, by1 = boxes[stage]
         order_by_y.append(((by0 + by1) / 2, stage))
         kind, lines, (fill, stroke) = labels[stage]
         parts.append(
-            f'<rect x="{bx0:.2f}" y="{by0:.2f}" width="{bx1 - bx0:.2f}" '
-            f'height="{by1 - by0:.2f}" rx="3" style="fill:{fill};fill-opacity:.55;'
-            f'stroke:{stroke};stroke-width:1"/>')
+            f'<rect class="ds-region" data-stage="{stage}" x="{bx0:.2f}" '
+            f'y="{by0:.2f}" width="{bx1 - bx0:.2f}" height="{by1 - by0:.2f}" '
+            f'rx="3" style="fill:{fill};fill-opacity:.55;stroke:{stroke};'
+            f'stroke-width:1"/>')
 
     parts.append(f'<g transform="translate({LEFT} {TOP}) scale({k})">__TORCHVIEW__</g>')
 
@@ -278,6 +347,18 @@ def selftest() -> int:
                              f"regenerate it")
     else:
         fails.append("compare.svg is not committed")
+
+    # THE GEOMETRY, READ BACK OUT OF THE COMMITTED FILE. CI has no torchview, so
+    # it cannot redraw this figure -- but the figure states where it put every
+    # region, and two regions sharing area is checkable from that alone. It is
+    # `data-box` again: a checker that cannot see a thing must not be able to
+    # report it fine.
+    if out.exists():
+        drawn = regions(out.read_text())
+        if len(drawn) != len(ORDER):
+            fails.append(f"compare.svg draws {len(drawn)} regions, not {len(ORDER)}")
+        for a, b, w, h in overlapping(drawn):
+            fails.append(f"regions {a} and {b} overlap by {w:.1f} x {h:.1f} units")
 
     # coverage, against a stand-in graph of the size the real one has
     fake = {n: (0.0, 0.0, 1.0, 1.0) for n in range(74)}

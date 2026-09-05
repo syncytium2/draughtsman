@@ -10,6 +10,7 @@ half: the selftest runs on every push, and the second test below restores the
 original defect and requires the selftest to catch it.
 """
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -98,3 +99,41 @@ def test_compare_stack_selftest_sees_a_stage_it_no_longer_covers():
         "so it does not check the declaration it claims to:\n" + r.stdout)
     assert "figure.svg draws" in r.stdout, (
         "the selftest failed, but not on the renamed stage:\n" + r.stdout)
+
+
+def test_compare_stack_selftest_sees_two_regions_over_each_other():
+    """THE DEFECT THIS CHECK WAS WRITTEN FOR, REPRODUCED.
+
+    Two regions overlapped by 5.0 x 65.7 units in the committed figure and
+    nothing here saw it: a region is a rectangle drawn behind the graph, and the
+    only geometry check this repository had asks whether an EDGE's path runs
+    through a stage box. Box against box was nobody's question. It was found by
+    the person the figure is for, on a phone, zoomed in.
+
+    The cause was a fixed 3-unit pad on each side closing a gap of about one unit
+    between the encoder's nodes and the first decoder block's. The pad is capped
+    at the room available now, and this asserts the checker would fail if it
+    stopped being.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        (tmp / "tools").mkdir()
+        (tmp / "examples" / "gallery" / "whisper").mkdir(parents=True)
+        (tmp / "tools" / "compare_stack.py").write_text(
+            (TOOLS / "compare_stack.py").read_text(encoding="utf-8"), encoding="utf-8")
+        whisper = ROOT / "examples" / "gallery" / "whisper"
+        (tmp / "examples/gallery/whisper/figure.svg").write_text(
+            (whisper / "figure.svg").read_text(encoding="utf-8"), encoding="utf-8")
+        svg = (whisper / "compare.svg").read_text(encoding="utf-8")
+        m = re.search(r'<rect class="ds-region" data-stage="dself" x="([-\d.]+)"', svg)
+        assert m, "the committed figure no longer names its regions"
+        slid = svg.replace(m.group(0), m.group(0).replace(
+            m.group(1), f"{float(m.group(1)) - 40:.2f}"))
+        (tmp / "examples/gallery/whisper/compare.svg").write_text(slid, encoding="utf-8")
+        r = subprocess.run([sys.executable, str(tmp / "tools" / "compare_stack.py"),
+                            "--selftest"], capture_output=True, text=True)
+    assert r.returncode != 0, (
+        "a region slid 40 units into its neighbour and the selftest stayed green, "
+        "so it is not checking the geometry it claims to:\n" + r.stdout)
+    assert "overlap" in r.stdout, (
+        "the selftest failed, but not on the overlap:\n" + r.stdout)

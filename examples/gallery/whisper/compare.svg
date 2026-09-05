@@ -6,17 +6,17 @@
 <text x="12.0" y="26" style="font-size:15px;font-weight:600;fill:#1a1a1a">Whisper tiny — 74 traced boxes, 11 stages, one vertical axis</text>
 <text x="12.00" y="47.00" style="font-size:10.5px;fill:#5b5b5b">torchview 0.2.7's own layout, scaled to fit. Each tint is one stage of the committed spec,</text>
 <text x="12.00" y="61.00" style="font-size:10.5px;fill:#5b5b5b">drawn around the nodes it covers and named on the right.</text>
-<rect x="15.51" y="94.21" width="43.64" height="15.73" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
-<rect x="10.20" y="114.69" width="54.27" height="136.24" rx="3" style="fill:#e2eee7;fill-opacity:.55;stroke:#6f9c85;stroke-width:1"/>
-<rect x="10.87" y="255.68" width="91.61" height="559.21" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
-<rect x="33.43" y="819.63" width="58.09" height="18.72" rx="3" style="fill:#d5e5ef;fill-opacity:.55;stroke:#5b829a;stroke-width:1"/>
-<rect x="123.12" y="680.14" width="35.56" height="15.73" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
-<rect x="113.32" y="702.17" width="55.17" height="42.19" rx="3" style="fill:#f0f0ef;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
-<rect x="97.45" y="749.16" width="90.56" height="65.72" rx="3" style="fill:#eef6f1;fill-opacity:.55;stroke:#7fae99;stroke-width:1"/>
-<rect x="90.27" y="819.63" width="97.15" height="65.72" rx="3" style="fill:#ece6f2;fill-opacity:.55;stroke:#8d7ba8;stroke-width:1"/>
-<rect x="84.58" y="890.15" width="71.82" height="65.72" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
-<rect x="58.54" y="960.62" width="117.20" height="629.69" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
-<rect x="58.65" y="1595.08" width="54.94" height="62.72" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
+<rect class="ds-region" data-stage="mel" x="16.01" y="94.21" width="42.64" height="15.73" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
+<rect class="ds-region" data-stage="frontend" x="10.70" y="114.69" width="53.27" height="136.24" rx="3" style="fill:#e2eee7;fill-opacity:.55;stroke:#6f9c85;stroke-width:1"/>
+<rect class="ds-region" data-stage="enc" x="13.87" y="255.68" width="85.61" height="559.21" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
+<rect class="ds-region" data-stage="audio" x="34.56" y="819.63" width="55.84" height="18.72" rx="3" style="fill:#d5e5ef;fill-opacity:.55;stroke:#5b829a;stroke-width:1"/>
+<rect class="ds-region" data-stage="tokens" x="123.12" y="680.14" width="35.56" height="15.73" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
+<rect class="ds-region" data-stage="embed" x="113.32" y="702.17" width="55.17" height="42.19" rx="3" style="fill:#f0f0ef;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
+<rect class="ds-region" data-stage="dself" x="100.45" y="749.16" width="84.56" height="65.72" rx="3" style="fill:#eef6f1;fill-opacity:.55;stroke:#7fae99;stroke-width:1"/>
+<rect class="ds-region" data-stage="dcross" x="91.39" y="819.63" width="94.90" height="65.72" rx="3" style="fill:#ece6f2;fill-opacity:.55;stroke:#8d7ba8;stroke-width:1"/>
+<rect class="ds-region" data-stage="dff" x="85.08" y="890.15" width="70.82" height="65.72" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
+<rect class="ds-region" data-stage="drest" x="59.04" y="960.62" width="116.20" height="629.69" rx="3" style="fill:#d1e4d9;fill-opacity:.55;stroke:#5a8a71;stroke-width:1"/>
+<rect class="ds-region" data-stage="logits" x="59.15" y="1595.08" width="53.94" height="62.72" rx="3" style="fill:#f2f2f0;fill-opacity:.55;stroke:#8a8a86;stroke-width:1"/>
 <g transform="translate(12.0 96.0) scale(0.42483660130718953)"><g id="graph0" class="graph" transform="scale(0.704596 0.704596) rotate(0) translate(4 5207.5)">
 <title>whisper_tiny</title>
 
@@ -1764,18 +1764,18 @@
 </g>
 </g>
 </g>
-<path d="M59.15 102.08 L214.18 102.08" style="fill:none;stroke:#8a8a86;stroke-width:.9;opacity:.75"/>
+<path d="M58.65 102.08 L214.18 102.08" style="fill:none;stroke:#8a8a86;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="90.08" style="font-size:12px;font-weight:600;fill:#1a1a1a">log-mel spectrogram</text>
 <text x="220.18" y="102.08" style="font-size:9.5px;fill:#5b5b5b">80×3000</text>
 <text x="220.18" y="114.08" style="font-size:9.5px;fill:#5b5b5b">mel bins × frames</text>
 <text x="220.18" y="126.08" style="font-size:9.5px;fill:#8a8a86">1 of 74 boxes</text>
-<path d="M64.47 182.81 L214.18 182.81" style="fill:none;stroke:#6f9c85;stroke-width:.9;opacity:.75"/>
+<path d="M63.97 182.81 L214.18 182.81" style="fill:none;stroke:#6f9c85;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="164.81" style="font-size:12px;font-weight:600;fill:#1a1a1a">conv frontend</text>
 <text x="220.18" y="176.81" style="font-size:9.5px;fill:#5b5b5b">kernel 3, second stride 2</text>
 <text x="220.18" y="188.81" style="font-size:9.5px;fill:#5b5b5b">1500×384</text>
 <text x="220.18" y="200.81" style="font-size:9.5px;fill:#5b5b5b">535296 params</text>
 <text x="220.18" y="212.81" style="font-size:9.5px;fill:#6f9c85">6 of 74 boxes</text>
-<path d="M102.48 535.28 L214.18 535.28" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
+<path d="M99.48 535.28 L214.18 535.28" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="517.28" style="font-size:12px;font-weight:600;fill:#1a1a1a">audio encoder</text>
 <text x="220.18" y="529.28" style="font-size:9.5px;fill:#5b5b5b">92 ops</text>
 <text x="220.18" y="541.28" style="font-size:9.5px;fill:#5b5b5b">7096320 params</text>
@@ -1791,7 +1791,7 @@
 <text x="220.18" y="743.00" style="font-size:9.5px;fill:#5b5b5b">12×384</text>
 <text x="220.18" y="755.00" style="font-size:9.5px;fill:#5b5b5b">20088192 params</text>
 <text x="220.18" y="767.00" style="font-size:9.5px;fill:#8a8a86">2 of 74 boxes</text>
-<path d="M188.02 782.02 L214.18 840.00" style="fill:none;stroke:#7fae99;stroke-width:.9;opacity:.75"/>
+<path d="M185.02 782.02 L214.18 840.00" style="fill:none;stroke:#7fae99;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="786.00" style="font-size:12px;font-weight:600;fill:#1a1a1a">masked self-attention</text>
 <text x="220.18" y="798.00" style="font-size:9.5px;fill:#5b5b5b">causal mask</text>
 <text x="220.18" y="810.00" style="font-size:9.5px;fill:#5b5b5b">591744 params</text>
@@ -1803,12 +1803,12 @@
 <text x="220.18" y="882.00" style="font-size:9.5px;fill:#5b5b5b">h₅</text>
 <text x="220.18" y="894.00" style="font-size:9.5px;fill:#5b5b5b">h₆</text>
 <text x="220.18" y="906.00" style="font-size:9.5px;fill:#7fae99">3 of 74 boxes</text>
-<path d="M91.52 828.99 L214.18 937.00" style="fill:none;stroke:#5b829a;stroke-width:.9;opacity:.75"/>
+<path d="M90.39 828.99 L214.18 937.00" style="fill:none;stroke:#5b829a;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="925.00" style="font-size:12px;font-weight:600;fill:#1a1a1a">audio features</text>
 <text x="220.18" y="937.00" style="font-size:9.5px;fill:#5b5b5b">1500×384</text>
 <text x="220.18" y="949.00" style="font-size:9.5px;fill:#5b5b5b">one vector per frame</text>
 <text x="220.18" y="961.00" style="font-size:9.5px;fill:#5b829a">1 of 74 boxes</text>
-<path d="M187.42 852.49 L214.18 1028.00" style="fill:none;stroke:#8d7ba8;stroke-width:.9;opacity:.75"/>
+<path d="M186.29 852.49 L214.18 1028.00" style="fill:none;stroke:#8d7ba8;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="980.00" style="font-size:12px;font-weight:600;fill:#1a1a1a">cross-attention</text>
 <text x="220.18" y="992.00" style="font-size:9.5px;fill:#5b5b5b">queries 12 text, keys and values 1500 audio</text>
 <text x="220.18" y="1004.00" style="font-size:9.5px;fill:#5b5b5b">591744 params</text>
@@ -1819,19 +1819,19 @@
 <text x="220.18" y="1064.00" style="font-size:9.5px;fill:#5b5b5b">h₅</text>
 <text x="220.18" y="1076.00" style="font-size:9.5px;fill:#5b5b5b">h₆</text>
 <text x="220.18" y="1088.00" style="font-size:9.5px;fill:#8d7ba8">3 of 74 boxes</text>
-<path d="M156.40 923.01 L214.18 1119.00" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
+<path d="M155.90 923.01 L214.18 1119.00" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="1107.00" style="font-size:12px;font-weight:600;fill:#1a1a1a">feed-forward</text>
 <text x="220.18" y="1119.00" style="font-size:9.5px;fill:#5b5b5b">widen to 1536</text>
 <text x="220.18" y="1131.00" style="font-size:9.5px;fill:#5b5b5b">1182336 params</text>
 <text x="220.18" y="1143.00" style="font-size:9.5px;fill:#5a8a71">3 of 74 boxes</text>
-<path d="M175.74 1275.46 L214.18 1275.46" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
+<path d="M175.24 1275.46 L214.18 1275.46" style="fill:none;stroke:#5a8a71;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="1251.46" style="font-size:12px;font-weight:600;fill:#1a1a1a">×3</text>
 <text x="220.18" y="1263.46" style="font-size:9.5px;fill:#5b5b5b">3 more decoder blocks</text>
 <text x="220.18" y="1275.46" style="font-size:9.5px;fill:#5b5b5b">123 ops</text>
 <text x="220.18" y="1287.46" style="font-size:9.5px;fill:#5b5b5b">7097472 params</text>
 <text x="220.18" y="1299.46" style="font-size:9.5px;fill:#5b5b5b">12×384</text>
 <text x="220.18" y="1311.46" style="font-size:9.5px;fill:#5a8a71">27 of 74 boxes</text>
-<path d="M113.59 1626.44 L214.18 1626.44" style="fill:none;stroke:#8a8a86;stroke-width:.9;opacity:.75"/>
+<path d="M113.09 1626.44 L214.18 1626.44" style="fill:none;stroke:#8a8a86;stroke-width:.9;opacity:.75"/>
 <text x="220.18" y="1614.44" style="font-size:12px;font-weight:600;fill:#1a1a1a">vocabulary logits</text>
 <text x="220.18" y="1626.44" style="font-size:9.5px;fill:#5b5b5b">51865 tokens</text>
 <text x="220.18" y="1638.44" style="font-size:9.5px;fill:#5b5b5b">final norm, then tied projection</text>
