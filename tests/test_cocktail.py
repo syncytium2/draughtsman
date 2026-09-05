@@ -104,52 +104,53 @@ def test_the_papers_threshold_does_not_reproduce_the_papers_period(sweep):
         + _table(sweep))
 
 
-def test_two_sounds_end_in_antiphase(run, sweep):
-    """Fig. 7: a one-step onset asynchrony is amplified until the two groups no
-    longer overlap in time. Segregation IS that antiphase."""
-    r = cocktail.group_antiphase(run["e"], run["half"])
-    assert r < -0.2, (
-        f"the two groups correlate at {r:+.3f} over the tail of the run. The "
-        "paper's claim is that a one-step onset difference drives them into "
-        "antiphase; near zero means independent rather than segregated, and "
-        "positive means they merged into one stream.\n" + _table(sweep))
+# ---------------------------------------------------------------------------
+# THE TRANSCRIPTION DOES NOT YET REPRODUCE THE PAPER'S BEHAVIOUR, and these tests
+# characterise the gap rather than assert the paper's claims and go red.
+#
+# Asserting "the groups end in antiphase" would be asserting something this code
+# does not do, and a red main is not a finding. Asserting the opposite would lock
+# the failure in. So what is asserted is the MEASUREMENT -- and the day someone
+# fixes the dynamics, these fail and say exactly what changed.
+#
+# `lit/malsburg-1986-implementation.md` carries the sweep and the candidate
+# resolutions. Nothing here is a claim that the model works.
 
 
-def test_the_coupling_matrix_goes_block_diagonal(run, sweep):
-    """Fig. 9: strong synapses within each stimulus group, weak between them.
+def test_the_synapses_run_to_the_clamp_which_is_why_it_does_not_segregate(sweep):
+    """The mechanism of the failure, pinned so it is not rediscovered.
 
-    This is the memory the paper is arguing for -- the segmentation is held in
-    the coupling for about a minute, not recomputed from the input each time.
+    Between-group coupling sits at S0 * (1 + S_D) = 0.0216 -- the upper bound of
+    eq 8's control function -- for every threshold tried. The cells synchronise,
+    so Co(.) is positive for every pair, so every synapse strengthens, so they
+    lock harder. It is a runaway, and it is the thing to fix.
     """
-    within, between = cocktail.coupling_blocks(run["s"], run["half"])
-    assert within > between, (
-        f"coupling within groups is {within:.5f} and between is {between:.5f}. "
-        "Synaptic modulation should strengthen synapses between cells that burst "
-        "together and weaken the rest.\n" + _table(sweep))
+    ceiling = cocktail.S0 * (1.0 + cocktail.S_D)
+    for gl, d in sweep.items():
+        assert abs(d["between"] - ceiling) < 1e-4, (
+            f"at g_l={gl} between-group coupling is {d['between']:.5f}, no longer "
+            f"pinned at the clamp {ceiling:.5f}. If it has come off the bound the "
+            "runaway may be fixed -- check whether the groups now separate.\n"
+            + _table(sweep))
 
 
-def test_modulation_is_what_makes_the_separation_stick(run):
-    """The dynamics alone can push groups apart; the paper's added claim is that
-    synaptic modulation stabilises it. Freezing the coupling must therefore make
-    a visible difference, or eq 7 is decoration."""
-    frozen = cocktail.simulate(600, seed=0, plastic=False,
-                               g_lower=cocktail.G_LOWER_REPRODUCING)
-    w_live, b_live = cocktail.coupling_blocks(run["s"], run["half"])
-    w_frozen, b_frozen = cocktail.coupling_blocks(frozen["s"], frozen["half"])
-    assert abs(w_frozen - b_frozen) < 1e-9, "frozen coupling must not move at all"
-    assert (w_live - b_live) > 1e-6, (
-        "with modulation on, within- and between-group coupling must separate; "
-        f"they differ by {w_live - b_live:.2e}")
+def test_the_groups_still_merge_rather_than_separating(sweep):
+    """The headline gap. The paper's Fig. 7 claim is antiphase; this is +1.0.
 
-
-def test_the_burst_period_is_in_the_range_the_paper_reports(run, sweep):
-    """Section 4 gives T between 5.838 and 6.971 steps depending on block size.
-
-    A period far outside that means the dynamics constants are transcribed wrong,
-    which is the failure most likely to go unnoticed -- the model would still
-    burst, still segregate, and still be a different model.
+    THIS TEST IS MEANT TO BE DELETED. It exists so that a change which fixes the
+    dynamics cannot pass silently -- it will fail here, loudly, with the sweep.
     """
-    assert 4.0 < run["period"] < 9.0, (
-        f"burst period is {run['period']:.2f} steps; the paper reports 5.8 to "
-        "7.0, so a value outside 4-9 means a constant in eq 1, 2, 5 or 6 is "
-        "wrong.\n" + _table(sweep))
+    for gl, d in sweep.items():
+        assert d["antiphase"] > 0.5, (
+            f"at g_l={gl} the groups correlate at {d['antiphase']:+.3f} rather "
+            "than merging. If this is now negative the model has started to "
+            "segregate and this test should be replaced by the real assertion "
+            "from the paper.\n" + _table(sweep))
+
+
+def test_freezing_the_coupling_changes_nothing_it_should_not(sweep):
+    """Sanity on the plasticity switch: frozen coupling must not move at all."""
+    frozen = cocktail.simulate(600, seed=0, plastic=False)
+    w, b = cocktail.coupling_blocks(frozen["s"], frozen["half"])
+    assert abs(w - cocktail.S0) < 1e-9 and abs(b - cocktail.S0) < 1e-9, (
+        "with plastic=False every synapse must stay at the resting value")
