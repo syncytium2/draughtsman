@@ -58,6 +58,18 @@ AFFERENT = 0.1      # eq 3: the input an E-cell gets while its component sounds
 DELTA = 0.35        # eq 5: the gliding average's rate
 G_UPPER = 0.4       # eq 6: gliding average at which a burst breaks off
 G_LOWER = 0.01      # eq 6: gliding average at which the cell may burst again
+# ...AND IT DOES NOT REPRODUCE THE PAPER'S OWN BURST PERIOD. Eq 5 with E=0 decays
+# the gliding average by (1 - DELTA) = 0.65 per step, so falling from G_UPPER=0.4
+# to G_LOWER=0.01 takes ln(0.01/0.4)/ln(0.65) = 8.6 steps of refractory alone.
+# Add the burst and the period is about 13.6 steps. Section 4 reports T between
+# 5.838 and 6.971.
+#
+# 0.4 * 0.65**3.25 = 0.098, so a lower threshold near 0.1 gives a refractory of
+# about T/2 and lands the period in the range the paper states. Whether the text
+# means 0.01 or the authors ran 0.1 cannot be settled from the PDF, so BOTH are
+# here, the paper's is the default, and `tests/test_cocktail.py` asserts the
+# discrepancy rather than hiding it. See `lit/malsburg-1986-implementation.md`.
+G_LOWER_REPRODUCING = 0.1
 Q0 = 0.01           # eq 8: the size of one synaptic modulation step
 S0 = 0.012          # eq 8: resting coupling strength, and the centre of q(s)
 S_D = 0.8           # eq 8: half-width of the control function, in units of S0
@@ -86,10 +98,15 @@ class CocktailParty(nn.Module):
     model hard to draw and worth having.
     """
 
-    def __init__(self, n_cells: int = N_CELLS, *, dtype=torch.float32):
+    def __init__(self, n_cells: int = N_CELLS, *, dtype=torch.float32,
+                 g_lower: float = G_LOWER):
         super().__init__()
         self.n = n_cells
         self.dtype = dtype
+        # A CONSTRUCTOR ARGUMENT AND NOT A CONSTANT, because the paper's stated
+        # value does not reproduce the paper's stated burst period. See the note
+        # at G_LOWER. Nothing else here is adjustable, deliberately.
+        self.g_lower = g_lower
         # NOT A PARAMETER, AND THIS IS THE WHOLE THESIS. `s` is coupling that
         # changes during one presentation. It is registered as a buffer so it
         # travels with the module and is saved with it, and so that nothing here
@@ -122,7 +139,7 @@ class CocktailParty(nn.Module):
         # threshold because that is what the equation says -- the second clause
         # depends on the PREVIOUS value of N.
         was_off = refractory < 0.5
-        off = (g_next > G_UPPER) | (was_off & (g_next > G_LOWER))
+        off = (g_next > G_UPPER) | (was_off & (g_next > self.g_lower))
         refractory_next = (~off).to(self.dtype)
         return e_next, h_next, g_next, refractory_next
 
@@ -210,7 +227,8 @@ def two_streams(n_cells: int = N_CELLS, onset: int = 1):
 
 
 def simulate(steps: int = DEFAULT_STEPS, *, onset: int = 1, seed: int = 0,
-             n_cells: int = N_CELLS, plastic: bool = True):
+             n_cells: int = N_CELLS, plastic: bool = True,
+             g_lower: float = G_LOWER):
     """Run the model and return its traces and its final coupling matrix.
 
     `plastic=False` freezes `s`, which is how you see what the synaptic
@@ -218,7 +236,7 @@ def simulate(steps: int = DEFAULT_STEPS, *, onset: int = 1, seed: int = 0,
     groups, and the plasticity is what makes the separation stick.
     """
     torch.manual_seed(seed)
-    net = CocktailParty(n_cells)
+    net = CocktailParty(n_cells, g_lower=g_lower)
     afferent_at, half = two_streams(n_cells, onset)
 
     e = torch.zeros(n_cells)
@@ -250,6 +268,10 @@ def simulate(steps: int = DEFAULT_STEPS, *, onset: int = 1, seed: int = 0,
             denom = float(g[i] - prev_g[i])
             frac = (G_UPPER - float(prev_g[i])) / denom if abs(denom) > 1e-12 else 0.0
             t_c = t - 1 + min(max(frac, 0.0), 1.0)
+            # Fig. 4's other half: the cell is imagined switched off AT t_c, so
+            # the average at this step is what it would have decayed to from the
+            # threshold, not whatever it overshot to.
+            g[i] = G_UPPER * (1.0 - DELTA) ** (t - t_c)
 
             if math.isfinite(float(last_break[i])):
                 gap = t_c - float(last_break[i])
@@ -336,7 +358,7 @@ def selftest() -> int:
 
     # eq 4
     assert float(clip(t(-1.0))) == 0.0 and float(clip(t(2.0))) == 1.0
-    assert abs(float(clip(t(0.3))) - 0.3) < 1e-9
+    assert abs(float(clip(t(0.3))) - 0.3) < 1e-6   # float32, not 1e-9
 
     # THE ONE PLACE THE PAPER IS EXPLICIT ABOUT Co(.), AND SO THE ONE PLACE THE
     # INTERPOLATION CAN BE PINNED: for a burst half the period it must be exactly

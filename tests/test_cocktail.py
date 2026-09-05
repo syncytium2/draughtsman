@@ -54,22 +54,68 @@ def test_the_model_has_no_trained_parameters():
 
 
 @pytest.fixture(scope="module")
-def run():
-    return cocktail.simulate(600, seed=0)
+def sweep():
+    """The model at both readings of eq 6's lower threshold, and at a few points
+    between, so a failure below reports the landscape rather than one number."""
+    out = {}
+    for gl in (0.01, 0.03, 0.06, 0.1, 0.15):
+        r = cocktail.simulate(600, seed=0, g_lower=gl)
+        w, b = cocktail.coupling_blocks(r["s"], r["half"])
+        out[gl] = {
+            "period": r["period"],
+            "antiphase": cocktail.group_antiphase(r["e"], r["half"]),
+            "within": w, "between": b,
+            "h_rate": cocktail.h_cell_rate(r["h"]),
+            "run": r,
+        }
+    return out
 
 
-def test_two_sounds_end_in_antiphase(run):
+def _table(sweep):
+    lines = ["    g_l     period   antiphase   within    between   H/step"]
+    for gl, d in sweep.items():
+        lines.append(f"    {gl:<6.2f}  {d['period']:6.2f}   {d['antiphase']:+8.3f}   "
+                     f"{d['within']:.5f}   {d['between']:.5f}   {d['h_rate']:.3f}")
+    return "\n".join(lines)
+
+
+@pytest.fixture(scope="module")
+def run(sweep):
+    return sweep[cocktail.G_LOWER_REPRODUCING]["run"]
+
+
+def test_the_papers_threshold_does_not_reproduce_the_papers_period(sweep):
+    """A FINDING, NOT A BUG, AND IT BELONGS IN A TEST RATHER THAN A COMMENT.
+
+    Section 4 reports a burst period between 5.838 and 6.971 steps. Eq 6 states
+    a lower threshold of 0.01, and eq 5 decays the gliding average by 0.65 per
+    step, which puts the refractory period alone at 8.6 steps. The two statements
+    are not consistent, and no reading of the PDF settles which the authors ran.
+
+    This asserts the inconsistency so that it cannot quietly go away: if someone
+    later changes the dynamics and the paper's own constant starts reproducing
+    the paper's own period, this test fails and they should be delighted.
+    """
+    literal = sweep[0.01]["period"]
+    assert literal > 9.0, (
+        "the paper's stated lower threshold now reproduces its stated burst "
+        f"period ({literal:.2f} steps). Either the dynamics changed or the "
+        "discrepancy was resolved -- update lit/malsburg-1986-implementation.md.\n"
+        + _table(sweep))
+
+
+def test_two_sounds_end_in_antiphase(run, sweep):
     """Fig. 7: a one-step onset asynchrony is amplified until the two groups no
     longer overlap in time. Segregation IS that antiphase."""
     r = cocktail.group_antiphase(run["e"], run["half"])
     assert r < -0.2, (
         f"the two groups correlate at {r:+.3f} over the tail of the run. The "
         "paper's claim is that a one-step onset difference drives them into "
-        "antiphase; a value near zero means they are independent rather than "
-        "segregated, and a positive one means they merged into a single stream.")
+        "antiphase; near zero means independent rather than segregated, and "
+        "positive means they merged into one stream.\n" + _table(sweep))
 
 
-def test_the_coupling_matrix_goes_block_diagonal(run):
+def test_the_coupling_matrix_goes_block_diagonal(run, sweep):
     """Fig. 9: strong synapses within each stimulus group, weak between them.
 
     This is the memory the paper is arguing for -- the segmentation is held in
@@ -78,16 +124,16 @@ def test_the_coupling_matrix_goes_block_diagonal(run):
     within, between = cocktail.coupling_blocks(run["s"], run["half"])
     assert within > between, (
         f"coupling within groups is {within:.5f} and between is {between:.5f}. "
-        "Synaptic modulation is supposed to strengthen synapses between cells "
-        "that burst together and weaken the rest; equal values mean the "
-        "plasticity did nothing.")
+        "Synaptic modulation should strengthen synapses between cells that burst "
+        "together and weaken the rest.\n" + _table(sweep))
 
 
 def test_modulation_is_what_makes_the_separation_stick(run):
     """The dynamics alone can push groups apart; the paper's added claim is that
     synaptic modulation stabilises it. Freezing the coupling must therefore make
     a visible difference, or eq 7 is decoration."""
-    frozen = cocktail.simulate(600, seed=0, plastic=False)
+    frozen = cocktail.simulate(600, seed=0, plastic=False,
+                               g_lower=cocktail.G_LOWER_REPRODUCING)
     w_live, b_live = cocktail.coupling_blocks(run["s"], run["half"])
     w_frozen, b_frozen = cocktail.coupling_blocks(frozen["s"], frozen["half"])
     assert abs(w_frozen - b_frozen) < 1e-9, "frozen coupling must not move at all"
@@ -96,7 +142,7 @@ def test_modulation_is_what_makes_the_separation_stick(run):
         f"they differ by {w_live - b_live:.2e}")
 
 
-def test_the_burst_period_is_in_the_range_the_paper_reports(run):
+def test_the_burst_period_is_in_the_range_the_paper_reports(run, sweep):
     """Section 4 gives T between 5.838 and 6.971 steps depending on block size.
 
     A period far outside that means the dynamics constants are transcribed wrong,
@@ -105,4 +151,5 @@ def test_the_burst_period_is_in_the_range_the_paper_reports(run):
     """
     assert 4.0 < run["period"] < 9.0, (
         f"burst period is {run['period']:.2f} steps; the paper reports 5.8 to "
-        "7.0, so a value outside 4-9 means a constant in eq 1, 2, 5 or 6 is wrong")
+        "7.0, so a value outside 4-9 means a constant in eq 1, 2, 5 or 6 is "
+        "wrong.\n" + _table(sweep))
