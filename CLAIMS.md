@@ -113,7 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a4` | `stage-chrome` | `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/abstract.py`, `tools/edge_collisions.py`, `tests/test_render.py`, `tests/test_page.py`, `examples/tube/spec.json`, `examples/tube/figure.svg`, `examples/tube/icon.svg`, `index.html`, `DECISIONS.md` | 2026-09-05 | chrome per stage, so a figure can box its words and bare its tensors |
+| `draughtsman-a4` | `stage-chrome` | `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/abstract.py`, `src/draughtsman/check.py`, `tools/edge_collisions.py`, `tests/test_coverage.py`, `tests/test_render.py`, `tests/test_page.py`, `examples/tube/spec.json`, `examples/tube/figure.svg`, `examples/tube/icon.svg`, `index.html`, `DECISIONS.md` | 2026-09-05 | chrome per stage, so a figure can box its words and bare its tensors |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
