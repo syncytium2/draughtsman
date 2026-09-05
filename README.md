@@ -59,6 +59,16 @@ appears at the embedding, where a reader meets it, rather than at a matmul four 
 nodes later. Fixed in [`tracing.py`](https://github.com/syncytium2/draughtsman/blob/main/src/draughtsman/tracing.py), pinned by
 `test_a_tied_weight_is_counted_once` in [`tests/test_trace.py`](https://github.com/syncytium2/draughtsman/blob/main/tests/test_trace.py).
 
+**What a tracer alone gives you, on this model.** torchview 0.2.7, on the same
+`build_whisper_tiny` and called the way its own documentation calls it, draws Whisper
+tiny as 74 boxes and 96 edges in a column 547 × 4,896 pixels tall — committed beside
+the figure above as [`whisper/torchview.png`](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/gallery/whisper/torchview.png).
+Nothing in it is wrong. Every box is a real operation carrying its real shapes, and
+asked for the depth this figure covers it gives 234 boxes at 2,088 × 14,688 pixels.
+It is the correct answer to a different question, and there is no page it goes on.
+[The page](https://draughtsman.tonydefazio.com) puts the two in windows of the same
+size; it is the clearest statement of what this repository is for.
+
 Every other model, and what each was chosen to break, is in
 [`examples/gallery/`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/).
 
@@ -341,14 +351,17 @@ operation dropped.
 ## The page
 
 [`index.html`](https://github.com/syncytium2/draughtsman/blob/main/index.html) is a
-one-page site, served by GitHub Pages from this branch. It leads with `tube` at
-banner width and then names every option a spec can carry — glyph styles, chrome,
+one-page site, served by GitHub Pages from this branch. It leads with `whisper` at
+bleed width, sets torchview's view of the same model beside it, and then names every
+option a spec can carry — glyph styles, chrome,
 lanes, repeats, edge kinds, wrap, the legend, the print floor, icon mode and the
 honesty declarations. It points at the committed figures in `examples/` rather than
 embedding copies, so it cannot drift from what the tool produces — change a figure and
 the page changes with it. Its own type arithmetic is written into the stylesheet, and
-the figures the column cannot hold — `tube` and `transformer` — say in their captions
-what width they would need rather than letting a reader assume it was solved.
+the figures the column cannot hold — `whisper`, `tube` and `transformer` — say in
+their captions what width they would need rather than letting a reader assume it was
+solved. Below laptop width those three stop shrinking and scroll at their own size,
+because a figure reduced to 2px type is not a smaller reading of it but none.
 
 ## Checking a figure will be legible
 
