@@ -12,13 +12,19 @@ same place. A decision nothing checks is a decision that reverts. This is the
 executable half, and it is the same pattern the icon section already uses: CI
 re-renders every committed mark and reads the slot back out of the file.
 
-WHAT IS NOT CHECKED HERE, and both are recorded in DECISIONS.md rather than left
-to be rediscovered. `chrome` is a figure-level field, so the per-stage rule
-cannot yet be expressed and `tube` draws marks inside boxes -- named below as the
-one exemption, so that anything new fails. And "every boxed stage either has word
-content or carries a written reason" is not mechanisable: a machine cannot tell
-whether a stage's content is words, and the nearest proxy fires on 55 stages in
-this repository, most of them correctly boxed.
+WHAT IS NOT CHECKED HERE, and it is recorded in DECISIONS.md rather than left to
+be rediscovered: `chrome` is a figure-level field, so the per-stage rule cannot
+yet be expressed and `tube` draws marks inside boxes -- named below as the one
+exemption, so that anything new fails.
+
+"Every boxed stage either has word content or carries a written reason" was
+withdrawn (rev. 2) and is not attempted: a machine cannot tell whether a stage's
+content is words, and the nearest proxy fires on 55 stages here, most of them
+correctly boxed. A check that fires on 55 correct figures is one somebody turns
+off, which is the reasoning the mark bands already run on. What replaces it is a
+RATCHET rather than a gate -- see the baseline at the bottom of this file. It
+makes no claim about which stages are right; it only refuses a silent rise, which
+is the drift the decision was written against.
 """
 
 from __future__ import annotations
@@ -177,3 +183,81 @@ def test_the_demonstration_comes_before_the_first_boxed_figure_of_our_own():
     assert first_scaled < page.index('id="marks"'), (
         "the first figure drawing a tensor to scale appears below the icon grid, "
         "which is where this decision found it.")
+
+
+def test_the_glyph_and_chrome_blocks_show_what_they_describe():
+    """REV. 2 DESCOPED THIS TO TWO BLOCKS, and named why.
+
+    Adjacency only ever mattered for `glyph` and `chrome`, because those were the
+    two describing a tensor drawn to scale while the nearest figure was boxed. The
+    page leading with the scaled figure largely settles it; what is checked is that
+    each of the two still points at the figure that shows it, so a later edit
+    cannot quietly leave them describing something the reader cannot see.
+    """
+    page = _page()
+    for field in ("glyph", "chrome"):
+        m = re.search(r"<h3>[^<]*<code>" + field + r"</code></h3>(.*?)</div>",
+                      page, re.S)
+        assert m, f"the field tour no longer has a block for {field}"
+        assert 'href="#to-scale"' in m.group(1), (
+            f"the {field} block describes a tensor drawn to scale and points at "
+            "nothing that shows one. The demonstration is on the same page.")
+
+
+# --- the ratchet ---------------------------------------------------------------
+
+# Boxed stages that print a shape, per model, as they stand. NOT a claim that any
+# of these is wrong: most are right, and the judgement about which is not
+# mechanisable, which is why the criterion that tried to gate it was withdrawn.
+# It is a floor. A regeneration that re-derives a figure from the defaults adds
+# boxes printing shapes, and nothing else here would notice.
+#
+# TO RAISE ONE OF THESE NUMBERS, RAISE IT DELIBERATELY, in the same commit as the
+# spec that needs it and with the reason in the message. That is the whole
+# mechanism: the number is cheap to change and impossible to change by accident.
+BOXED_SHAPE_STAGES = {
+    "dual": 6, "lenet": 5, "lstm": 5, "mlp": 5, "resnet": 2,
+    "transformer": 10, "tube": 1, "vae": 10, "whisper": 11,
+}
+
+
+def _boxed_shape_stages() -> dict[str, int]:
+    out = {}
+    for spec_path in sorted(ROOT.glob("examples/*/spec.json")) + \
+            sorted(ROOT.glob("examples/gallery/*/spec.json")):
+        spec = json.loads(spec_path.read_text(encoding="utf-8"))
+        n = sum(1 for s in spec.get("stages", [])
+                if not s.get("glyph")
+                and any("shape" in d for d in s.get("detail", [])))
+        if n:
+            out[spec_path.parent.name] = n
+    return out
+
+
+def test_no_model_grows_more_boxed_stages_that_print_a_shape():
+    now = _boxed_shape_stages()
+    risen = {k: (BOXED_SHAPE_STAGES.get(k, 0), v) for k, v in now.items()
+             if v > BOXED_SHAPE_STAGES.get(k, 0)}
+    assert not risen, (
+        "more stages draw a box around a shape than the baseline allows: "
+        + ", ".join(f"{k} {was} -> {is_}" for k, (was, is_) in sorted(risen.items()))
+        + ".\nThe defaults are a box and a block, so this is what drift back to "
+          "them looks like. If the new box is right, raise the number here in the "
+          "same commit and say why.")
+
+
+def test_the_baseline_has_not_gone_stale_downward():
+    """A floor that has quietly risen above the ground stops being a floor.
+
+    If a model loses boxed stages -- a glyph added, a stage merged -- and the
+    number here stays, the ratchet is holding a gap open for a regeneration to
+    fill without firing. Lower it.
+    """
+    now = _boxed_shape_stages()
+    slack = {k: (v, now.get(k, 0)) for k, v in BOXED_SHAPE_STAGES.items()
+             if now.get(k, 0) < v}
+    assert not slack, (
+        "the baseline is above what the specs now hold: "
+        + ", ".join(f"{k} baseline {was}, actually {is_}"
+                    for k, (was, is_) in sorted(slack.items()))
+        + ".\nLower it, or the difference is room to drift back without failing.")
