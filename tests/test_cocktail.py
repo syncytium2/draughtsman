@@ -154,3 +154,61 @@ def test_freezing_the_coupling_changes_nothing_it_should_not(sweep):
     w, b = cocktail.coupling_blocks(frozen["s"], frozen["half"])
     assert abs(w - cocktail.S0) < 1e-9 and abs(b - cocktail.S0) < 1e-9, (
         "with plastic=False every synapse must stay at the resting value")
+
+
+# ---------------------------------------------------------------------------
+# CAN DRAUGHTSMAN DRAW IT? The question that started this, finally asked of the
+# tool rather than reasoned about.
+
+def _summary(g):
+    nodes = g.get("nodes", [])
+    kinds = {}
+    for n in nodes:
+        kinds[n.get("kind", "?")] = kinds.get(n.get("kind", "?"), 0) + 1
+    params = sum(int(n.get("params") or 0) for n in nodes)
+    lines = [f"    {len(nodes)} nodes, {params} parameters in total",
+             "    kinds: " + ", ".join(f"{k} x{v}" for k, v in
+                                       sorted(kinds.items(), key=lambda kv: -kv[1]))]
+    for n in nodes[:40]:
+        lines.append(f"      {n.get('id'):<8} {str(n.get('kind')):<26} "
+                     f"{str(n.get('shape')):<18} {n.get('params') or 0}")
+    return "\n".join(lines)
+
+
+@pytest.fixture(scope="module")
+def graph():
+    from draughtsman.tracing import trace
+    return trace("cocktail:build_cocktail",
+                 [[N] for N in (20, 1, 20, 20, 20, 20)])
+
+
+N = 20
+
+
+def test_the_trace_carries_no_parameters_at_all(graph):
+    """The prediction in lit/malsburg-1986-implementation.md, now tested.
+
+    draughtsman's headline quantity is parameter count -- it is what the legend
+    meters and what every stage label reads back. This model has none, so every
+    stage of a figure of it would read `0 params`. That is not a defect in either
+    the model or the tool; it is a mismatch, and it is the concrete form of "this
+    net is a bad fit for this figure vocabulary".
+    """
+    total = sum(int(n.get("params") or 0) for n in graph.get("nodes", []))
+    assert total == 0, (
+        f"the trace reports {total} parameters, and this model is supposed to "
+        "have none -- every constant is stated in the paper and nothing is "
+        "trained.\n" + _summary(graph))
+
+
+def test_one_traced_step_does_not_contain_the_phenomenon(graph):
+    """A figure of this graph is a figure of the update rule.
+
+    Segregation is a transient over hundreds of steps. There is no forward pass
+    that holds it, so no draughtsman figure of a trace can show it. This asserts
+    the shape of that problem: the whole graph is small, because one step of a
+    21-unit system is a handful of elementwise operations.
+    """
+    nodes = graph.get("nodes", [])
+    assert 0 < len(nodes) < 80, (
+        f"one step traced to {len(nodes)} nodes.\n" + _summary(graph))

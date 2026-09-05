@@ -206,6 +206,24 @@ class CocktailParty(nn.Module):
         return self.step(e, h, g, refractory, afferent, noise)
 
 
+def build_cocktail(n_cells: int = N_CELLS):
+    """A builder in the shape `draughtsman trace` expects.
+
+        draughtsman trace cocktail:build_cocktail \
+            --input-shape 20 --input-shape 1 --input-shape 20 \
+            --input-shape 20 --input-shape 20 --input-shape 20
+
+    The six inputs are `forward`'s: activity, the inhibitory cell, the gliding
+    average, the refractory gate, the afferent drive and the noise.
+
+    WHAT A TRACE OF THIS CAN AND CANNOT CONTAIN. One step is the only thing there
+    is to trace -- the phenomenon is a transient over hundreds of steps, so no
+    single forward pass holds it. A figure of this graph is a figure of the
+    update rule, which is honest but is not a figure of the model.
+    """
+    return CocktailParty(n_cells)
+
+
 # ------------------------------------------------------------------ stimulus
 def two_streams(n_cells: int = N_CELLS, onset: int = 1):
     """Section 4's stimulus: two spectra of ten components each.
