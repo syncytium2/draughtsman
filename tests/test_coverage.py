@@ -777,3 +777,34 @@ def test_the_caveat_does_not_contradict_the_line_above_it(
     assert "or the figure is legible" not in text, (
         "the caveat still claims legibility is unchecked while the report "
         "states the measured size:\n" + text)
+
+
+def test_a_glyph_inside_a_box_is_warned_about(tube_spec_doc, tube_graph):
+    """PROSE ON THE PAGE UNTIL `chrome` BECAME A FIELD OF A STAGE.
+
+    The page said "never a glyph inside a box" and nothing asked. It could not:
+    chrome was a property of the figure, so the only answer available was about
+    all seven stages at once, and `tube` -- the model this repository was built
+    for -- shipped its marks inside boxes because its last stage is words.
+    """
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    doc.setdefault("layout", {})["chrome"] = "box"
+    result = check(load(doc), tube_graph)
+    assert result.ok, "a box around a glyph is a judgement, not an error"
+    assert any("glyph inside a box" in w for w in result.warnings), (
+        "nothing said the boxes were around the drawings:\n  "
+        + "\n  ".join(result.warnings))
+
+
+def test_a_stage_that_bares_itself_is_not_warned_about(tube_spec_doc, tube_graph):
+    """And the per-stage answer clears it, which is the point of the field."""
+    import copy
+    doc = copy.deepcopy(tube_spec_doc)
+    doc.setdefault("layout", {})["chrome"] = "box"
+    for stage in doc["stages"]:
+        if stage.get("glyph"):
+            stage["chrome"] = "none"
+    result = check(load(doc), tube_graph)
+    assert not any("glyph inside a box" in w for w in result.warnings), (
+        "the glyph stages went bare and something still called them boxed")

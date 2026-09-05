@@ -380,6 +380,27 @@ def check(spec: Spec, graph: Graph) -> Result:
             "rectangle is the full scale by definition and shows nothing a "
             "reader can weigh against anything.")
 
+    # A RECTANGLE AROUND A RECTANGLE, WHICH WAS PROSE ON THE PAGE UNTIL NOW.
+    # DECISIONS.md, "What the page leads with": a box is the right container when
+    # the stage's content is words and the wrong one when the content is a
+    # drawing of the tensor -- the two compete for the same reading and the eye
+    # settles on the larger, which is the box. `chrome` is a field of the stage
+    # now, so this is answerable per stage and no longer forces a figure to
+    # choose one container for everything it holds.
+    #
+    # A WARNING AND NOT AN ERROR. `resnet` ships this way and is not wrong about
+    # its model; refusing it would refuse a committed figure over a judgement the
+    # spec is entitled to make. A warning names it and leaves the call where it
+    # belongs.
+    boxed = [s.id for s in glyphed
+             if (s.chrome or spec.layout.chrome) != "none"]
+    if boxed:
+        warnings.append(
+            "glyph inside a box: " + ", ".join(repr(x) for x in sorted(boxed))
+            + ". The box is a second rectangle around the drawing and the eye "
+            "reads the larger one. Set chrome to 'none' on those stages to let "
+            "the tensor be the stage, or take the glyph off.")
+
     # A BAR THAT COMPARES WITH NOTHING IS DECORATION. Meters are drawn on a
     # scale shared by every stage carrying the same label, so a series with one
     # member is a bar whose only information is that it is full.
