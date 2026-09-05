@@ -186,7 +186,43 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<section class="bleed">
+<section id="to-scale">
+  <h2>The tensor, drawn to scale.</h2>
+  <p>A box with numbers in it is what a tracer already gives you. The one thing only
+  this tool asserts is that the area on the page is the tensor's own axes, resolved
+  from the trace at render time — so a stage whose content is a tensor is drawn as
+  one, and the box comes off.</p>
+  <figure style="margin-top:20px">
+    <div class="plate"><a href="examples/gallery/lenet/figure.svg"><img
+      src="examples/gallery/lenet/figure.svg" width="842"
+      alt="LeNet drawn as stacks of sheets with no boxes around them: six countable sheets at the first two stages, then a solid marked times sixteen."></a></div>
+    <p class="cap"><code>sheets</code> and <code>chrome: none</code> together. Six
+    channels can be counted, so six sheets are drawn. Sixteen cannot, so it becomes one
+    solid of the same depth carrying its number, and the stage is the tensor rather
+    than a box with a small mark inside it. The key names the scale — square root here,
+    and it says so. Solved to print at 6 inches — 8.74pt type.</p>
+  </figure>
+
+  <div class="bleed wide" style="margin-top:22px">
+    <div class="inner">
+    <figure>
+      <div class="plate"><a href="examples/gallery/unet/figure.svg"><img
+        src="examples/gallery/unet/figure.svg" width="1384"
+        alt="U-Net drawn as bare stacks of sheets across nine stages: the sheets shrink through the encoder to a small deep slab at the bottleneck and grow back through the decoder, with three dashed skips arcing across underneath."></a></div>
+      <p class="cap">The same fields on a model with real spatial extent, and the
+      clearest instance of the claim in this repository: one scale across the whole
+      figure, so equal values draw equal lengths. The face is the spatial map and the
+      depth is the channel count — the pyramid is visible as area rather than stated as
+      a number, and where a stack is too deep to separate it becomes one solid carrying
+      its count. <code>scale: linear</code>, and the key says so. Its 1,607 units put
+      detail type at about 8px here.</p>
+    </figure>
+  </div>
+  </div>
+</section>
+
+
+<section class="bleed" id="compare">
   <div class="inner">
     <h2>The same model, from the tool that traces it.</h2>
     <p>torchview 0.2.7 on the same <code>build_whisper_tiny</code>, called the way its
@@ -236,7 +272,7 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<section>
+<section id="fields">
   <h2>What you can ask a figure to do.</h2>
   <p>Everything below is a field in <code>spec.json</code> — judgement, committed, and
   the same on any machine. None of it is a render-time flag, because a figure that
@@ -469,16 +505,6 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<section>
-  <figure>
-    <div class="plate"><img src="examples/gallery/lenet/figure.svg" width="842"
-      alt="LeNet drawn as stacks of sheets with no boxes around them: six countable sheets at the first two stages, then a solid marked times sixteen."></div>
-    <p class="cap"><code>sheets</code> and <code>chrome: none</code> together. Six
-    channels can be counted, so six sheets are drawn. Sixteen cannot, so it becomes one
-    solid of the same depth carrying its number, and the stage is the tensor rather
-    than a box with a small mark inside it. Solved to print at 6 inches — 8.74pt type.</p>
-  </figure>
-</section>
 
 <section class="bleed wide">
   <div class="inner">
