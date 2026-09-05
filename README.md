@@ -61,8 +61,8 @@ nodes later. Fixed in [`tracing.py`](https://github.com/syncytium2/draughtsman/b
 
 **What a tracer alone gives you, on this model.** torchview 0.2.7, on the same
 `build_whisper_tiny` and called the way its own documentation calls it, draws Whisper
-tiny as 74 boxes and 96 edges in a column 547 × 4,896 pixels tall — committed beside
-the figure above as [`whisper/torchview.png`](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/gallery/whisper/torchview.png).
+tiny as 74 boxes and 96 edges in a column 547 × 4,896 points tall — committed beside
+the figure above, at twice that pixel density so it survives a zoom, as [`whisper/torchview.png`](https://raw.githubusercontent.com/syncytium2/draughtsman/main/examples/gallery/whisper/torchview.png).
 Nothing in it is wrong. Every box is a real operation carrying its real shapes, and
 asked for the depth this figure covers it gives 234 boxes at 2,088 × 14,688 pixels.
 It is the correct answer to a different question, and there is no page it goes on.
