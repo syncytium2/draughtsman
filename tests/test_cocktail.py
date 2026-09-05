@@ -166,12 +166,16 @@ def _summary(g):
     for n in nodes:
         kinds[n.get("kind", "?")] = kinds.get(n.get("kind", "?"), 0) + 1
     params = sum(int(n.get("params") or 0) for n in nodes)
-    lines = [f"    {len(nodes)} nodes, {params} parameters in total",
+    shaped = sum(1 for n in nodes if n.get("out_shape"))
+    lines = [f"    {len(nodes)} nodes, {params} parameters, "
+             f"{shaped} of {len(nodes)} carrying an out_shape",
              "    kinds: " + ", ".join(f"{k} x{v}" for k, v in
                                        sorted(kinds.items(), key=lambda kv: -kv[1]))]
     for n in nodes[:40]:
+        shape = n.get("out_shape")
+        shown = "x".join(str(v) for v in shape) if shape else "-"
         lines.append(f"      {n.get('id'):<8} {str(n.get('kind')):<26} "
-                     f"{str(n.get('shape')):<18} {n.get('params') or 0}")
+                     f"{shown:<12} {n.get('params') or 0}")
     return "\n".join(lines)
 
 
