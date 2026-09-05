@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-b7` | `pypi-live` | `README.md` | 2026-09-05 | draughtsman-nn 0.1.2 is on PyPI: the install lines can say something true now |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
