@@ -208,17 +208,37 @@ list is what stands between here and that flip, in order:
   **What is left needs the PyPI account and cannot be done from a commit**, and it
   is Tony's:
 
-  1. On PyPI, add a **pending** publisher (Your projects -> Publishing) — pending,
-     because the project does not exist there yet. Project `draughtsman-nn`, owner
-     `syncytium2`, repository `draughtsman`, workflow `publish.yml`, environment
-     `pypi`. All five must match or the upload is refused with no useful error.
-  2. `git tag -a v0.1.2 -m "..." && git push origin v0.1.2`. That is the whole
+  1. **Have a PyPI account at all.** Written second at first, which made the whole
+     item read as further along than it is: there may be no account. Nothing local
+     can settle that — no `~/.pypirc`, nothing in the keychain, no trace in the
+     estate — and under trusted publishing there would be none even WITH an
+     account, because no token is ever stored. So it is a question for
+     `pypi.org`, not for this repository. Register at
+     `https://pypi.org/account/register/`, and enable 2FA: PyPI requires it of
+     any account that uploads, and it is not a step that can be deferred until
+     after the first release.
+  2. Add a **pending** publisher at `https://pypi.org/manage/account/publishing/`.
+     Pending, and that is the whole reason this URL is written out: the project
+     does not exist on PyPI yet, so the per-project publishing page — the one an
+     earlier version of this item sent you to — does not exist either. An account
+     with no projects has only this account-level page. Project `draughtsman-nn`,
+     owner `syncytium2`, repository `draughtsman`, workflow `publish.yml`,
+     environment `pypi`. All five must match or the upload is refused with no
+     useful error.
+  3. `git tag -a v0.1.2 -m "..." && git push origin v0.1.2`. That is the whole
      release: the workflow does the rest, and refuses if the tag and the wheel
      disagree.
-  3. Check it from outside: `pip install draughtsman-nn` into an empty
+  4. Check it from outside: `pip install draughtsman-nn` into an empty
      virtualenv, then `draughtsman --version`. A green workflow is not the same
      claim as an installable package.
-  4. Zenodo will archive the tag as well, per the two lessons above — the
+
+     **And do not check it by curling the project page.**
+     `https://pypi.org/project/draughtsman-nn/` answers `200` today, with the
+     project absent — the body is a bot-challenge page titled "Client Challenge",
+     not a project. A status code read as an answer to a question nobody asked it
+     is correction 11 arriving over HTTP. `https://pypi.org/pypi/<name>/json` is
+     the one that says `404` when it means it.
+  5. Zenodo will archive the tag as well, per the two lessons above — the
      `CITATION.cff` it reads is the TAGGED snapshot's.
 
   Then, and only after an upload has actually succeeded: `README.md`'s install
