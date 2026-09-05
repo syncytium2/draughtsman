@@ -9,3 +9,9 @@ build/
 # `draughtsman ui` and EnterWorktree both live here; worktrees are checkouts,
 # not sources.
 .claude/worktrees/
+
+# lit/ holds papers that are not ours to redistribute. This repository is public,
+# BSD-3 and carries a DOI; a publisher's PDF is covered by none of that. Notes and
+# the index are committed, the PDFs are not. See lit/README.md.
+lit/**/*.pdf
+lit/_autofetch/
