@@ -33,7 +33,7 @@ figure{margin:0}
    In the content column the plate is 842px inside its padding, so a figure
    needs to be about 470 units to match:
        lenet   470u -> 17.0px      mlp   494u -> 16.2px      lstm 653u -> 12.3px
-   Below 842px the figure scales down rather than scrolling sideways. Type
+   Below 842px a column figure scales down rather than scrolling sideways. Type
    shrinks with it, which is the lesser of the two evils and only below laptop
    width.
 
@@ -62,6 +62,14 @@ figure{margin:0}
 @media(max-width:999px){
   .bleed .plate img{width:auto;max-width:none}
 }
+/* THE TWO WINDOWS ARE THE SAME SIZE AND THAT IS THE WHOLE ARGUMENT. torchview's
+   column is 4,896px tall at 1:1, so it is clipped and scrolls; ours is fitted to
+   the page width, 335px of a 418px window, and there is nothing below it. */
+.vs{margin-top:22px}
+.vs .pane{background:#fff;border:1px solid var(--rule);height:460px;
+  overflow:auto;padding:20px;box-sizing:border-box}
+.vs .pane img{display:block;max-width:none}
+.vs figure+figure{margin-top:22px}
 /* Full-bleed, for the figures the column cannot hold. */
 .bleed{width:100vw;margin-left:calc(50% - 50vw);padding:0 28px}
 .bleed .inner{max-width:1440px;margin:0 auto}
@@ -173,6 +181,39 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
     model does not have. A parameter is now charged to the earliest substantive consumer,
     which also decides where it is drawn: the 19.9M-entry table appears at the embedding,
     where a reader meets it, rather than at a matmul four hundred nodes later.</p>
+  </div>
+</section>
+
+<section class="bleed">
+  <div class="inner">
+    <h2>The same model, from the tool that traces it.</h2>
+    <p>torchview 0.2.7 on the same <code>build_whisper_tiny</code>, called the way its
+    own documentation calls it: <code>draw_graph(model, input_data=[mel, tokens])</code>,
+    depth left at the default. <strong>Nothing in it is wrong.</strong> Seventy-four
+    boxes, ninety-six edges, every operation carrying its real input and output shapes —
+    it is the correct answer to a different question. It is also 547 × 4,896 pixels.</p>
+    <div class="vs">
+      <figure>
+        <div class="pane"><img src="examples/gallery/whisper/torchview.png" width="547"
+          alt="torchview's graph of Whisper tiny: a single narrow column of small boxes, each an operation with its input and output shapes listed beside it, running far below the bottom of the window."></div>
+        <p class="cap"><b>torchview 0.2.7</b>, at 1:1. The window holds about a twelfth
+        of it. Scrolling is the only way to see the rest, and there is no width of page
+        or screen this goes on.</p>
+      </figure>
+      <figure>
+        <div class="pane"><img src="examples/gallery/whisper/figure.svg" width="1384"
+          alt="The draughtsman figure of Whisper tiny again, fitting inside a window of the same height with room left over."></div>
+        <p class="cap"><b>draughtsman</b>, the figure at the top of this page, in a
+        window of exactly the same size. It is 335px of figure in 418px of window — the
+        space under it is empty because the figure has ended. Same model, same operations, one
+        judgement applied: which of them become a stage, and what that stage is called.</p>
+      </figure>
+    </div>
+    <p style="margin-top:22px">Asked for the depth draughtsman covers, torchview gives
+    234 boxes at 2,088 × 14,688 pixels. Neither number is a criticism of it — tracing is
+    the half that can be mechanised, and it is the half this project takes from a tracer
+    too. What it adds is the other half: an agent decides the grouping and the names, and
+    a coverage check then proves no traced operation went missing while it did.</p>
   </div>
 </section>
 
