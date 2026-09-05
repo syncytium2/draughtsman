@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a4` | `torchview-2x` | `index.html`, `README.md`, `examples/gallery/README.md`, `examples/gallery/whisper/torchview.png` | 2026-09-05 | Committing the torchview raster at 2x so it stays sharp at the size it is shown |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
