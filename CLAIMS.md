@@ -113,7 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a4` | `compare-stack` | `tools/compare_stack.py`, `examples/gallery/whisper/compare.svg`, `index.html`, `examples/gallery/README.md` | 2026-09-05 | One frame, both vertical: torchview's column beside the stages that replace it, level with the nodes each one covers |
+| `draughtsman-a4` | `compare-stack` | `tools/compare_stack.py`, `examples/gallery/whisper/compare.svg`, `index.html`, `examples/gallery/README.md`, `tests/test_tools.py` | 2026-09-05 | One frame, both vertical: torchview's column beside the stages that replace it, level with the nodes each one covers |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
