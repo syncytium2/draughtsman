@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-c4` | `no-home-paths` | `lit/README.md`, `tests/test_no_personal_paths.py` | 2026-09-05 | A public repo spells an absolute home directory in a code block, and nothing here has ever checked for one |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
