@@ -5,7 +5,64 @@ DOI [`10.1007/BF00337113`](https://doi.org/10.1007/BF00337113) · PMID `3719028`
 Both confirmed against PubMed and Semantic Scholar; the DOI was a guess before
 that and is now checked.
 
-## Status: a human has to get this one
+## Status: HELD, 2026-09-05
+
+Tony pulled it over the UMich VPN. Filed as
+`lit/von der Malsburg Schneider 1986 A Neural Cocktail-Party Processor.pdf`,
+gitignored and verified so, and `fetch_paper.py --have malsburg cocktail` answers
+ALREADY HAVE. The search below is kept because the dead ends are still true and
+the next paper will need them.
+
+The title page confirms the citation and settles one open question: the authors
+are **Ch. von der Malsburg and W. Schneider**, Abteilung Neurobiologie,
+Max-Planck-Institut für Biophysikalische Chemie, Göttingen. The paper gives no
+first name for Schneider either, so "Werner" stays unconfirmed and should not be
+written down as fact.
+
+## The model, now that we can read it
+
+**It is fully specified, and much more concrete than the reviews suggested.**
+Section 3, "The Concrete Model", gives every equation and every constant.
+
+- **21 units.** Twenty excitatory `E`-cells, one inhibitory `H`-cell. Two input
+  stimuli of ten spectral components each, so one `E`-cell per spectral
+  component — the paper simulates only the cells actually receiving afferent
+  input.
+- **All-to-all excitatory coupling** `s_ij(t)` between `E`-cells; the `H`-cell
+  takes excitation from all of them and returns inhibition to all, which is what
+  caps total activity and forces desynchronisation between segments.
+- **Discrete time**, step τ, "roughly a millisecond".
+- Eq. 1 is the `E`-cell update — afferent input, self-decay α=0.89, the coupled
+  sum over other cells, inhibition s_he=0.22, and a noise term. Eq. 2 is the
+  `H`-cell, β=0.63, s_eh=0.036. Eq. 4 is a clipping nonlinearity. Eqs. 5-6 are a
+  gliding average and the refractory gate that ends a burst. Eqs. 7-8 are the
+  synaptic modulation: Δs_ij driven by a coactivity function, under a convex
+  control function that keeps strengths within 80% of resting.
+- **Noise is load-bearing**, not incidental — the paper says it is needed to break
+  symmetry between accidentally synchronised but weakly coupled cells.
+
+### What this means for drawing it, and it is worse than I guessed
+
+**The model has essentially no learned parameters.** α, β, s_he, s_eh, δ, the two
+gliding-average thresholds, q0, s0, s_d are all hand-set constants stated in the
+text. Nothing is trained. `params` — the quantity every figure in this repository
+reads back from `graph.json` and the one the legend meters — would be zero
+everywhere.
+
+**And `s_ij(t)` is the interesting part, and it is not a parameter.** The 20×20
+coupling matrix changes *during a single stimulus presentation*: that is the whole
+thesis, synaptic modulation on a fast timescale. In a PyTorch trace `s_ij` is an
+activation, not a weight. So the object that carries the model's meaning would
+appear in a draughtsman figure as an intermediate tensor, drawn the same way as
+any other, with nothing marking it as the thing the paper is about.
+
+**The paper's own Fig. 2 is the right figure and draughtsman cannot produce it:**
+twenty hexagons in a row, one below, excitatory and inhibitory arrowheads, drawn
+by hand. It is a coupling diagram of a 21-unit system, not a staged dataflow of a
+computation. The behaviour lives in the later figures, which are activity traces
+over time.
+
+## Status: the search that preceded it
 
 **Closed access, with zero open full-text locations.** Checked independently
 against OpenAlex, Unpaywall via Semantic Scholar, Europe PMC, OpenAIRE, and the

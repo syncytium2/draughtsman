@@ -45,7 +45,7 @@ clear. That file is the record of what the repository wants and cannot reach.
 
 | paper | for | held |
 |---|---|---|
-| von der Malsburg & Schneider 1986, *A neural cocktail-party processor*, Biological Cybernetics 54:29–40 | a candidate gallery model: a dynamical net whose output is a synchrony pattern rather than a tensor | **no — needs a human.** Search recorded in [`malsburg-1986.md`](malsburg-1986.md) |
+| von der Malsburg & Schneider 1986, *A neural cocktail-party processor*, Biological Cybernetics 54:29–40 | a candidate gallery model: a dynamical net whose output is a synchrony pattern rather than a tensor | **held** — see [`malsburg-1986.md`](malsburg-1986.md) for the model and what it costs to draw |
 | von der Malsburg 1981, *The Correlation Theory of Brain Function* | the theory the 1986 model applies; author-deposited and reachable | see [`malsburg-1986.md`](malsburg-1986.md) |
 
 ## Why this one, and what it is expected to break
