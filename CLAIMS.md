@@ -256,174 +256,121 @@ list is what stands between here and that flip, in order:
 Not on this path and deliberately after it: JOSS, the publication-grade output
 work (item 3), the slab mode, and the Rupprecht email. None of them gate the flip.
 
-**0d. HANDOFF — what is left after the night of 2026-09-03/04.**
-*Written 2026-09-04 by `draughtsman-f7` (routable as `draughtsman-69`) with
-context filling. Everything below is measured against `main` at `7bf937e`, which
-is green with an empty board.*
+**0e. HANDOFF — the gallery is clean, and three guards were the real work.**
+*Written 2026-09-05 by `draughtsman-c4`, replacing 0d, whose technical item is
+done. Numbers below are generated: `tests/test_handoff.py` re-runs the command and
+fails when the output moves.*
 
-**What changed, so the numbers below are read against the right baseline.** The
-two figures the project page publishes now fit it — dual 560→460 units, lenet
-822→470 — and the legibility gate is armed on six of ten specs, up from three.
-`tools/measure_type.py`, `tools/edge_collisions.py` and `--icon` are new. The
-session-start hooks are wired.
+```verified
+$ python3 tools/edge_collisions.py examples/gallery/*/figure.svg examples/tube/figure.svg
+dual: clean
+lenet: clean
+lstm: clean
+mlp: clean
+resnet: clean
+transformer: clean
+unet: clean
+vae: clean
+whisper: clean
+tube: clean
+```
 
----
+**WHAT CLOSED.** Every edge-through-a-box in the gallery, which was 0d's item 1.
+It was three faults wearing one number:
 
-**1. ~~THE ROUTER PUT EDGES THROUGH BOXES.~~ FIXED — the gallery is clean.**
+- The detector **summed** an edge's separate meetings with a box, so a bypass arc
+  clipping two corners reported as one deep crossing and read like a traversal.
+  Splitting it into contiguous runs turned six rows into nine and made the shapes
+  legible — the pairs were symmetric to the unit (26/26, 27/27, 70/70), which is
+  the signature of an arc bowing under a box.
+- **A bypass now has the width of the rank it crosses**, so it runs level beneath
+  the stage rather than dipping to a point at its centre. Cleared eight. Depth was
+  the wrong lever and was tried first: `DUMMY_H` 12→44 moved transformer 21%→14%
+  and cleared nothing.
+- **A wrap connector returns through the gutter reserved for it.** `GUTTER = 34.0`
+  is commented "the lane a wrap connector returns through" and `row_gap` reserves
+  it between every row — the space existed and the connector was taking the
+  midpoint between its two endpoint boxes instead. Cleared the ninth, `dual`, the
+  one Tony found by looking.
+- **A stage that draws no rect is now measured** through the `data-box` the
+  renderer already writes. lenet had been offering 4 boxes for 9 stages, so those
+  figures came back clean for want of anything to collide with. 85 of 85 now, and
+  still clean — the gallery was genuinely clean, not merely unexamined.
 
-**ALL NINE ARE FIXED. The gallery has no edge running through a box.**
-*2026-09-04 by `draughtsman-c4`. `tests/test_edge_collisions.py`'s BASELINE is
-empty, which makes it a floor in effect: any crossing at all now fails.*
+No figure changed size in any of it.
 
-They were three faults, and the count only became legible once the detector
-stopped summing. Six rows split into nine; the nine were three bypass arcs
-clipping two corners each (symmetric to the unit — 26/26, 27/27, 70/70, because a
-bow under a box is symmetric about it), a dashed edge riding a border, a corner
-cut, and one genuine traversal.
+**THE PATTERN, and it is the session's real finding.** Five checks went blind in
+one day, each reporting all clear rather than reporting that it had stopped
+looking: the summing detector; a mutation guard anchored to `dual` that fixing
+`dual` disarmed; `_stage_boxes` skipping what it could not parse; the briefing's
+guard, which needed the live board short enough for a smuggled row to print and
+went blind the moment three sessions claimed at once, turning `main` red for
+everyone; and icon bands read off a contact sheet rounded to two places, putting
+the boundary 0.0025 under the lowest mark confirmed readable. `draughtsman-4f`
+holds `correction-11` in `DECISIONS.md` for the class. **A check whose sensitivity
+rides on incidental state reports all clear when it loses it.**
 
-- **A bypass now has the WIDTH of the rank it crosses**, so it runs level beneath
-  the stage instead of dipping to a point at its centre. Cleared eight, and
-  re-routed three skips that had never registered (`lstm`, `resnet`, `unet`).
-  Depth was the wrong lever and was tried first: `DUMMY_H` 12→44 moved transformer
-  21%→14%, tube 38%→34%, and cleared nothing.
-- **The wrap connector's return lane is now the centre of the gutter reserved for
-  it.** `GUTTER = 34.0` is commented "the lane a wrap connector returns through"
-  and `row_gap = vgap + GUTTER` reserves it between every pair of rows — the space
-  existed and the connector was not using it, taking the midpoint between its two
-  endpoint boxes instead, a number about two boxes rather than the rows they sit
-  on. In `dual` that midpoint landed at y=175.0 while `fast` spanned
-  112.5..183.0. Cleared the ninth.
-
-**No figure changed size for either**, so nothing moved against the legibility
-budget, and `check` stays green on all ten.
-
-**One thing this broke, and it is the more interesting half.** `tests/
-test_edge_collisions.py::test_the_detector_can_fail` mutates the clipper and
-proves the real one still finds a crossing — and it used `dual` as its fixture,
-because the gallery had a crossing in it. Fixing `dual` disarmed the guard: it
-could no longer tell the mutated detector from the working one, and failed for a
-reason that had nothing to do with the detector. **A guard against a checker going
-blind must not depend on the defect it checks for still being present in the
-work.** Its fixture is synthetic now.
-
-**~~Three figures are outside the check entirely.~~ Fixed 2026-09-04.** `lenet`,
-`resnet` and `unet` set `layout.chrome: "none"` and draw no stage rects, so the
-detector skipped those stages — silently — and reported what it could not measure
-as clean. lenet offered 4 boxes for 9 stages, resnet 7 for 9, and unet 9 that were
-the small glyph bodies rather than the stage extents.
-
-It did not need glyph bounds. The renderer already publishes the answer: a bare
-stage carries `data-box="x y w h"` on its group, written exactly where there is no
-rect to find. `_stage_boxes` reads that first and falls back to the rect. Every
-stage in every figure is now measured — 85 of 85 — and **every figure is still
-clean**, so the gallery was genuinely clean rather than vacuously so.
-
-`tests/test_edge_collisions.py::test_every_stage_is_measured` compares the boxes
-found against the `data-stage` groups present and fails on any gap. **A checker
-must not be able to pass on what it cannot see**, and every crossing this suite
-ever caught happened to be in a figure that drew rects — not a property worth
-relying on.
+**`tools/run_suite.py` EXISTS NOW, and it is why three of those were caught here
+instead of by CI.** There is no pytest on these machines — test modules cannot even
+be imported — so a session could run no test locally and learned about mistakes
+from a red `main`. That happened to me once. It runs 517 of 526 collected tests,
+one at a time by node id, never prints a bare PASS, and states what it could not
+run. **CI is still the verdict.**
 
 ---
 
-**2. FOUR SPECS STILL DECLARE NO SIZE, and they are the hard four.**
+**STILL OPEN, carried forward from 0d.**
 
-    transformer  1277u  3.21pt at 6in
-    unet         1607u  2.55pt
-    vae          1392u  2.95pt
-    whisper      1647u  2.49pt
+**1. Four specs declare no size, and they are the hard four.** transformer 1277u
+(3.21pt at 6in), unet 1607u, vae 1392u, whisper 1647u, against a 684u budget.
+`draughtsman-4f` established these need fewer detail lines, more collapsing or a
+second orientation — not a wrap value. And queue item 3's 3.5in target is
+unreachable while `CAPTION_MIN_W = 460.0` floors every captioned figure. **Start
+at the caption floor, not the layout levers**, and decide whether that target
+survives at all.
 
-`draughtsman-4f` armed resnet (846→516) and tube (1248→589) from the spec alone
-and found the other four cannot be: they need fewer detail lines, more
-collapsing, or a second orientation, not a wrap value. The budget is 684 units
-for 6in/6pt.
+**2. `examples/tube` mis-names its own axes, and it blocks another repo.**
+bugarach's `docs/DEPLOY_HOLD.md` holds their publish on a revised figure from here,
+and their architecture doc is vendored from `examples/tube/spec.json`. **It needs a
+decision before it needs code:** the legend takes its axis name from the first
+glyphed stage (`render.py:470`), and tube's middle axis genuinely changes meaning
+partway through — cells for the first three stages, channels from the kernel bank
+on. Either the legend learns to name both, or the figure stops claiming one name
+for an axis that has two. Renderer change versus editorial call.
 
-**And queue item 3's 3.5in target is unreachable as written.** `CAPTION_MIN_W =
-460.0` in `render.py` is a hard floor in the width computation for any figure
-carrying a caption; item 3 wants ≤399. dual sitting at exactly 460 is that floor
-binding. **Start there, not at the layout levers.**
+**3. Icon mode post-processes rather than re-laying out**, so a boxed figure
+carries more empty box than it needs. Nothing checks that an icon is legible *as a
+mark*; that judgement is still a person's. `draughtsman-b2` has been in
+`icon-legibility`.
 
----
+**4. The board cannot be dialled.** A reader cannot message the session holding a
+row: the board tag and the routable `ListAgents` name are different strings and
+nothing maps them. Adding the routable name to the row shrinks it. (Sometimes they
+coincide — mine did — which makes it worse, not better.)
 
-**3. `examples/tube` MIS-NAMES ITS OWN AXES, and it blocks another repo.**
+**5. Tony's, not a session's.** tonydefazio.com is ahead of a public origin with
+deploy withheld; `draughtsman.tonydefazio.com` had no certificate because the
+domain was set by committing a `CNAME` rather than through Pages settings; this
+repo's Pages site loads Google Fonts, the only external request in a repo whose
+pitch is zero dependencies; the card can now carry a real figure since `--icon`
+exists. Plus: email Peter Rupprecht about CASCADE (an offer now, nothing blocked),
+optionally ask Kyle Fuller for the PyPI name, the outside-reader pass on
+`examples/gallery/README.md`, and no issue template.
 
-Raised by `bugarach-c4`: the figure states `1×30×600` against "cells × frames" —
-three numbers, two names — and the middle axis silently changes from ROIs to
-channels at the kernel bank. bugarach's `docs/DEPLOY_HOLD.md` holds their publish
-on a revised figure from here, and their architecture doc is vendored FROM
-`examples/tube/spec.json`, so this copy is upstream of their front page. Fixing it
-needs a re-vendor on their side.
+**6. What the night taught, and it is not a task.** Every defect that mattered was
+found by *looking*: edges through stages, from a screenshot; arrows pointing at
+nothing, by rasterising an icon; an icon cropped by exactly its `ds-body`
+transform. This suite has 500-odd assertions and was green through all of it.
 
----
+    rsvg-convert -w 1260 -h 312 -b white FIG.svg -o FIG.png
 
-**4. ICON MODE IS BUILT AND HAS ONE STATED LIMIT.**
+and then open the PNG. Both flags together stretch to fit, so that exact line is
+for an icon at 3x; for a full figure pass `-w` alone. A session that has only
+measured a figure has not seen it.
 
-`draughtsman render spec.json --icon 420x104 -o icon.svg`. It removes text, the
-legend, sub-pixel detail, and stages that were only text along with the arrows
-that pointed at them; it re-solves the layout, because `layout.wrap` is a
-page-fitting decision and an icon is not on that page.
-
-It **post-processes a rendered figure and does not re-lay it out without the
-labels**, so a boxed figure carries more empty box than it needs. A glyph figure
-comes out tight. Re-laying out is a renderer change and unclaimed.
-
-Nothing checks that an icon is *legible as a mark* — only that it is complete,
-uncropped and textless. That judgement is still a person's.
-
----
-
-**5. TONY'S, NOT A SESSION'S.**
-
-- **tonydefazio.com is 5 commits ahead of a public `origin`** and cannot push
-  without a grant. Version is bumped to 1.6.0, README §3 fixed; **deploy was
-  explicitly withheld** — the live site is still five cards. Held by
-  `tonydefazio-com-ad`.
-- [x] **`draughtsman.tonydefazio.com` had no certificate.** Done 2026-09-04.
-  This entry's diagnosis was right: the domain was set by committing a `CNAME`
-  rather than through the Pages settings, so GitHub never requested one. Port 443
-  answered with the `*.github.io` wildcard, which does not cover the host, so
-  every browser refused it while HTTP served 200 throughout. Re-submitting the
-  same domain did nothing; removing and re-adding it fired provisioning. The
-  certificate is approved to 2026-12-03 and `https_enforced` is true, so
-  `http://` now 301s to `https://`. **Their tile can point at the real domain.**
-
-  `tools/site_check.py` now asks the live site — redirect, certificate coverage,
-  and the two Pages settings that no file here can hold. It is a tool rather than
-  a test because `DRAUGHTSMAN_NO_SKIPS` would turn GitHub's next outage into our
-  red build, and a check that cries wolf gets switched off.
-- **This repo's Pages site loads Google Fonts** — the only destination in the
-  estate that makes an external request on load, in a repo whose pitch is zero
-  dependencies. A committed `@font-face` or a system stack removes it.
-- **The card can now carry a real figure**, since `--icon` exists. The
-  measurement that made the schematic right has not changed: a figure WITH text
-  at 420×104 is still 1.6–3.6px. Only the textless form is new.
-
----
-
-**6. THE BOARD CANNOT BE DIALLED.** A reader of this file cannot message the
-session holding a row: the board tag (`draughtsman-f7`, from the session id) and
-the routable `ListAgents` name (`draughtsman-69`) are different strings and
-nothing maps them, while titles move under you — `bugarach-c5` became
-`bugarach-c4` between drafting a message and sending it. Rule 7 says the board
-cannot see a session that never claims; this is the inverse and it is mechanical.
-Adding the routable name to the row shrinks both. Unclaimed.
-
----
-
-**7. WHAT THE NIGHT ACTUALLY TAUGHT, and it is not in any of the above.**
-
-Every defect that mattered was found by *looking*, and none by measuring:
-
-- the edges through boxes — Tony, from a screenshot
-- three arrows pointing at nothing in an icon, a stray legend swatch, and 78
-  one-pixel marks — by rasterising and viewing
-- an icon cropped by exactly its `ds-body` transform — two files with identical
-  viewBoxes and identical element counts that did not look the same
-
-`rsvg-convert -w 1260 -h 312 -b white FIG.svg -o FIG.png` and then read the PNG.
-This suite has 400-odd assertions and every one of those defects was green.
-
-**0c. HANDOFF — denser figures for the web page, without losing legibility.**
+**0c. Denser figures for the web page, without losing legibility.** *Was a
+handoff; superseded by 0e and kept as backlog, because its measurements are still
+the only ones anyone has taken of the gap levers.*
 *Written 2026-09-03 by `draughtsman-c9` at the end of a long session. Everything
 below is measured, not estimated.*
 
