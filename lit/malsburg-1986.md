@@ -109,6 +109,18 @@ grouping. It requires a physiological mechanism the authors had to postulate:
 itself as an application of the Correlation Theory of brain function, which is the
 1981 report below.
 
+## The authors' own verdict on it
+
+Section 5's first sentence calls the model and simulations "only a caricature,
+intended to communicate an idea, not to represent reality", and the paper points
+at Schneider's 1986 Göttingen doctoral thesis for the complete treatment — which,
+per the Discussion, segments without onset asynchrony and handles colliding
+spectra, neither of which the published version does. A sequel with von der
+Malsburg is cited as in preparation and appears never to have been published.
+
+Both are now on the want-list. Anyone reading the Biological Cybernetics paper as
+the specification of a working system is reading it as more than it claims to be.
+
 ## What is reachable, all verified live
 
 **The parent theory, deposited by von der Malsburg himself** — unambiguously

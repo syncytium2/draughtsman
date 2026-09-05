@@ -8,6 +8,43 @@ Tests: [`tests/test_cocktail.py`](../tests/test_cocktail.py). Paper and provenan
 That is the honest state as of 2026-09-05 and it is written down rather than
 tuned away.
 
+## Read Section 5 before concluding the transcription is wrong
+
+The Discussion opens:
+
+> The model and the simulations described are only a caricature, intended to
+> communicate an idea, not to represent reality.
+
+That is the authors' own framing, and it reframes everything below. The constants
+in Section 3 belong to a **reduced illustration of the Correlation Theory**, not
+to a working processor. Section 3 itself says the details "are unimportant for
+the realization of the abstract model described in Sect. 2 and could be replaced
+by others", and that the function is "fairly insensitive to changes in the
+parameters employed, **except where the marginal stability of blocks is
+involved**" — which is precisely the regime that fails here. Blocks not
+separating IS marginal stability of blocks.
+
+**And the full model is somewhere else.** The references name it:
+
+> Schneider W (1986) *Anwendung der Korrelationstheorie der Hirnfunktion auf das
+> akustische Figur-Hintergrund-Problem (Cocktailparty Effekt).* Doctoral thesis,
+> Universität Göttingen.
+
+The Discussion says that model does what this one cannot: it "is able to segment
+in the absence of stimulus onset asynchrony", and it handles spectra whose
+components collide, which the 1986 stimuli deliberately avoid. A follow-up paper,
+*A neural cocktail-party processor based on the full spectrum of auditory
+qualities*, is cited as in preparation; the literature search found no trace of
+it ever appearing.
+
+Both are on the want-list in `_NEEDED.md`. **The thesis is the thing to get.**
+
+So the reproduction gap has three candidate explanations and they are not equally
+likely any more: a transcription error on my side; constants that were never the
+ones that produced the figures; or a model that genuinely only works in a regime
+the paper does not fully state. The authors calling it a caricature makes the
+second and third a great deal more plausible than they looked an hour ago.
+
 ## What is faithful
 
 Section 3 is complete, so equations 1–8 are transcribed with every constant
