@@ -380,10 +380,15 @@ def selftest() -> int:
             f"burst {b}: crossing-over must be at half overlap, got {half_overlap}")
         assert float(CocktailParty.coactivity(t(3.0), period, bb)) < -0.999
 
-    # eq 8: largest at rest, zero at the edges, and never negative in between
-    assert abs(float(CocktailParty.control(t(S0))) - Q0) < 1e-12
-    assert abs(float(CocktailParty.control(t(S0 * (1 + S_D))))) < 1e-12
-    assert abs(float(CocktailParty.control(t(S0 * (1 - S_D))))) < 1e-12
+    # eq 8: largest at rest, zero at the edges, and never negative in between.
+    # TOLERANCES ARE FLOAT32'S, NOT AN OPINION. float32 carries about 1e-7 of
+    # relative precision, so an exact-equality check here fails on a correct
+    # implementation -- which it did, twice, before the numbers were read rather
+    # than wished at.
+    eps = 1e-7
+    assert abs(float(CocktailParty.control(t(S0))) - Q0) < eps
+    assert abs(float(CocktailParty.control(t(S0 * (1 + S_D))))) < eps
+    assert abs(float(CocktailParty.control(t(S0 * (1 - S_D))))) < eps
 
     # eq 6 is a LATCH, not a threshold. A cell above G_LOWER but below G_UPPER
     # stays off if it was off, and stays on if it was on. Getting this wrong
