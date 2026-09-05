@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-a4` | `page-scale` | `DECISIONS.md`, `index.html`, `tests/test_page.py`, `examples/gallery/whisper/spec.json` | 2026-09-05 | The page leads with the tensor drawn to scale, and the order is checked |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
