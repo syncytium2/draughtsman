@@ -63,6 +63,7 @@ def sweep():
         w, b = cocktail.coupling_blocks(r["s"], r["half"])
         out[gl] = {
             "period": r["period"],
+            "burst": r["burst"],
             "antiphase": cocktail.group_antiphase(r["e"], r["half"]),
             "within": w, "between": b,
             "h_rate": cocktail.h_cell_rate(r["h"]),
@@ -72,10 +73,11 @@ def sweep():
 
 
 def _table(sweep):
-    lines = ["    g_l     period   antiphase   within    between   H/step"]
+    lines = ["    g_l     period   burst   antiphase   within    between   H/step"]
     for gl, d in sweep.items():
-        lines.append(f"    {gl:<6.2f}  {d['period']:6.2f}   {d['antiphase']:+8.3f}   "
-                     f"{d['within']:.5f}   {d['between']:.5f}   {d['h_rate']:.3f}")
+        lines.append(f"    {gl:<6.2f}  {d['period']:6.2f}  {d['burst']:6.2f}   "
+                     f"{d['antiphase']:+8.3f}   {d['within']:.5f}   "
+                     f"{d['between']:.5f}   {d['h_rate']:.3f}")
     return "\n".join(lines)
 
 
@@ -84,23 +86,26 @@ def run(sweep):
     return sweep[cocktail.G_LOWER_REPRODUCING]["run"]
 
 
-def test_the_papers_threshold_does_not_reproduce_the_papers_period(sweep):
-    """A FINDING, NOT A BUG, AND IT BELONGS IN A TEST RATHER THAN A COMMENT.
+def test_the_burst_duration_is_what_the_paper_reports(sweep):
+    """RETRACTION, AND THE MEASUREMENT THAT FORCED IT.
 
-    Section 4 reports a burst period between 5.838 and 6.971 steps. Eq 6 states
-    a lower threshold of 0.01, and eq 5 decays the gliding average by 0.65 per
-    step, which puts the refractory period alone at 8.6 steps. The two statements
-    are not consistent, and no reading of the PDF settles which the authors ran.
+    An earlier version of this file asserted that the paper contradicts itself:
+    Section 4's "T = 6.971 for n = 1 and T = 5.838 for n = 20" against eq 6's
+    refractory period of 8.6 steps. That reading took those numbers as the
+    PERIOD. The sentence says "the duration of bursts", and Fig. 6 names the
+    burst duration T_a -- so the sentence is loose with its symbol, but its words
+    say burst duration, and on that reading there is no contradiction at all.
 
-    This asserts the inconsistency so that it cannot quietly go away: if someone
-    later changes the dynamics and the paper's own constant starts reproducing
-    the paper's own period, this test fails and they should be delighted.
+    A burst near 6 steps and a refractory near 8.6 gives a period near 15, which
+    is what this transcription produces (13.98 at the paper's own constants) and
+    close to what the paper's own Fig. 8 shows when measured off the page.
+
+    So this asserts the paper's numbers against the quantity they name.
     """
-    literal = sweep[0.01]["period"]
-    assert literal > 9.0, (
-        "the paper's stated lower threshold now reproduces its stated burst "
-        f"period ({literal:.2f} steps). Either the dynamics changed or the "
-        "discrepancy was resolved -- update lit/malsburg-1986-implementation.md.\n"
+    d = sweep[0.01]
+    assert 4.0 < d["burst"] < 9.5, (
+        f"burst duration is {d['burst']:.2f} steps at the paper's own constants; "
+        "Section 4 reports 5.838 to 6.971 for the duration of bursts.\n"
         + _table(sweep))
 
 
