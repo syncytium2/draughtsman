@@ -851,7 +851,8 @@ def _edge(route, vertical: bool = False, occupied=None) -> str:
     return "".join(parts)
 
 
-def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
+def _bare(box, m: _Stage, gscale: tuple[float, ...],
+          scales: dict[str, float] | None = None) -> str:
     """A stage with no box: the tensor IS the stage.
 
     Draw order is the whole point. The stack goes down first and the name is
@@ -898,6 +899,31 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
                                   fill=sheet_fill)
         title_y = max(title_y, ink_top - TITLE_GAP)
         drew = True
+    elif m.marks or m.glyph:
+        # THE DRAWING IS THE SUBJECT, WHICH IS WHAT THE BOX COMING OFF MEANS.
+        # Drawn after the detail -- where the boxed figure puts it -- a mark
+        # column hangs below its own labels with nothing holding the two
+        # together, and `mean over cells` becomes a speck under three lines of
+        # text. In the band, the composition is the one `sheets` already gets:
+        # the tensor, the name as a caption on it, the numbers underneath.
+        start = y
+        if m.marks:
+            y = _draw_marks(parts, m.marks, box, y, stroke)
+        else:
+            tall, wide = m.glyph
+            sc = m.spec.glyph.scale
+            gh = _edge_px(tall, gscale[0], GLYPH_H, sc)
+            gw = _edge_px(wide, gscale[1], GLYPH_W, sc)
+            parts.append(
+                f'<rect class="ds-glyph" x="{_fmt(box.x + (box.w - gw) / 2.0)}" '
+                f'y="{_fmt(y + 3 + (GLYPH_H - gh))}" '
+                f'width="{_fmt(gw)}" height="{_fmt(gh)}" '
+                f'style="fill:{fill};fill-opacity:0.94;stroke:{stroke};'
+                f'stroke-width:0.9"/>'
+            )
+            y += GLYPH_ROW
+        title_y = max(title_y, start - TITLE_GAP)
+        drew = True
     else:
         # NOTHING DRAWN MEANS NOTHING TO CLEAR, so the name keeps the reserved
         # line and the detail starts below it. Without this the two shared a
@@ -930,6 +956,68 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
             f'fill:{PAGE_MUTED}">{escape(line)}</text>'
         )
         y += DETAIL_LINE - DETAIL_SIZE
+
+    # LANES, WHICH THIS PATH ALSO USED TO DROP. They are drawn against the
+    # stage's own width, and a bare stage HAS one -- the layout engine sized it
+    # the same way; it simply draws no rect. The first bare `tube` refused to
+    # render for exactly this reason and the refusal was right: `dog`'s four
+    # kernels are the parallelism the figure exists to show. Drawing them is
+    # better than refusing them, and both beat dropping them quietly.
+    if m.lane_labels:
+        y += 5
+    for label in m.lane_labels:
+        lx = box.x + 7                       # the inset the boxed path uses
+        lw = box.w - 14
+        parts.append(
+            f'<rect class="ds-lane" x="{_fmt(lx)}" y="{_fmt(y)}" '
+            f'width="{_fmt(lw)}" height="{_fmt(LANE_ROW - 3)}" rx="2" '
+            f'style="fill:#ffffff;fill-opacity:0.62;stroke:{stroke};'
+            f'stroke-width:0.7"/>'
+        )
+        parts.append(
+            f'<text x="{_fmt(cx)}" y="{_fmt(y + LANE_ROW - 6.5)}" '
+            f'text-anchor="middle" '
+            f'style="font-family:{FONT_STACK};font-size:{LANE_SIZE}px;'
+            f'fill:{PAGE_INK}">{escape(label)}</text>'
+        )
+        y += LANE_ROW
+
+    # METERS, THE THIRD THING THIS PATH USED TO DROP. A bar is drawn on a scale
+    # shared across the figure, so a stage that loses its bar does not lose a
+    # decoration -- it drops out of a comparison the other bars are still making,
+    # and the reader has no way to tell it was ever in one. `tube` has no meters
+    # today; `test_meters_scale_against_the_largest_in_their_series` puts two on
+    # stages that are now bare, and it is what found this.
+    if m.meters:
+        y += 4
+        widest = max(width(lbl, METER_SIZE) for lbl, _ in m.meters)
+        row_w = widest + 5 + METER_BAR_W
+        bx = box.x + (box.w - row_w) / 2.0
+        for label, value in m.meters:
+            full = (scales or {}).get(label) or 1.0
+            bar_x = bx + widest + 5
+            parts.append(
+                f'<text x="{_fmt(bx)}" y="{_fmt(y + METER_BAR)}" '
+                f'style="font-family:{FONT_STACK};font-size:{METER_SIZE}px;'
+                f'fill:{PAGE_MUTED}">{escape(label)}</text>'
+            )
+            parts.append(
+                f'<rect class="ds-meter-track" x="{_fmt(bar_x)}" '
+                f'y="{_fmt(y)}" width="{_fmt(METER_BAR_W)}" '
+                f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                f'style="fill:#ffffff;fill-opacity:0.62;stroke:{stroke};'
+                f'stroke-width:0.5"/>'
+            )
+            filled = METER_BAR_W * (value / full) if full else 0.0
+            if filled > 0:
+                parts.append(
+                    f'<rect class="ds-meter-fill" x="{_fmt(bar_x)}" '
+                    f'y="{_fmt(y)}" width="{_fmt(max(1.0, filled))}" '
+                    f'height="{_fmt(METER_BAR)}" rx="1.5" '
+                    f'style="fill:{stroke}"/>'
+                )
+            y += METER_ROW
+
     parts.append("</g>")
     return "".join(parts)
 
@@ -937,7 +1025,7 @@ def _bare(box, m: _Stage, gscale: tuple[float, ...]) -> str:
 def _box(box, m: _Stage, scales: dict[str, float],
          gscale: tuple[float, float]) -> str:
     if m.chrome == "none":
-        return _bare(box, m, gscale)
+        return _bare(box, m, gscale, scales)
     fill, stroke = paint(m.spec.kind)
     top = box.y - box.h / 2.0
     # data-stage is how `draughtsman ui` binds a click in the figure back to the

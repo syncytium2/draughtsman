@@ -794,7 +794,10 @@ def test_saying_chrome_per_stage_is_the_same_as_saying_it_once(d):
     if "layout" in moved:
         moved["layout"].pop("chrome", None)
     for stage in moved["stages"]:
-        stage["chrome"] = chrome
+        # A stage that already answers for itself keeps its answer -- what is
+        # being tested is that the FIGURE's answer means the same thing said
+        # per stage, not that a per-stage answer can be overwritten.
+        stage.setdefault("chrome", chrome)
     assert render(load(moved), graph) == figure_level, (
         f"{d.name}: moving layout.chrome onto every stage changed the figure. "
         "The per-stage path is meant to be the same path, so an existing spec "

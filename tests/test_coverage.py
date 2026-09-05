@@ -790,6 +790,8 @@ def test_a_glyph_inside_a_box_is_warned_about(tube_spec_doc, tube_graph):
     import copy
     doc = copy.deepcopy(tube_spec_doc)
     doc.setdefault("layout", {})["chrome"] = "box"
+    for stage in doc["stages"]:
+        stage.pop("chrome", None)          # tube now answers this per stage
     result = check(load(doc), tube_graph)
     assert result.ok, "a box around a glyph is a judgement, not an error"
     assert any("glyph inside a box" in w for w in result.warnings), (
