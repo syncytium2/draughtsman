@@ -924,3 +924,88 @@ produces everything above. But SPEC.md §3 rules out `torch.export` on measureme
 and this is torch telling us the other road is closing. **Nothing to do now; do
 not be surprised later.** The trace layer is one module behind a stable
 `graph.json` contract, which is the right shape for that risk.
+
+
+## What the page leads with — the tensor drawn to scale
+
+*Standing decision, 2026-09-05. Written here because nothing in the repository
+stated it, so every regeneration re-derived the page from the field defaults — a
+box and a block — and landed in the same place. The fix is not a better prompt.
+It is this, with [`tests/test_page.py`](tests/test_page.py) as the executable half,
+so a page drawn the other way fails rather than ships.*
+
+**The decision.** The page leads with, and predominantly shows, the drawn-to-scale
+representation — `glyph` with `chrome: none`. Boxes with text are the fallback,
+used where a stage's content is genuinely words. The default posture is inverted:
+a stage gets a glyph unless it fails the rule below, rather than a box unless
+someone asks for a glyph.
+
+**Why, so it stops being re-derived.** The page's own comparison section is the
+argument. torchview produces 74 boxes carrying their real shapes and the page says
+plainly that nothing in it is wrong. If our figures are *also* boxes with text, the
+visible difference collapses to size and grouping. Grouping is a real claim, but
+one the reader has to be *told*. Scale is a claim the reader *sees*. The icon
+section had already measured this and not acted on it: the marks that survive the
+shrink are the glyph stages, the ones that die were only ever text, and `lenet` is
+called the best mark in the set while the page led with a boxed figure.
+
+**The rule, per stage.** Content that is a tensor whose drawn axes come from one
+shape → draw the tensor, bare: a countable third axis is `sheets`, thirty or fewer
+along a drawn axis is `marks`, more is a solid carrying its number. `scale: linear`
+unless linear makes it unreadable, and the key names which either way. Content that
+is words — a flatten, a softmax, a box standing for a repeated unit — keeps its
+box; a padded glyph is the same failure as a box around a rectangle, in the other
+direction. Never a glyph inside a box.
+
+### Two measurements this cost, both of which changed the plan
+
+**A lone glyph is a decoration, and the banner cannot honestly carry one.** The
+decision asked for at least one scaled stage in the first figure, naming `whisper`'s
+log-mel input as a candidate. It cannot be one. `_glyph_scales` takes the biggest
+value at each axis position **anywhere in the figure** and `_edge_px` maps each edge
+against it onto a fixed canvas, so a figure with a single glyph draws that glyph at
+full canvas whatever its tensor is: 80 × 3000 rendered as a rectangle about 2:1. The
+glyph's claim is comparative — *these two stages hold the same tensor, so they draw
+the same rectangle* — and with one glyph there is nothing to compare, which is an
+area that cannot be read as a product, which is a decoration making a claim.
+
+A second glyph would restore the comparison, and `check` refuses it, correctly:
+
+```
+ERROR: glyphs in one figure must label their axes the same way;
+       found 'frames × channels' and 'mel bins × frames'
+```
+
+Whisper's stages hold tensors whose axes mean different things — mel bins × frames,
+then frames × channels, then tokens × channels. There is no honest glyph for this
+model, and `whisper/spec.json` now carries that finding on its `mel` stage so it
+lands in a diff rather than being rediscovered.
+
+**So the banner keeps Whisper and the demonstration moves up under it.** The
+alternative was moving the banner, which the decision named as the fallback. It
+would have cost the page its strongest object — the only encoder–decoder here, the
+reason `trace` takes more than one input — to satisfy a criterion about the *first
+figure* when the thing that matters is the first *screen*. `lenet` and `unet` now sit
+directly beneath it: both bare `sheets`, both keys naming their scale, and `unet` is
+the clearest instance in the repository — a ranked left-to-right pass where equal
+values draw equal lengths and the pyramid is visible as area rather than stated as a
+number.
+
+### What is declared here and NOT yet checked
+
+**`chrome` is a figure-level field, and the rule is per stage.** So a figure is
+all-boxed or all-bare, and `tube` — which is on the page — draws `marks` glyphs
+inside boxes. Making the whole figure bare would strip the boxes off its word
+stages, which the rule forbids in the other direction. The fix is `chrome` per
+stage, in `spec.py` and `render.py`, and it is its own change: it moves layout, so
+it owes the mark contact sheet a re-run, this page having already recorded `tube`
+crossing a readability band because of an edit aimed at the banner.
+`tests/test_page.py` names `tube` as the one exemption, so anything new fails.
+
+**"Every boxed stage either has word content or carries a written reason" is not
+mechanisable as written.** A machine cannot tell whether a stage's content is words.
+The nearest proxy — a boxed stage that prints a shape must carry a reason — fires on
+55 of the stages in this repository, including every stage of `whisper`, most of
+which are correctly boxed. A check that fires on 55 correct figures is one somebody
+turns off, which is the reasoning `check` already applies to its own warnings. What
+is checked instead is the half that is decidable: a glyph may not sit inside a box.

@@ -16,7 +16,7 @@
         "{stage.out_shape}",
         "mel bins × frames"
       ],
-      "note": "Thirty seconds of audio at a fixed length. The model has no variable-length path; padding is the caller's job."
+      "note": "Thirty seconds of audio at a fixed length. The model has no variable-length path; padding is the caller's job. NO GLYPH, AND THE REASON IS A MEASUREMENT. The page leads with the tensor drawn to scale (DECISIONS.md, 'What the page leads with') and this stage was the candidate. A glyph's claim is comparative -- every edge is scaled against the biggest value at that axis position anywhere in the figure -- so a lone glyph draws at full canvas whatever its tensor is: 80 x 3000 came out about 2:1. A second glyph would restore the comparison and check refuses it, rightly: this model holds mel bins x frames, then frames x channels, then tokens x channels, and glyphs in one figure must label their axes the same way. There is no honest glyph for this model."
     },
     {
       "id": "frontend",
