@@ -210,5 +210,7 @@ def test_one_traced_step_does_not_contain_the_phenomenon(graph):
     21-unit system is a handful of elementwise operations.
     """
     nodes = graph.get("nodes", [])
-    assert 0 < len(nodes) < 80, (
+    # PINNED rather than bounded: a range hides a change in the graph, and the
+    # whole argument here is about what the trace does and does not contain.
+    assert len(nodes) == -1, (
         f"one step traced to {len(nodes)} nodes.\n" + _summary(graph))
