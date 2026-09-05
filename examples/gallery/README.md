@@ -266,6 +266,15 @@ Neither fits on a page, and that is the whole of the gap — the same one
 [`../README.md`](../README.md) measures on `tube`, arriving again on a model three
 orders of magnitude larger.
 
+`whisper/compare.svg` puts the two views on one vertical axis:
+[`tools/compare_stack.py`](../../tools/compare_stack.py) draws torchview's own layout at
+0.30× and lays each stage of `whisper/spec.json` over the nodes it covers, so a stage
+that swallows 24 boxes is 24 boxes tall. Node positions come from graphviz's layout and
+every label is lifted out of `whisper/figure.svg` by its `data-stage` handle — nothing is
+typed and nothing is placed by hand. Which node belongs to which stage IS declared, in
+the tool, and it is checked the way a spec is: a node claimed twice, never claimed, or
+not in the graph refuses the figure rather than drawing it.
+
 Random weights change nothing about the layout, so the committed file is stable across
 runs. It is a PNG rather than an SVG for the same reason the tube artifacts are: it is
 evidence of what a tool produced, and a raster cannot be mistaken for something this
