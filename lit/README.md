@@ -26,7 +26,7 @@ one implementation, called with an environment variable, which is the same rule
 `tools/estate.py` states about the five copies of the git wrapper it replaced.
 
 ```
-export MURDERBOARD_LIT=/Users/tonydefazio/Developer/draughtsman/lit
+export MURDERBOARD_LIT="$(git rev-parse --show-toplevel)/lit"
 cd ~/Developer/murderboard
 
 python3 fetch_paper.py --have malsburg cocktail    # ALWAYS first: is it already here?
