@@ -173,7 +173,8 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
       "repeat": {"template": ["<stage id>", "<stage id>"]},
       "glyph": {"of": "{stage.out_shape}", "axes": [1, 2],
                 "labels": ["channels", "frames"], "scale": "sqrt",
-                "style": "block|marks"}
+                "style": "block|marks"},
+      "chrome": "box|none"
     }
   ],
   "edges": [
@@ -218,14 +219,22 @@ pictures that do not read, so a figure can be 8:1 with every check green.
                        traced ops and parameters counted off graph.json.
   "chrome": "none"     drop the box around every stage and let the TENSOR be the
                        stage: the glyph is drawn large, the name floats over it,
-                       the detail sits underneath. Use it when every substantive
-                       stage carries a glyph — otherwise stages with nothing to
-                       draw become bare labels floating between drawings.
+                       the detail sits underneath.
                        A box is the right container when a stage's content is
                        WORDS; it is the wrong one when the content is a picture
                        of the tensor, because then it is a rectangle drawn
                        around a rectangle and the eye settles on the bigger one.
                        With "sheets" this is usually what you want.
+
+                       SAY IT PER STAGE WHERE THE FIGURE IS MIXED, which most
+                       are. A stage may carry its own `"chrome": "box"` or
+                       `"chrome": "none"` and it wins over the figure's; a stage
+                       that says nothing takes the figure's. The rule is about a
+                       stage, so answer it stage by stage: glyph stages bare,
+                       word stages boxed. Setting it once at the figure and
+                       leaving a stage with nothing to draw makes a bare label
+                       floating between drawings, which is the other half of the
+                       same mistake. `check` warns when a glyph is left in a box.
 
 These default to off and all are judgement, which is why they live here rather
 than in a render flag: the committed spec has to produce the same figure on any
