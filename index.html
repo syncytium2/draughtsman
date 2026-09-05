@@ -64,7 +64,9 @@ figure{margin:0}
 }
 /* THE TWO WINDOWS ARE THE SAME SIZE AND THAT IS THE WHOLE ARGUMENT. torchview's
    column is 4,896px tall at 1:1, so it is clipped and scrolls; ours is fitted to
-   the page width, 335px of a 418px window, and there is nothing below it. */
+   the page width, 335px of a 418px window, and there is nothing below it.
+   The torchview file is 1094 x 9792 and carries width/height at half that, which
+   is the only way a raster survives a zoom -- ours is an SVG and needs none. */
 .vs{margin-top:22px}
 .vs .pane{background:#fff;border:1px solid var(--rule);height:460px;
   overflow:auto;padding:20px;box-sizing:border-box}
@@ -191,10 +193,14 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
     own documentation calls it: <code>draw_graph(model, input_data=[mel, tokens])</code>,
     depth left at the default. <strong>Nothing in it is wrong.</strong> Seventy-four
     boxes, ninety-six edges, every operation carrying its real input and output shapes —
-    it is the correct answer to a different question. It is also 547 × 4,896 pixels.</p>
+    it is the correct answer to a different question. It is also 547 × 4,896 points, and
+    there is no page that goes on. The file is committed at twice that pixel density and
+    shown at half of it, so zooming into the window below reads rather than blurs — the
+    one raster on this page, and the only place resolution is a quantity at all.</p>
     <div class="vs">
       <figure>
-        <div class="pane"><img src="examples/gallery/whisper/torchview.png" width="547"
+        <div class="pane"><img src="examples/gallery/whisper/torchview.png"
+          width="547" height="4896" loading="lazy"
           alt="torchview's graph of Whisper tiny: a single narrow column of small boxes, each an operation with its input and output shapes listed beside it, running far below the bottom of the window."></div>
         <p class="cap"><b>torchview 0.2.7</b>, at 1:1. The window holds about a twelfth
         of it. Scrolling is the only way to see the rest, and there is no width of page
