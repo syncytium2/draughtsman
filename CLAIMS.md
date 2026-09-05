@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-a4` | `region-overlap` | `tools/compare_stack.py`, `examples/gallery/whisper/compare.svg`, `tests/test_tools.py` | 2026-09-05 | Two stage regions overlap in compare.svg; nothing checked box against box |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
