@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a4` | `whisper-comparison` | `index.html`, `README.md`, `examples/gallery/README.md`, `examples/gallery/whisper/torchview.png` | 2026-09-05 | torchview's view of the same model, beside ours; and the lead figure readable on a phone |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
