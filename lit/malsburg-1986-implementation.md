@@ -94,6 +94,36 @@ exactly**: every between-group synapse has run to the upper clamp of eq 8. The
 cells synchronise, so Co(·) is positive for every pair, so every synapse
 strengthens, so they lock harder. A runaway, and it is the thing to fix.
 
+## It traces, and that turned out not to be the interesting part
+
+Run on 2026-09-05 against `build_cocktail`, six inputs, one step:
+
+    24 nodes, 0 parameters, 22 of 24 carrying an out_shape
+    aten::mul x7  add x5  clamp x2  gt x2  matmul  sub  sum  lt  and  or
+    bitwise_not  to
+    every out_shape is 20, or 1 for the inhibitory cell
+
+**draughtsman has exactly two fact-types to put in a box — the shape a stage
+outputs and how many parameters it holds — and both degenerate.** Parameters are
+zero on all 24 nodes. Shapes never change, because there are no channels, no
+spatial extent and no projections: the model is 21 units talking to each other
+for a thousand steps.
+
+So a faithful figure of this trace is two dozen boxes, each labelled `20`, each
+reading `0 params`. Set that beside resnet, where `1x64x8x8` and `36864 params`
+carry the whole story of where the model narrows and where its mass sits.
+
+**Neither the tool nor the model is broken. The vocabulary does not fit the
+subject**, and it is better to have demonstrated that than to have argued it —
+which is what the first version of this note did.
+
+Two smaller things fell out. The reporting code read `shape` where the key is
+`out_shape`, so the first run appeared to show a trace carrying no shapes at all;
+that was a bug in the reporting and it would have been published as a finding if
+it had not been checked against a known-good graph. And `aten::sum` and the
+scalar multiply that follows it are the two nodes with no `out_shape` — the
+H-cell's reduction over all E-cells.
+
 ## Where the next hour should go
 
 Ordered by how much they would explain, not by effort.
