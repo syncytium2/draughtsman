@@ -934,11 +934,20 @@ box and a block — and landed in the same place. The fix is not a better prompt
 It is this, with [`tests/test_page.py`](tests/test_page.py) as the executable half,
 so a page drawn the other way fails rather than ships.*
 
-**The decision.** The page leads with, and predominantly shows, the drawn-to-scale
+**The decision, as amended.** The page **leads with** the drawn-to-scale
 representation — `glyph` with `chrome: none`. Boxes with text are the fallback,
-used where a stage's content is genuinely words. The default posture is inverted:
-a stage gets a glyph unless it fails the rule below, rather than a box unless
-someone asks for a glyph.
+used where a stage's content is genuinely words. Within a figure a stage gets a
+glyph unless it fails the rule below, rather than a box unless someone asks.
+
+*"and predominantly shows" was withdrawn in rev. 2, and the reason is this
+document's own rule.* Inverting the ratio across the page means re-speccing
+committed models for the page's appearance, which is the edit class that moved
+`tube`'s mark from 0.15× to 0.20× while aimed at something else. **The gallery is
+not re-specced to move the ratio.** `whisper` and `transformer` staying boxed is
+not a shortfall — the decision already forbade drawing their attention stages as
+proportional blocks, because at those axis ratios an area is not something a
+reader can read as a product. `tube` changes only because the per-stage `chrome`
+fix reaches it anyway.
 
 **Why, so it stops being re-derived.** The page's own comparison section is the
 argument. torchview produces 74 boxes carrying their real shapes and the page says
@@ -1002,10 +1011,31 @@ it owes the mark contact sheet a re-run, this page having already recorded `tube
 crossing a readability band because of an edit aimed at the banner.
 `tests/test_page.py` names `tube` as the one exemption, so anything new fails.
 
-**"Every boxed stage either has word content or carries a written reason" is not
-mechanisable as written.** A machine cannot tell whether a stage's content is words.
-The nearest proxy — a boxed stage that prints a shape must carry a reason — fires on
-55 of the stages in this repository, including every stage of `whisper`, most of
-which are correctly boxed. A check that fires on 55 correct figures is one somebody
-turns off, which is the reasoning `check` already applies to its own warnings. What
-is checked instead is the half that is decidable: a glyph may not sit inside a box.
+Two conditions before that work starts, both from this repository's own precedent.
+It is a **signature change to the spec**, not a fix, so it owes what the multi-input
+change paid: one shape produced byte-identical output there, and a figure-level
+`chrome` must produce byte-identical output through the new per-stage path here —
+and it owes its own entry below this one. And `tube` is re-specced **before** the
+contact sheet is re-run, with the commit message deciding in advance whether its
+mark may fall below the readable line. Seven of ten already ship under it, so a drop
+is not a blocker; arriving as a surprise is the specific failure this page
+documents.
+
+**"Every boxed stage either has word content or carries a written reason" was
+withdrawn in rev. 2.** A machine cannot tell whether a stage's content is words. The
+nearest proxy — a boxed stage that prints a shape must carry a reason — fires on 55
+of the stages in this repository, including every stage of `whisper`, most of which
+are correctly boxed. A check that fires on 55 correct figures is one somebody turns
+off, which is the reasoning `check` already applies to its own warnings, and the
+reasoning the mark bands run on. The undecidable residue stays judgement, and stays
+in `ui`.
+
+What is checked instead is in two parts. The decidable half of the rule: a glyph may
+not sit inside a box, with `tube` named as the one exemption and a second test that
+fails if that exemption ever stops being real — the `repeat` pattern, a named claim
+plus a test that the claim is still true. And a **ratchet rather than a gate**:
+`tests/test_page.py` baselines how many boxed stages print a shape, per model, and
+fails when a number rises. It fires on zero correct figures today, makes no claim
+about which stages are right, and takes a deliberate re-baseline to move. What it
+catches is the thing the collision test cannot see — silent drift back to the
+defaults on regeneration, which is the failure this whole entry exists for.
