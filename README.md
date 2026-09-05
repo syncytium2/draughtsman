@@ -195,17 +195,30 @@ reproduces from here.
 ## Installing
 
 ```
-pip install -e .                  # check, render, ui — no dependencies at all
-pip install -e ".[trace]"         # ... and read a PyTorch model
+pip install draughtsman-nn              # check, render, ui — no dependencies at all
+pip install "draughtsman-nn[trace]"     # ... and read a PyTorch model
+```
+
+From a clone, to work on it rather than use it:
+
+```
+pip install -e .
+pip install -e ".[trace]"
 pip install -e ".[dev]"           # ... and run the tests
 ```
 
 On PyPI this is `draughtsman-nn`, and everything else — the import, the
 `draughtsman` command, this repository — keeps the unabbreviated spelling. PyPI's
 `draughtsman` is an unrelated API Blueprint parser last released in 2020, so the
-name had to move; nothing a reader types does. It is not published yet, so the
-lines above are the only way in today. `tests/test_dist_name.py` holds the three
-files that state the name to each other.
+name had to move; nothing a reader types does. `tests/test_dist_name.py` holds
+the three files that state the name to each other.
+
+Releases are built and uploaded by
+[`.github/workflows/publish.yml`](https://github.com/syncytium2/draughtsman/blob/main/.github/workflows/publish.yml) on a version tag, through a trusted
+publisher — no token exists to leak — and the run refuses to upload if the tag is
+not the version in the built wheel. Every file carries a PEP 740 attestation
+binding it to the workflow and commit that produced it, so a wheel claiming to be
+this project can be checked rather than believed.
 
 Runs on Python 3.10 through 3.13, and CI runs the whole suite on every one of
 them — a range stated in three files and checked in `tests/test_versions.py`, so

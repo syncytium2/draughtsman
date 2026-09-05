@@ -190,11 +190,12 @@ list is what stands between here and that flip, in order:
   a new release re-triggers processing, which is the remedy.
 
 
-- [ ] **THE UPLOAD. It was never on this list, which is why it never happened.**
+- [x] **THE UPLOAD. It was never on this list, which is why it never happened.**
+  **Done 2026-09-05: `draughtsman-nn` 0.1.2 is on PyPI.**
   Everything above it was read as covering it: the name, the URLs, the version
   policy and the absolute README links landed at `d0dd7f1` under "PyPI prep", the
   repository went public, Zenodo minted a DOI — and `pip install draughtsman-nn`
-  has returned a 404 the whole time. There was no build step and no upload step
+  returned a 404 for every one of those days. There was no build step and no upload step
   anywhere in the repository. A list that sequences everything against the flip to
   public can still omit the one item a stranger actually needs.
 
@@ -205,45 +206,26 @@ list is what stands between here and that flip, in order:
   tree is at `0.1.2` — not `0.1.1`, because `v0.1.1` is already a tag, a release
   and a Zenodo deposit taken at `577bf92`, whose snapshot says `0.1.0`.
 
-  **What is left needs the PyPI account and cannot be done from a commit**, and it
-  is Tony's:
+  **What it took, recorded because the machinery was never the hard part.** The
+  account did not exist, and the registration flow defeated three attempts in
+  Safari: hCaptcha escalated to two puzzles, then the EDGE bot-challenge — a
+  separate layer that does not know the form exists — intercepted the POST, and
+  since a challenge can only replay a GET, the submitted data was gone and
+  Warehouse re-rendered an empty form with no error. It went through first try in
+  Firefox. Safari's shipped defaults were the cause; nothing was installed.
 
-  1. **Have a PyPI account at all.** Written second at first, which made the whole
-     item read as further along than it is: there may be no account. Nothing local
-     can settle that — no `~/.pypirc`, nothing in the keychain, no trace in the
-     estate — and under trusted publishing there would be none even WITH an
-     account, because no token is ever stored. So it is a question for
-     `pypi.org`, not for this repository. Register at
-     `https://pypi.org/account/register/`, and enable 2FA: PyPI requires it of
-     any account that uploads, and it is not a step that can be deferred until
-     after the first release.
-  2. Add a **pending** publisher at `https://pypi.org/manage/account/publishing/`.
-     Pending, and that is the whole reason this URL is written out: the project
-     does not exist on PyPI yet, so the per-project publishing page — the one an
-     earlier version of this item sent you to — does not exist either. An account
-     with no projects has only this account-level page. Project `draughtsman-nn`,
-     owner `syncytium2`, repository `draughtsman`, workflow `publish.yml`,
-     environment `pypi`. All five must match or the upload is refused with no
-     useful error.
-  3. `git tag -a v0.1.2 -m "..." && git push origin v0.1.2`. That is the whole
-     release: the workflow does the rest, and refuses if the tag and the wheel
-     disagree.
-  4. Check it from outside: `pip install draughtsman-nn` into an empty
-     virtualenv, then `draughtsman --version`. A green workflow is not the same
-     claim as an installable package.
+  Released from tag `v0.1.2` at `10f1da6`, run 33995160924, build 15s + publish
+  25s. Verified from outside rather than from a green tick: `pip install
+  draughtsman-nn --no-cache-dir` into an empty virtualenv installs 0.1.2 and
+  `draughtsman --version` prints 0.1.2. Both files carry PEP 740 attestations,
+  signed through Fulcio and logged in Rekor — and note that the JSON API's
+  `urls[].provenance` field read as `null` for both while the attestations
+  existed. `https://pypi.org/integrity/<name>/<version>/<file>/provenance` is the
+  endpoint that answers; the first check said "no attestations" and was wrong.
 
-     **And do not check it by curling the project page.**
-     `https://pypi.org/project/draughtsman-nn/` answers `200` today, with the
-     project absent — the body is a bot-challenge page titled "Client Challenge",
-     not a project. A status code read as an answer to a question nobody asked it
-     is correction 11 arriving over HTTP. `https://pypi.org/pypi/<name>/json` is
-     the one that says `404` when it means it.
-  5. Zenodo will archive the tag as well, per the two lessons above — the
-     `CITATION.cff` it reads is the TAGGED snapshot's.
-
-  Then, and only after an upload has actually succeeded: `README.md`'s install
-  block still shows `pip install -e .` alone, because until now there was nothing
-  else true to write. It is held by `lead-with-whisper` at the time of writing.
+  `README.md`'s install block now leads with `pip install draughtsman-nn`; the
+  editable installs moved below it, labelled as the way to work on the project
+  rather than the only way in. The sentence "It is not published yet" is gone.
 
 - [ ] **JOSS, if wanted — and it is not an alternative to the above.** Zenodo
   archives and mints a DOI in a day with no review; JOSS is peer review that also
