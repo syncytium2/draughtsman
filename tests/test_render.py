@@ -768,3 +768,86 @@ def test_no_stage_fill_is_emitted_as_bare_hex(d):
     svg = (d / "figure.svg").read_text()
     bare = {h for h, _ in PALETTE.values() if f"fill:{h}" in svg}
     assert not bare, f"{d}/figure.svg emits unrestatable fills: {sorted(bare)}"
+
+
+# --- chrome per stage ---------------------------------------------------------
+#
+# THE SIGNATURE CHANGE OWES WHAT THE MULTI-INPUT CHANGE PAID. `--input-shape`
+# became repeatable and one shape still produced byte-identical output, so
+# nothing traced before it meant anything different. `chrome` is now a field of a
+# stage as well as of a figure, and the equivalent claim is below: a figure that
+# says it once renders exactly as a figure that says it on every stage, and a
+# spec that says nothing per stage renders exactly as it did.
+#
+# `test_committed_figure_is_current` above is the other half, and the wider one:
+# it re-renders all ten committed specs -- two of which set `layout.chrome` --
+# and requires byte-identity with the committed file.
+
+@pytest.mark.parametrize("d", EXAMPLES, ids=IDS)
+def test_saying_chrome_per_stage_is_the_same_as_saying_it_once(d):
+    doc = json.loads((d / "spec.json").read_text())
+    graph = Graph(json.loads((d / "graph.json").read_text()))
+    figure_level = render(load(doc), graph)
+
+    moved = json.loads(json.dumps(doc))
+    chrome = (moved.get("layout") or {}).get("chrome", "box")
+    if "layout" in moved:
+        moved["layout"].pop("chrome", None)
+    for stage in moved["stages"]:
+        stage["chrome"] = chrome
+    assert render(load(moved), graph) == figure_level, (
+        f"{d.name}: moving layout.chrome onto every stage changed the figure. "
+        "The per-stage path is meant to be the same path, so an existing spec "
+        "cannot mean anything different after this change.")
+
+
+def test_a_stage_can_keep_its_box_while_the_others_lose_theirs(tube_spec, tube_graph):
+    """WHAT THE FIELD IS FOR, and the case that forced it.
+
+    `tube` draws marks and its last stage is a per-frame score, which is words.
+    Figure-level chrome could box all seven or bare all seven; the rule the page
+    runs on wants six bare and one boxed.
+    """
+    doc = json.loads(json.dumps(_as_doc(tube_spec)))
+    for stage in doc["stages"]:
+        stage["chrome"] = "none" if stage.get("glyph") else "box"
+    svg = render(load(doc), tube_graph)
+    for stage in doc["stages"]:
+        m = re.search(r'<g class="ds-stage[^"]*" data-stage="%s"[^>]*>(.*?)</g>'
+                      % stage["id"], svg, re.S)
+        assert m, f"{stage['id']} is not in the figure"
+        drew_a_rect = "<rect" in m.group(1)
+        if stage.get("glyph"):
+            assert not drew_a_rect or 'data-box=' in m.group(0), (
+                f"{stage['id']} asked for no chrome and drew a stage rect")
+        else:
+            assert drew_a_rect, f"{stage['id']} asked for a box and drew none"
+
+
+def test_a_bare_stage_still_publishes_its_extent(tube_spec, tube_graph):
+    """The collision checker reads `data-box` where there is no rect to find.
+
+    A stage that goes bare inside a boxed figure is the new way to become
+    invisible to it, which is DECISIONS.md correction 11 -- a guard that loses
+    its subject reports all clear -- arriving through a new door.
+    """
+    doc = json.loads(json.dumps(_as_doc(tube_spec)))
+    bare = [s for s in doc["stages"] if s.get("glyph")][0]
+    bare["chrome"] = "none"
+    svg = render(load(doc), tube_graph)
+    m = re.search(r'<g class="ds-stage[^"]*" data-stage="%s"([^>]*)>' % bare["id"], svg)
+    assert m and "data-box=" in m.group(1), (
+        f"{bare['id']} went bare and published no extent, so the edge-collision "
+        "checker cannot see it and will report the figure clean.")
+
+
+def test_a_stage_chrome_typo_is_refused(tube_spec):
+    doc = _as_doc(tube_spec)
+    doc["stages"][0]["chrome"] = "non"
+    with pytest.raises(ValueError, match="chrome must be"):
+        load(doc)
+
+
+def _as_doc(spec):
+    from draughtsman.spec import dump
+    return dump(spec)
