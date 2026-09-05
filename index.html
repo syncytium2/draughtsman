@@ -192,27 +192,22 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
     <p>torchview 0.2.7 on the same <code>build_whisper_tiny</code>, called the way its
     own documentation calls it: <code>draw_graph(model, input_data=[mel, tokens])</code>,
     depth left at the default. <strong>Nothing in it is wrong.</strong> Seventy-four
-    boxes, ninety-six edges, every operation carrying its real input and output shapes —
-    it is the correct answer to a different question. It is also 547 × 4,896 points, and
-    there is no page that goes on. The file is committed at twice that pixel density and
-    shown at half of it, so zooming into the window below reads rather than blurs — the
-    one raster on this page, and the only place resolution is a quantity at all.</p>
+    boxes, ninety-six edges, every operation carrying its real shapes. It is
+    547 × 4,896 points, and there is no page that goes on.</p>
     <div class="vs">
       <figure>
         <div class="pane"><img src="examples/gallery/whisper/torchview.png"
           width="547" height="4896" loading="lazy"
           alt="torchview's graph of Whisper tiny: a single narrow column of small boxes, each an operation with its input and output shapes listed beside it, running far below the bottom of the window."></div>
-        <p class="cap"><b>torchview 0.2.7</b>, at 1:1. The window holds about a twelfth
-        of it. Scrolling is the only way to see the rest, and there is no width of page
-        or screen this goes on.</p>
+        <p class="cap"><b>torchview 0.2.7</b>, at 1:1 — committed at 2× density, so a
+        zoom reads rather than blurs. The window holds about a twelfth of it.</p>
       </figure>
       <figure>
         <div class="pane"><img src="examples/gallery/whisper/figure.svg" width="1384"
           alt="The draughtsman figure of Whisper tiny again, fitting inside a window of the same height with room left over."></div>
         <p class="cap"><b>draughtsman</b>, the figure at the top of this page, in a
-        window of exactly the same size. It is 335px of figure in 418px of window — the
-        space under it is empty because the figure has ended. Same model, same operations, one
-        judgement applied: which of them become a stage, and what that stage is called.</p>
+        window of exactly the same size. 335px of figure in 418px of window: the space
+        under it is empty because the figure has ended.</p>
       </figure>
     </div>
     <p style="margin-top:22px">Asked for the depth draughtsman covers, torchview gives
