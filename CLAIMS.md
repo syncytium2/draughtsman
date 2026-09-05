@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-a4` | `page-rev2` | `DECISIONS.md`, `index.html`, `tests/test_page.py` | 2026-09-05 | Rev. 2: the boxed-stage ratchet, "predominantly" withdrawn, and the two field blocks pointed at what they describe |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
