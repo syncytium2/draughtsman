@@ -120,8 +120,15 @@ section{padding:44px 0 0}
 .note{border-left:2px solid var(--rule);padding:0 0 0 16px;margin:20px 0 0}
 .note p{color:var(--muted);margin:0}
 a{color:var(--conv)}
-footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
-  color:var(--muted);display:flex;flex-wrap:wrap;gap:10px 26px}
+/* THE INSTALL LINE SITS UNDER THE PITCH, NOT IN A FOOTER. This page had a
+   footer, and for a day it said "PyPI draughtsman-nn, unpublished" while the
+   package was on PyPI -- a footer is where a page puts what it does not expect
+   to be read, so nobody read it. The one thing a visitor who is persuaded needs
+   next is the command, so it goes where the persuading ends, and the three
+   links that lived below it come up with it. */
+.get{margin:22px 0 0;max-width:none;color:var(--muted);
+  display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline}
+.get code{font-size:.94em;color:var(--ink)}
 </style>
 
 <div class="wrap">
@@ -156,6 +163,11 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   supplies a number: every quantity in the figure is looked up from a trace of your
   model at render time.</p>
   <p>A coverage check then proves no traced operation was silently dropped.</p>
+  <p class="get"><code>pip install draughtsman-nn</code>
+    <a href="https://pypi.org/project/draughtsman-nn/">PyPI</a>
+    <a href="https://github.com/syncytium2/draughtsman">source</a>
+    <a href="https://doi.org/10.5281/zenodo.22286341">DOI</a>
+    <span>BSD-3-Clause</span></p>
 </header>
 
 <section>
@@ -581,10 +593,4 @@ footer{margin:52px 0 0;padding:22px 0 0;border-top:1px solid var(--rule);
   </figure>
 </section>
 
-<footer>
-  <a href="https://github.com/syncytium2/draughtsman">source</a>
-  <a href="https://doi.org/10.5281/zenodo.22286341">DOI</a>
-  <span>BSD-3-Clause</span>
-  <span>PyPI <code>draughtsman-nn</code>, unpublished</span>
-</footer>
 </div>
