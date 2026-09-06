@@ -739,6 +739,20 @@ rules, the reference grammar, the schema and a node table; an agent session or a
 person writes `spec.json`. No key handling, and the tool stays usable inside a
 coding-agent session, which is the primary internal use.
 
+**And there need be no agent at all (2026-09-06).** The same verb with
+`--by-module` writes the spec itself: grouped by the registered module each node
+ran in, at the shallowest depth that gives six stages, every traced node placed,
+arrows derived from the trace by the same code `check` holds a spec against,
+names that are module paths, no number typed, and a caption on the figure saying
+nothing has been judged. It is the enumerate-registered-modules view SPEC.md §2
+calls readable and blind, used as a starting point rather than an answer: a
+starting point where nothing can be missing turns the person's job from sorting
+into judging, and U-Net's encoder stages, which exit at two sizes, get one
+`{node:…}` line per exit rather than a choice made for them. The checks had never
+known who wrote `spec.json`. Only the prompt was addressed to an agent, and the
+README's first sentence had followed the prompt; both now say a person or an
+agent, which is what was always true.
+
 ### 2. Graphviz — **not a dependency, in any form**
 
 Rejected, and more firmly than §8 anticipated. Three reasons, in order of weight:

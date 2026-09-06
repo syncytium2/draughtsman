@@ -3,8 +3,8 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22286341.svg)](https://doi.org/10.5281/zenodo.22286341)
 
 **Readable architecture diagrams for PyTorch models.** The tracer supplies the
-facts, an agent supplies the abstraction, and a coverage check proves nothing was
-silently dropped.
+facts, a person or an agent supplies the abstraction, and a coverage check proves
+nothing was silently dropped.
 
 > **Status: the three stages work end to end on the model that prompted them.**
 > [`SPEC.md`](https://github.com/syncytium2/draughtsman/blob/main/SPEC.md) carries the design, the measurements behind it, and the
@@ -145,6 +145,7 @@ That figure and one for every other model are in [`examples/`](https://github.co
 export PYTHONPATH=examples/gallery                # the models are written out here
 draughtsman trace    models:build_resnet --input-shape 1,3,32,32 -o graph.json
 draughtsman abstract graph.json -o spec.json      # prints the prompt; an agent answers it
+draughtsman abstract graph.json -o spec.json --by-module   # ... or no agent: grouped by module, finish it in ui
 draughtsman check    spec.json graph.json         # every traced node in exactly one stage
 draughtsman render   spec.json -o figure.svg
 draughtsman render   spec.json --icon 420x104 -o icon.svg   # a mark, with no text
@@ -245,7 +246,7 @@ where every number in it comes from.
 ```
   model ──▶ [1 TRACE] ──▶ graph.json ──▶ [2 ABSTRACT] ──▶ spec.json ──▶ [3 RENDER] ──▶ figure.svg
              facts          facts          judgement        judgement      deterministic
-             (torch)                       (agent)          (committed)
+             (torch)                  (person or agent)     (committed)
 ```
 
 **The agent never supplies a fact.** Not a parameter count, not a shape, not a
@@ -272,6 +273,18 @@ The check ends by naming what it does not verify: whether the names are good, th
 grouping is natural, the figure legible. That is a person's job, and `ui` is where
 they do it — the figure, the coverage panel, and every traced node in one place,
 with the grouping editable and the picture redrawing as you change it.
+
+**No agent is required, and nothing checks who wrote `spec.json`.** The prompt
+was the only thing here addressed to an agent, and the pitch had followed the
+prompt. `draughtsman abstract graph.json -o spec.json --by-module` writes the spec
+itself: grouped by the registered module each node ran in, at the shallowest depth
+that gives six stages, every traced node placed, the arrows taken from the trace,
+names that are module paths, no number typed. `check` passes it by construction
+and the caption says nothing has been judged. That is the enumerate-registered-
+modules view this README calls readable and blind, used for the one thing it is
+good for: a starting point where nothing can be missing, so what is left for a
+person is collapsing and naming rather than sorting 271 rows. Open it in `ui` and
+do that. `--depth N` overrides the depth.
 
 ```
 draughtsman ui examples/tube/spec.json     # one model

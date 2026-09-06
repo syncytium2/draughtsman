@@ -158,7 +158,7 @@ a{color:var(--conv)}
 <header>
   <p class="label">draughtsman</p>
   <h1>Architecture figures for PyTorch models.</h1>
-  <p style="margin-top:18px">The tracer supplies the facts. An agent supplies the
+  <p style="margin-top:18px">The tracer supplies the facts. A person or an agent supplies the
   judgement — which operations to collapse into a stage and what to call it. It never
   supplies a number: every quantity in the figure is looked up from a trace of your
   model at render time.</p>
@@ -270,8 +270,8 @@ a{color:var(--conv)}
     <p style="margin-top:22px">Asked for the depth draughtsman covers, torchview gives
     234 boxes at 2,088 × 14,688 pixels. Neither number is a criticism of it — tracing is
     the half that can be mechanised, and it is the half this project takes from a tracer
-    too. What it adds is the other half: an agent decides the grouping and the names, and
-    a coverage check then proves no traced operation went missing while it did.</p>
+    too. What it adds is the other half: a person or an agent decides the grouping and
+    the names, and a coverage check then proves no traced operation went missing.</p>
   </div>
 </section>
 
@@ -279,7 +279,7 @@ a{color:var(--conv)}
   <h2>Three stages.</h2>
   <div class="cols">
     <div><b>trace</b><p>Every node, shape and parameter count, from the model.</p></div>
-    <div><b>abstract</b><p>The agent groups and names. It writes no numbers.</p></div>
+    <div><b>abstract</b><p>A person or an agent groups and names. Neither writes a number.</p></div>
     <div><b>render</b><p>Deterministic SVG. Quantities read back by node id.</p></div>
   </div>
 </section>
@@ -568,7 +568,10 @@ a{color:var(--conv)}
   ends by saying so, so a green check is never read as a good figure.
   <code>draughtsman ui</code> is where a person does the other half: the figure, the
   coverage panel and every traced node in one place, the grouping editable, the picture
-  redrawing as you change it.</p>
+  redrawing as you change it. It need not start from an agent's answer, or from nothing:
+  <code>abstract --by-module</code> writes a spec grouped by the module each node ran in
+  — every node placed, arrows from the trace, no number typed, nothing judged — and
+  <code>ui</code> is where the judging happens. Nothing checks who wrote the spec.</p>
   <p>Point it at a directory and <em>All models</em> renders every figure onto one
   sheet with its coverage state and aspect ratio — a layout defect in one model of many
   does not announce itself in a passing check, and opening a tab per model to find it is
