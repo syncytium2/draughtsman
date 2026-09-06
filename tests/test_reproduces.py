@@ -29,6 +29,16 @@ sys.path.insert(0, str(ROOT / "examples" / "gallery"))
 
 
 def _importable(target: str) -> bool:
+    """Is the model's module on the path? Nothing more.
+
+    `find_spec` resolves a module without executing it, so `models.py` is found
+    on a machine with no torch and this says True there. That is the question
+    it is asked -- the partition below is about which graphs THIS REPOSITORY
+    can rebuild -- and it is not the question of whether tracing can run, which
+    the test that traces asks by name, below. The first version let this answer
+    stand for both, and nine tests failed on `pip install -e .`, the README's
+    first line, with a ModuleNotFoundError from inside `trace`.
+    """
     module = target.partition(":")[0]
     try:
         return importlib.util.find_spec(module) is not None
@@ -62,6 +72,12 @@ def _facts(doc: dict):
 @pytest.mark.parametrize("d,target", REPRODUCIBLE,
                          ids=[d.name for d, _ in REPRODUCIBLE])
 def test_the_committed_graph_is_what_the_model_still_traces_to(d, target):
+    # A NAMED SKIP, NOT A SILENT ONE. On a minimal install this is nine skips
+    # that say why; in CI, which installs `.[dev]` and sets DRAUGHTSMAN_NO_SKIPS,
+    # a skip fails the run and prints itself, so torch going missing there would
+    # be loud rather than quietly green.
+    pytest.importorskip(
+        "torch", reason="re-tracing a model needs torch — pip install -e '.[trace]'")
     from draughtsman.tracing import trace
 
     committed = json.loads((d / "graph.json").read_text())
@@ -89,6 +105,12 @@ def test_nothing_drops_out_of_this_check_silently():
 
     So: the partition must be total, the covered set must not quietly shrink, and
     anything excluded must be excluded for the one stated reason.
+
+    TORCH IS NOT THAT REASON. The partition asks whether the model's module is
+    on the path; whether torch is installed is asked separately, by name, in the
+    test that traces. A minimal install therefore has the same partition as CI
+    and nine named skips instead of nine failures -- and this test, which needs
+    no torch, still holds the partition on that install.
     """
     assert len(REPRODUCIBLE) + len(EXTERNAL) == len(EXAMPLES)
 
