@@ -318,6 +318,12 @@ armory on 2026-09-05 as its findings 11 and 12 (armory `2bd658c`): interface2 ha
 already answered it three times, in pptx, pdf and MATLAB, and this repository built
 a fourth and a fifth knowing of none of them.
 
+**`clamor` has picked this up in its own repository (Tony, 2026-09-06).** Ask there
+before starting any of the three below — the whole point of the family finding is
+that it has now been answered five times by people who could not see each other, and
+a sixth answer written here while `clamor` writes its own would be this queue item
+becoming its own subject.
+
 - [x] **Box against box.** Two regions overlapped by 5.0 × 65.7 and 1.3 × 18.7
   units. Found by Tony on a phone, zoomed in — by no check here. The cause was a
   fixed 3-unit pad closing a gap of about one unit between the two spines. Fixed at
