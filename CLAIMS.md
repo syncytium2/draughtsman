@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-84` | `torch-gate-reproduces` | `tests/test_reproduces.py` | 2026-09-06 | The re-trace test fails nine times on an install without torch; find_spec cannot see that, so gate on torch by name |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
