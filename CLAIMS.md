@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-84` | `by-module-scaffold` | `src/draughtsman/abstract.py`, `src/draughtsman/cli.py`, `tests/test_scaffold.py`, `README.md`, `index.html`, `DECISIONS.md` | 2026-09-06 | Stage 2 without an agent: `abstract --by-module` writes a coverage-green spec grouped by registered module, for a person to finish in `ui` |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
