@@ -19,7 +19,7 @@ binary, so a machine that only draws a figure installs almost nothing.
 # current tree 0.1.1 would put a second, different tree behind a number already
 # archived under the first. 0.1.2 is the lowest number that can be tagged,
 # archived and uploaded describing one tree. 0.1.1 will never exist on PyPI.
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 FORMAT = "0"  # bumped when graph.json / spec.json change shape
 

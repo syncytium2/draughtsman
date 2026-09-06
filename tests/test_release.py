@@ -274,3 +274,19 @@ def test_every_file_that_writes_this_version_is_checked_here():
         f"place it may be written -- {INIT.relative_to(ROOT)} -- and anything else "
         "that needs it should read it from there, because a copy that is behind "
         "the shipped one cannot be corrected on PyPI.")
+
+
+def test_the_release_run_creates_the_github_release_after_the_upload():
+    """v0.1.2 was a tag with no release. PyPI listens to tags; Zenodo listens to
+    releases; so pip installed 0.1.2 while the DOI resolved to v0.1.1. The run
+    now creates the release itself, and only once the upload has succeeded, so
+    the archive never describes a version PyPI refused."""
+    text = PUBLISH.read_text()
+    m = re.search(r"^  release:\n(.*?)(?=^  \w|\Z)", text, re.M | re.S)
+    assert m, "publish.yml has no `release` job; Zenodo deposits on nothing"
+    job = m.group(1)
+    assert re.search(r"needs:\s*publish", job), "the release must wait for the upload"
+    assert "refs/tags/v" in job, "the release job must be reachable only from a tag"
+    assert "contents: write" in job, "creating a release needs contents: write"
+    assert "gh release create" in job and "--verify-tag" in job, (
+        "the release is created from the tag that triggered the run, verified")

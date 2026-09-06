@@ -219,7 +219,9 @@ Releases are built and uploaded by
 publisher — no token exists to leak — and the run refuses to upload if the tag is
 not the version in the built wheel. Every file carries a PEP 740 attestation
 binding it to the workflow and commit that produced it, so a wheel claiming to be
-this project can be checked rather than believed.
+this project can be checked rather than believed. After the upload the same run
+creates the GitHub release, which is what Zenodo archives; `v0.1.2` was a tag
+with no release, and it has a PyPI version and no DOI.
 
 Runs on Python 3.10 through 3.13, and CI runs the whole suite on every one of
 them — a range stated in three files and checked in `tests/test_versions.py`, so
