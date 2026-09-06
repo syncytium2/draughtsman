@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-84` | `release-0-1-3` | `src/draughtsman/__init__.py`, `pyproject.toml`, `.github/workflows/publish.yml`, `tests/test_release.py`, `README.md` | 2026-09-06 | 0.1.3: version bump, classifiers, the pitch in the PyPI description, and the run creates the GitHub release so Zenodo deposits |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
