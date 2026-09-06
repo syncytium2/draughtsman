@@ -75,6 +75,24 @@ dev = ["pytest>=8", "torch>=2.0"]
 [project.scripts]
 draughtsman = "draughtsman.cli:main"
 
+# WHAT AN SDIST IS FOR, AND WHAT IT IS NOT.
+#
+# hatchling's sdist takes everything git does not ignore, which shipped this
+# repository's own agent hooks -- `.claude/hooks/*.py`, about 40 KB of session
+# tooling -- inside `draughtsman_nn-0.1.2.tar.gz`. They are configuration for
+# working ON this project, not part of it, and a PyPI version cannot be replaced
+# once uploaded: 0.1.2 carries them permanently and this takes them out of the
+# next one.
+#
+# THE EXAMPLES AND TESTS STAY, AND DELIBERATELY. The sdist is 2 MB, and 1.7 MB of
+# that is evidence: the PNGs of what five other tools drew, and torchview's graph
+# of Whisper. Cutting them would halve the archive and break the tests that ship
+# beside them -- `test_readme_links` asserts every README link points at a path
+# this repository HAS, and those images are what it points at. An sdist whose
+# tests cannot run is a worse object than a large one.
+[tool.hatch.build.targets.sdist]
+exclude = [".claude"]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/draughtsman"]
 # ui.html is served verbatim by `draughtsman ui`; it is not a build artifact and
