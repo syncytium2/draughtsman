@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-84` | `site-install-line` | `index.html` | 2026-09-06 | The page's footer says the package is unpublished; it is not, and the page has no install line |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
