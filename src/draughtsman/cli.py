@@ -1,7 +1,8 @@
 """``draughtsman`` — four verbs, one per stage plus the check.
 
     draughtsman trace    mypkg.nets:build_tube --input-shape 1,30,600 -o graph.json
-    draughtsman abstract graph.json -o spec.json
+    draughtsman abstract graph.json -o spec.json               # prints the prompt
+    draughtsman abstract graph.json -o spec.json --by-module   # ... or no agent at all
     draughtsman render   spec.json -o figure.svg
     draughtsman check    spec.json graph.json
     draughtsman ui       spec.json                  # the human step, in a browser
@@ -67,7 +68,7 @@ def cmd_trace(args) -> int:
 
 
 def cmd_abstract(args) -> int:
-    from draughtsman.abstract import payload
+    from draughtsman.abstract import payload, scaffold
     graph = Graph(_read(args.graph))
     out = args.output
     # SPEC.md §8.3: the spec is hand-editable, so a re-run must never eat an edit.
@@ -75,6 +76,23 @@ def cmd_abstract(args) -> int:
         sys.exit(f"draughtsman: {out} already exists. It may carry hand edits "
                  "worth more than a second pass — pass --force to overwrite, or "
                  "-o to write elsewhere.")
+    if args.depth is not None and not args.by_module:
+        sys.exit("draughtsman: --depth only means something with --by-module")
+    if args.by_module:
+        # STAGE 2 WITH NOBODY IN THE LOOP. Grouped by registered module, every
+        # node placed, arrows from the trace: a spec `check` passes and a person
+        # has not judged. `ui` is where the judging happens; say so.
+        try:
+            doc, depth = scaffold(graph, depth=args.depth)
+        except ValueError as exc:
+            sys.exit(f"draughtsman: {exc}")
+        text = json.dumps(doc, indent=1, ensure_ascii=False) + "\n"
+        _write(out, text)
+        folder = out.parent if out else Path(".")
+        print(f"  {len(doc['stages'])} stages at module depth {depth}, every "
+              "traced node placed, nothing judged. Next:\n"
+              f"  draughtsman ui {folder}", file=sys.stderr)
+        return 0
     sys.stdout.write(payload(graph, out_path=str(out) if out else "spec.json"))
     return 0
 
@@ -180,12 +198,21 @@ def main(argv: list[str] | None = None) -> int:
     t.add_argument("-o", "--output", type=Path)
     t.set_defaults(func=cmd_trace)
 
-    a = sub.add_parser("abstract", help="stage 2 — print the prompt for the agent")
+    a = sub.add_parser("abstract", help="stage 2 — print the prompt for an agent, "
+                       "or --by-module to do it with no agent at all")
     a.add_argument("graph", type=Path)
     a.add_argument("-o", "--output", type=Path,
-                   help="where the answer should be written (not written here)")
+                   help="where the spec goes: written here with --by-module, "
+                        "otherwise named in the prompt for whoever answers it")
     a.add_argument("--force", action="store_true",
                    help="proceed even if the output spec already exists")
+    a.add_argument("--by-module", action="store_true",
+                   help="write a spec grouped by registered module — every node "
+                        "placed, arrows from the trace, nothing judged — for a "
+                        "person to finish in `ui`")
+    a.add_argument("--depth", type=int, metavar="N",
+                   help="module depth to group at (with --by-module); default "
+                        "is the shallowest that gives six stages")
     a.set_defaults(func=cmd_abstract)
 
     r = sub.add_parser("render", help="stage 3 — spec.json + graph.json to SVG")

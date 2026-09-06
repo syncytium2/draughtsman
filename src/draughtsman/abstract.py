@@ -13,6 +13,9 @@ to, because the schema has nowhere to put one.
 
 from __future__ import annotations
 
+import re
+
+from draughtsman import FORMAT
 from draughtsman.facts import Graph
 
 RULES = """\
@@ -341,3 +344,176 @@ def _interesting(consts: dict) -> str:
             if k not in _NOISE and v not in (False, None)}
     return " ".join(f"{k}={_shape(v) if isinstance(v, list) else v}"
                     for k, v in keep.items())
+
+
+# ---------------------------------------------------------------------------
+# STAGE 2 WITHOUT AN AGENT.
+#
+# Everything above is a prompt, and a prompt is addressed to whoever answers it.
+# Some people will not put an agent in the loop, and the tool had no path for
+# them: `abstract` printed sixteen thousand characters beginning "You are doing
+# stage 2", `ui` could start from an empty spec, and nothing said so. A person
+# starting from an empty spec with Whisper's 271 nodes in a table has a sorting
+# job before they have a judgement to make.
+#
+# The trace already carries the one grouping that needs no judgement: every node
+# records the registered module whose forward() it ran in. Grouping by that is
+# exactly the "enumerate registered modules" view SPEC.md §2 calls readable and
+# blind -- blind because it cannot see what a forward() does between modules. As
+# a FIRST PASS it is the right starting point rather than the wrong answer: no
+# node can be dropped, coverage is green from the first second, the arrows come
+# from the trace, and what is left for the person is collapsing and naming,
+# which is the judgement, rather than sorting, which is not.
+#
+# WHAT IT NEVER DOES: invent a name, type a number, or elide anything. Names are
+# module paths verbatim. Details are {references}. Every traced node is in a
+# stage. Nothing here is a judgement, and the caption says so on the figure.
+#
+# THE DEPTH IS CHOSEN MECHANICALLY, AND THE RULE IS ONE SENTENCE. A ResNet at
+# module depth 1 is four stages -- stem, bn, blocks, head -- and `blocks` holds
+# 48 of 52 nodes; at depth 2 it is nine. Whisper at depth 1 is `encoder` and
+# `decoder`. So: the shallowest depth that gives at least MIN_STAGES stages, or
+# the deepest there is. One depth for the whole figure, so sibling blocks come
+# out alike and the person is not handed one opened block beside five closed.
+# `--depth` overrides it.
+#
+# RUNS ARE CONTIGUOUS IN TRACE ORDER, AND THAT IS WHAT MAKES THE STAGE GRAPH
+# ACYCLIC. Two nodes of `blocks.0` with a top-level op between them are one run;
+# a second visit to a module key after another key intervened is a second stage.
+# Every tensor a stage consumes was produced by an earlier stage, so every arrow
+# points forward and no cycle is possible -- `check` would refuse one.
+#
+# A NODE WITHOUT A MODULE RAN IN AN ANCESTOR'S forward(). The ReLU after the stem,
+# the residual add inside a block, the flatten before the head: the tracer
+# records the innermost module, and for these that is a parent, or nothing at
+# all. They join the run they interrupt, because that is where the model's own
+# code put them. A leading run of them becomes a stage named for its ops.
+
+MIN_STAGES = 6
+
+
+def _module_key(node: dict, depth: int) -> str | None:
+    module = node.get("module")
+    if not module:
+        return None
+    return ".".join(module.split(".")[:depth])
+
+
+def _runs(graph: Graph, depth: int) -> list[tuple[str | None, list[str]]]:
+    """Contiguous runs of traced nodes sharing a module prefix, in trace order."""
+    runs: list[tuple[str | None, list[str]]] = []
+    for nid in graph.traced:
+        key = _module_key(graph.nodes[nid], depth)
+        if runs:
+            cur_key, cur_nodes = runs[-1]
+            joins = (key == cur_key
+                     or key is None
+                     or (cur_key is not None and cur_key.startswith(key + ".")))
+            if joins:
+                cur_nodes.append(nid)
+                continue
+        runs.append((key, [nid]))
+    return runs
+
+
+def _max_depth(graph: Graph) -> int:
+    return max((len(n["module"].split(".")) for n in graph.nodes.values()
+                if n.get("module")), default=1)
+
+
+def scaffold_depth(graph: Graph, *, min_stages: int = MIN_STAGES) -> int:
+    """The shallowest module depth that yields *min_stages* runs, else the deepest."""
+    deepest = _max_depth(graph)
+    for depth in range(1, deepest + 1):
+        if len(_runs(graph, depth)) >= min_stages:
+            return depth
+    return deepest
+
+
+def _stage_kind(kinds: list[str]) -> str:
+    joined = " ".join(kinds)
+    if "convolution" in joined:
+        return "conv"
+    if "pool" in joined:
+        return "pool"
+    return "op"
+
+
+def _stage_id(key: str | None, taken: set[str]) -> str:
+    base = re.sub(r"[^A-Za-z0-9_]+", "_", key or "top").strip("_") or "top"
+    sid, n = base, 1
+    while sid in taken:
+        n += 1
+        sid = f"{base}_{n}"
+    taken.add(sid)
+    return sid
+
+
+def scaffold(graph: Graph, *, depth: int | None = None,
+             min_stages: int = MIN_STAGES) -> tuple[dict, int]:
+    """A spec grouped by registered module: coverage-complete, judgement-free.
+
+    Returns the spec document and the depth it was grouped at.
+    """
+    if depth is None:
+        depth = scaffold_depth(graph, min_stages=min_stages)
+    if depth < 1:
+        raise ValueError(f"module depth must be at least 1, not {depth}")
+
+    taken: set[str] = set()
+    stages: list[dict] = []
+    for rec in graph.inputs:
+        taken.add(rec["id"])
+        stages.append({"id": rec["id"], "name": str(rec.get("value") or rec["id"]),
+                       "kind": "input", "nodes": [rec["id"]],
+                       "detail": ["{stage.out_shape}"]})
+
+    for key, nodes in _runs(graph, depth):
+        kinds: list[str] = []
+        for nid in nodes:
+            kind = graph.nodes[nid]["kind"].replace("aten::", "").lstrip("_")
+            if kind not in kinds:
+                kinds.append(kind)
+        # A STAGE THAT EXITS TWICE HAS TWO SHAPES, AND THIS PICKS NEITHER. U-Net's
+        # encoder stage feeds both the pool below it and the skip across, at two
+        # sizes; `{stage.out_shape}` on it is an error by design (facts.py,
+        # stage_fact), and choosing one exit here would be the grouping deciding.
+        # So one line per exit, each a reference to its own node.
+        exits = graph.stage_exits(nodes)
+        shapes = {tuple(graph.nodes[e].get("out_shape") or []) for e in exits}
+        if len(exits) > 1 and len(shapes) > 1:
+            detail = [f"{{node:{e}.out_shape}}" for e in exits]
+        else:
+            detail = ["{stage.out_shape}"]
+        if graph.stage_params(nodes) > 0:
+            detail.append("{stage.params} params")
+        stages.append({
+            "id": _stage_id(key, taken),
+            "name": key if key is not None else ", ".join(kinds),
+            "kind": _stage_kind(kinds),
+            "nodes": list(nodes),
+            "detail": detail,
+            "note": "ops: " + ", ".join(kinds),
+        })
+
+    doc = {
+        "draughtsman": FORMAT,
+        "graph": "graph.json",
+        "title": graph.model["target"].rpartition(":")[2],
+        "subtitle": "{model.params} parameters",
+        "stages": stages,
+        "edges": [],
+        "caption": (f"Grouped by registered module at depth {depth}, "
+                    "mechanically. Nothing here has been judged yet."),
+    }
+
+    # The arrows are the trace's, not this function's: the same derivation
+    # `check` holds a spec against, so it holds this one to nothing it did not
+    # draw and warns of nothing it left out.
+    from draughtsman.check import _traced_edges
+    from draughtsman.spec import load
+    order = {s["id"]: i for i, s in enumerate(stages)}
+    doc["edges"] = [{"from": src, "to": dst}
+                    for src, dst in sorted(_traced_edges(load(doc), graph),
+                                           key=lambda e: (order[e[0]], order[e[1]]))]
+    return doc, depth
