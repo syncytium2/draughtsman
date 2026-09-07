@@ -1,5 +1,16 @@
 """Whisper-tiny, written out at its published dimensions.
 
+DERIVED FROM OPENAI'S WHISPER, WHICH IS MIT-LICENSED. Copyright (c) 2022 OpenAI;
+<https://github.com/openai/whisper>. The full licence is in this repository's
+`THIRD_PARTY_NOTICES.md`, and this repository is otherwise BSD-3-Clause.
+
+The debt is structural, not incidental, so it is stated rather than implied: the
+module names, the attribute names (`attn_ln`, `cross_attn`, `mlp_ln`, `ln_post`,
+`positional_embedding`), `sinusoids()` and its signature, the key projection
+carrying no bias, and the pre-norm residual pairs are all that implementation's.
+Saying this file was written "from the model card" would be true of the numbers
+and false about the shape.
+
 WHY THIS ONE. Most production ASR architectures are unpublished, so the one that
 can be drawn from a public description is OpenAI's Whisper (Radford et al., 2022,
 *Robust Speech Recognition via Large-Scale Weak Supervision*). It is the encoder--decoder family the other nine models in this
@@ -46,7 +57,11 @@ N_VOCAB = 51865
 
 
 def sinusoids(length: int, channels: int, max_timescale: int = 10000):
-    """Whisper's audio positional encoding. A buffer, never trained."""
+    """Whisper's audio positional encoding. A buffer, never trained.
+
+    This one follows OpenAI's function of the same name and signature; see the
+    notice at the top of this file.
+    """
     # `math`, not `numpy`. This is one natural log of one scalar, and numpy was
     # the only third-party import in the gallery -- in a repo whose `render` and
     # `check` deliberately need nothing at all, and whose CI installs no numpy.
