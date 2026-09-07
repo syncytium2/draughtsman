@@ -172,8 +172,10 @@ a{color:var(--conv)}
 
 <section>
   <h2>The model above is Whisper tiny, and it broke two things.</h2>
-  <p>OpenAI's speech recogniser at its published dimensions, written out in PyTorch from
-  the model card and traced from that source: 80 mel bins, four encoder blocks against
+  <p>OpenAI's speech recogniser at its published dimensions, written out in PyTorch
+  following their <a href="https://github.com/openai/whisper">reference implementation</a>
+  — MIT, and the notice travels with the file — then traced from that source: 80 mel bins,
+  four encoder blocks against
   four decoder blocks, six heads, sinusoidal audio positions against learned text
   positions, cross-attention in every decoder block, and the output projection tied to
   the token embedding. The weights are random — this draws the architecture, not the

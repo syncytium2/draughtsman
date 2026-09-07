@@ -21,8 +21,10 @@ parameters over 271 traced operations, log-mel spectrogram to vocabulary logits.
 The weights are random: this draws the architecture, not the trained model.*
 
 OpenAI's speech recogniser at its published dimensions, written out in PyTorch in
-[`examples/gallery/whisper_tiny.py`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/whisper_tiny.py) and traced
-from that source — 80 mel bins, four encoder blocks against four decoder blocks, six
+[`examples/gallery/whisper_tiny.py`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/whisper_tiny.py) — following
+their reference implementation, which is MIT and whose notice is in
+[`THIRD_PARTY_NOTICES.md`](https://github.com/syncytium2/draughtsman/blob/main/THIRD_PARTY_NOTICES.md) — and traced
+from that source: 80 mel bins, four encoder blocks against four decoder blocks, six
 heads, sinusoidal audio positions against learned text positions, cross-attention in
 every decoder block, and the output projection tied to the token embedding. Attention
 is written out with explicit q/k/v projections, which is what Whisper itself does, so
