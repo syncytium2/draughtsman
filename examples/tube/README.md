@@ -17,6 +17,8 @@ committed SVG so it cannot quietly stop being true.
 | `graph.json` | `draughtsman trace bugarach.learn.nets.tube:build_tube --input-shape 1,30,600 -o graph.json`, against bugarach `8cf06f6` on torch 2.13.0 |
 | `spec.json` | stage 2 — written from the `draughtsman abstract graph.json` payload in a Claude Code session, 2026-09-01 |
 | `figure.svg` | `draughtsman render spec.json -o figure.svg` |
+| `front-page.json`, `front-page-phone.json` | `spec.json` redrawn for bugarach's front-page slot, 2026-09-11 — see [below](#the-front-page-figures-drawn-for-bugarachs-slot) |
+| `front-page.svg`, `front-page-phone.svg` | `draughtsman render front-page.json -o front-page.svg`, and the same for the phone |
 
 `graph.json` is committed because regenerating it needs bugarach installed, and
 this repo does not depend on bugarach. **So the staleness test runs on the
@@ -40,6 +42,47 @@ properties — a data-dependent integer, a filter bank that is one convolution w
 N channels, and a bypass that rejoins at a concat — so the torch-facing tests run
 without bugarach, and no vendored copy of `tube` can drift from its original in
 silence.
+
+## The front-page figures, drawn for bugarach's slot
+
+bugarach's landing page leads with this model, inlined in a box measured on
+2026-09-10 at **1203 px on a 1280 laptop and 395 px on a phone**. The page never
+shrinks the figure below its viewBox width — it scrolls instead — so `figure.svg`,
+drawn for this gallery at 933.69 wide on two rows, is the wrong shape for it. Two
+more specs share this `graph.json`, one per slot:
+
+| spec | slot | figure |
+|---|---|---|
+| `front-page.json` | 1203 px, one row, left to right | `front-page.svg`, 1199.15 × 343 |
+| `front-page-phone.json` | 395 px, top to bottom | `front-page-phone.svg`, 395 × 1053 |
+
+Each states its slot as `output.width` and the renderer's smallest type,
+`DETAIL_SIZE`, in px as `output.min_type`. The unit budget is then exactly the slot
+width, so `check` refuses any figure that would have to be scaled down to fit —
+the page's rule, enforced here. For the phone the answer is a second drawing, not
+a sideways scroll or an icon: at 1:1 the laptop row is three screens wide, and an
+icon drops the detail the page leads with.
+
+What they change from `spec.json`, and why:
+
+- **No glyphs.** The glyph legend names every glyphed axis after the first glyphed
+  stage, and this model's middle axis is cells for three stages and channels after
+  the kernel bank — so the gallery figure's key says "one mark = one channel" over
+  a stack of cells. Without glyphs no key row claims one name for both, and each
+  stage names its own axes in its detail: `cells × frames` on the raster,
+  `channels × frames, from here on` on the bank. The gallery figure keeps its
+  glyphs, and the naming question stays open in the queue for it.
+- **Two detail lines split.** `cells × frames, binary` and
+  `600 — one score per frame` set their boxes' widths; on two lines each, the row
+  comes in at 1199 rather than 1248.
+- **The phone figure needed two renderer fixes.** The caption's 460-unit floor now
+  yields to a narrower stated width. And an edge label beside a vertical run now
+  clears its own line: this is the first committed top-to-bottom figure with a
+  labelled edge, and its `bypass` was drawn across the line it names.
+
+[`../../tests/test_front_page.py`](../../tests/test_front_page.py) holds both to
+their slots. bugarach vendors these specs together with the renderer from the same
+commit.
 
 ## What the figure says, and where each number comes from
 

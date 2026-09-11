@@ -50,6 +50,9 @@ CAPTION_SIZE = DETAIL_SIZE
 CAPTION_LINE = 13.0
 # A caption never sets the figure's width, but a figure narrower than this would
 # wrap prose into a column, so it is the floor the caption may widen the page to.
+# A stated output width outranks it: prose wrapped into a column is the price of a
+# 395 px phone slot, and a caption that pushes the figure past its budget has set
+# the width after all. So the floor is whichever is narrower.
 CAPTION_MIN_W = 460.0
 PAD_X, PAD_Y = 12.0, 9.0
 TITLE_LINE, DETAIL_LINE, LANE_ROW = 15.0, 12.5, 15.0
@@ -559,7 +562,7 @@ def render(spec: Spec, graph: Graph) -> str:
     # to the drawing; the drawing does not stretch to the prose.
     total_w = max(drawing.width, width(title, TITLE_SIZE, bold=True) + 24,
                   width(subtitle or "", 10) + 24, legend_w + 24,
-                  CAPTION_MIN_W if caption else 0.0)
+                  min(CAPTION_MIN_W, budget or CAPTION_MIN_W) if caption else 0.0)
     caption_lines = _wrap(caption, total_w - 24, CAPTION_SIZE) if caption else []
     foot_h = CAPTION_LINE * len(caption_lines) + 8.0 if caption_lines else 0.0
 
@@ -802,8 +805,13 @@ def _place_label(points, text: str, vertical: bool, occupied) -> tuple[float, fl
         for step in (0, 1, 2):
             for sign in (-1, 1):
                 off = (LABEL_GAP + step * (EDGE_LABEL_SIZE + 3)) * sign
-                x, y = ((cx + off, cy + EDGE_LABEL_SIZE * 0.35) if vertical
-                        else (cx, cy + off - LABEL_GAP))
+                # A label is centred on x, so beside a vertical run it must clear
+                # half its own width before the gap begins. Offset by the gap
+                # alone it sat astride the line it names, and nothing in
+                # `occupied` objected, because the line is not in it. Found by
+                # bugarach's label check on the tube phone figure's `bypass`.
+                x, y = ((cx + off + sign * w / 2, cy + EDGE_LABEL_SIZE * 0.35)
+                        if vertical else (cx, cy + off - LABEL_GAP))
                 rect = _label_rect(x, y, w)
                 cost = sum(1 for o in occupied if _overlaps(rect, o))
                 if cost == 0:
