@@ -671,3 +671,13 @@ bugarach's `DEPLOY_HOLD.md` was released 2026-09-01 — nothing is blocked, but 
 still owed. Measurements and the five asks are in the darkroom's
 `needs/the-front-page-figure-needs-drawing-for-its-slot.md`; bugarach keeps a copy at
 `docs/needs/`. The caption fix itself landed at `0546e5b`.
+
+**12. Links in the output, on request.** *Requested by bugarach, on Tony's instruction,
+2026-09-10: "ask draughtsman to put links in their output upon request."* A consumer putting a
+draughtsman figure on a public page wants the figure itself to say where it came from, and
+today a spec's `caption` is plain text even though SVG carries `<a href>` natively. The ask:
+an **opt-in** spec field — a credit URL, or links on the caption or title — that emits a real
+link in the SVG, **off by default** so the gallery figures and the icons do not change, with
+`check` confirming the URL is well-formed and that the link text obeys the no-overlap rule.
+Not blocking: bugarach puts its own link beside the figure in the meantime. Related to item 11
+(the same consumer, the same figure).
