@@ -113,6 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
+| `draughtsman-cobalt-chisel` | `tube-front-page` | `examples/tube/front-page.json`, `examples/tube/front-page.svg`, `examples/tube/front-page-phone.json`, `examples/tube/front-page-phone.svg`, `examples/tube/README.md`, `src/draughtsman/render.py`, `tests/test_front_page.py` | 2026-09-11 | Queue item 11: the tube drawn for bugarach's front-page slot, 1203 px on a laptop and 395 px on a phone. The caption floor yields to a stated output width narrower than 460. Messaging name `draughtsman-b3` |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
