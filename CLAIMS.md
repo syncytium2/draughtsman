@@ -113,7 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `bugarach-supple-chisel` | `credit-draughtsman-caption` | `examples/tube/spec.json`, `examples/tube/figure.svg` | 2026-09-10 | The tube caption says "Traced with torch.jit.trace" and never names draughtsman, and the bugarach front page inlines that caption as its only text |
+| `draughtsman-supple-chisel` | `credit-draughtsman-caption` | `examples/tube/spec.json`, `examples/tube/figure.svg` | 2026-09-10 | The tube caption says "Traced with torch.jit.trace" and never names draughtsman, and the bugarach front page inlines that caption as its only text |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
