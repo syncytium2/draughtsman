@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-cobalt-chisel` | `tube-front-page` | `examples/tube/front-page.json`, `examples/tube/front-page.svg`, `examples/tube/front-page-phone.json`, `examples/tube/front-page-phone.svg`, `examples/tube/README.md`, `src/draughtsman/render.py`, `tests/test_front_page.py` | 2026-09-11 | Queue item 11: the tube drawn for bugarach's front-page slot, 1203 px on a laptop and 395 px on a phone. The caption floor yields to a stated output width narrower than 460. Messaging name `draughtsman-b3` |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
@@ -387,6 +386,10 @@ glyphed stage (`render.py:470`), and tube's middle axis genuinely changes meanin
 partway through — cells for the first three stages, channels from the kernel bank
 on. Either the legend learns to name both, or the figure stops claiming one name
 for an axis that has two. Renderer change versus editorial call.
+*2026-09-11:* bugarach no longer needs it — the front-page figures drawn for item 11
+(`examples/tube/front-page*.json`) take the editorial branch: no glyphs, so no key
+row, and each stage names its own axes in its detail. The gallery `spec.json`
+still carries the mislabel, and the renderer question is still open for it.
 
 **3. Icon mode post-processes rather than re-laying out**, so a boxed figure
 carries more empty box than it needs. Nothing checks that an icon is legible *as a
@@ -660,7 +663,18 @@ figure nobody can re-run, date or attribute is one the next session re-derives.
 `bugarach/net-figure-options/` — the regression suite `SPEC.md` §2 says to keep —
 is also absent from it.
 
-**11. Draw the tube for bugarach's front-page slot — item 2's figure, with a size.**
+**11. Draw the tube for bugarach's front-page slot — done, with a remainder that is bugarach's.**
+*Done 2026-09-11 at `99420f1` by `draughtsman-cobalt-chisel`:* `examples/tube/front-page.json`
+(1203 px, one row, 1199.15 × 343) and `front-page-phone.json` (395 px, top to bottom,
+395 × 1053), each with its `.svg`, held to its slot by `tests/test_front_page.py`. The phone
+figure needed two renderer fixes: the caption floor yields to a narrower stated width, and a
+label beside a vertical run clears its own line. **Bugarach's remainder:** its
+`test_svg_labels` measures with `getBBox()`, which ignores the `ds-body` transform, so it
+reports the subtitle overlapping a stage name whenever one sits near the top of the drawing —
+the phone figure, and the gallery `figure.svg` it failed on before. Measured with the
+transform, the gap is 30 units in both. The page also has to choose between two inline figures.
+
+*The request as filed:*
 *Requested by bugarach, on Tony's instruction, 2026-09-10: "the whole point of draughtsman is
 to draw figures at specified sizes."* bugarach's landing page inlines the tube figure. Taking
 `examples/tube` as it stands would put a gallery figure there — two rows, viewBox
