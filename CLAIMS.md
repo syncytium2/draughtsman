@@ -658,3 +658,16 @@ published artifact; none is in the estate's figure store, whose own README says 
 figure nobody can re-run, date or attribute is one the next session re-derives.
 `bugarach/net-figure-options/` — the regression suite `SPEC.md` §2 says to keep —
 is also absent from it.
+
+**11. Draw the tube for bugarach's front-page slot — item 2's figure, with a size.**
+*Requested by bugarach, on Tony's instruction, 2026-09-10: "the whole point of draughtsman is
+to draw figures at specified sizes."* bugarach's landing page inlines the tube figure. Taking
+`examples/tube` as it stands would put a gallery figure there — two rows, viewBox
+933.69 × 602.49 — in a slot measured at **1203 px wide on a 1280 laptop and 395 px on a
+phone**, where the figure is never shrunk below its natural width and scrolls instead. That
+gallery figure also carries item 2's axis mislabel and fails bugarach's own label-overlap
+check, so the size and the naming are one deliverable. ⚠ **Item 2's premise is stale:**
+bugarach's `DEPLOY_HOLD.md` was released 2026-09-01 — nothing is blocked, but the figure is
+still owed. Measurements and the five asks are in the darkroom's
+`needs/the-front-page-figure-needs-drawing-for-its-slot.md`; bugarach keeps a copy at
+`docs/needs/`. The caption fix itself landed at `0546e5b`.
