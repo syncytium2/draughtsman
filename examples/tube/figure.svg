@@ -37,5 +37,5 @@
 <text class="ds-legend-label" x="27" y="574.99" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;font-weight:600;fill:currentColor">channels × frames</text>
 <text class="ds-legend-share" x="115.55" y="574.99" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;fill:currentColor;opacity:0.62">one mark = one channel · a bar means more than 32, counted beside it</text>
 </g>
-<text class="ds-caption" x="12" y="590.99" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;fill:currentColor;opacity:0.62">Traced with torch.jit.trace; every quantity is read from graph.json by node id. The kernel bank collapses 26 traced operations.</text>
+<text class="ds-caption" x="12" y="590.99" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;fill:currentColor;opacity:0.62">Drawn by draughtsman from a torch.jit.trace of the built model; every quantity is read off the trace by node id, none typed by hand. The kernel bank collapses 26 traced operations.</text>
 </svg>
