@@ -696,3 +696,33 @@ link in the SVG, **off by default** so the gallery figures and the icons do not 
 `check` confirming the URL is well-formed and that the link text obeys the no-overlap rule.
 Not blocking: bugarach puts its own link beside the figure in the meantime. Related to item 11
 (the same consumer, the same figure).
+
+**13. Draw `line`, bugarach's new architecture — and draw it beside the tube.** *Requested by
+bugarach, on Tony's instruction, 2026-09-15: "put a commit at draughtsman to draw the new model."*
+
+**What it is.** `line` is 1,233 parameters in
+`src/bugarach/learn/nets/line.py`, built with `ARCHITECTURES["line"].make()`, taking a binary
+onset raster `(batch, n_roi, time)` exactly as `tube` does. It exists because a session asked
+whether the tube's weakness is architectural: the tube averages over ROIs **before** its first
+kernel, so four onsets from one cell and four cells firing once are the same number. Measured on
+plants of equal ink, a 16-ROI line scored 1.3x a 4-ROI burst under the trained tube. `line`
+counts instead — per-ROI smoothing at a fitted width, a sigmoid so a bursting cell votes once,
+the mean over ROIs (the share of the field that is lit), then an area-normalised difference of
+Gaussians so a rising background cancels. Supervised on bugarach's bake-off it scores F1 0.655
+against the tube's 0.686, with the highest precision of any learned model there.
+
+**What the drawing has to carry, and why it is not another tube.** The whole content of this
+architecture is **where the ROI axis collapses**: after the bounded vote, not before it. The
+tube's figure shows a collapse in its first step; `line`'s must show the axis surviving the
+smoothing and the vote and ending at the mean. A reader holding both figures should be able to
+see that one difference without reading either caption, so **drawn beside the tube at the same
+scale** is the ask, not a figure in isolation.
+
+**What may need work here.** The per-scale stage is a Python loop over four widths, so the tracer
+will report four `conv1d` calls where the diagram wants one box carrying "four scales". Whether
+that is an abstraction the agent supplies or something `check` should learn to accept is the
+interesting part of this item, and it is the same shape as item 8's wrap question.
+
+**Not blocking.** bugarach has no figure slot waiting on it; the architecture is a week old and
+still being measured. A spec would live beside the tube's in bugarach's
+`docs/learned/architecture.spec.json`. Related to item 11 (the same consumer, the same tracer).
