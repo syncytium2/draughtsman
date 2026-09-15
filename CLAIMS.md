@@ -113,7 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-vermilion-ruler` | `claude/line-model-tube-variants-bljyyh` | `examples/line/graph.json`, `examples/line/spec.json`, `examples/line/figure.svg`, `examples/line/icon.svg`, `examples/line/README.md`, `examples/line/beside-the-tube.svg`, `examples/tube/beside-line.json`, `examples/tube/beside-line.svg`, `examples/tube/README.md`, `examples/gallery/README.md`, `examples/README.md`, `tools/beside.py`, `tests/test_beside.py`, `README.md`, `DECISIONS.md` | 2026-09-15 | Queue 13 — drawing `line` and drawing it beside the tube at one scale |
+| `draughtsman-vermilion-ruler` | `claude/line-model-tube-variants-bljyyh` | `examples/line/graph.json`, `examples/line/spec.json`, `examples/line/figure.svg`, `examples/line/icon.svg`, `examples/line/README.md`, `examples/line/beside-tube.json`, `examples/line/beside-the-tube.svg`, `examples/tube/beside-line.json`, `examples/tube/README.md`, `examples/gallery/README.md`, `examples/README.md`, `tools/beside.py`, `tests/test_beside.py`, `tests/test_icon.py` | 2026-09-15 | Queue 13 — drawing `line` and drawing it beside the tube at one scale |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
