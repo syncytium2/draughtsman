@@ -1,13 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="Where the ROI axis collapses — tube and line, at one scale" viewBox="0 0 986.00 1823.50" width="10.7174in" height="19.8207in">
+<svg xmlns="http://www.w3.org/2000/svg" class="draughtsman" role="img" aria-label="Where the ROI axis collapses — tube and line, at one scale" viewBox="0 0 986.00 1836.50" width="10.7174in" height="19.9620in">
 <title>Where the ROI axis collapses — tube and line, at one scale</title>
-<desc>Both panels are draughtsman figures of a traced model, placed at 1:1: one mark is one ROI in either column. tube takes its mean in the third box, before a kernel has run. line smears and votes per ROI first, so the column of marks survives to the fourth. After each mean there is no ROI axis in the tensor, and nothing is drawn for one.</desc>
+<desc>Both panels are draughtsman figures of a traced model, placed at 1:1: one mark is one ROI in either column. tube takes its mean in the third box, before a kernel has run, and its column is one mark from there on. line smears and bounds each ROI first, so its column is thirty marks through the third. Its mean is the fourth box, and it drops the ROI axis rather than keeping it at length one, so nothing is drawn for one.</desc>
 <style>text{font-family:'Helvetica Neue', Helvetica, Arial, sans-serif}</style>
-<rect x="0" y="0" width="986.00" height="1823.50" style="fill:#ffffff"/>
+<rect x="0" y="0" width="986.00" height="1836.50" style="fill:#ffffff"/>
 <text x="16.00" y="28.00" style="font-size:12.0px;font-weight:600;fill:#1a1a1a">Where the ROI axis collapses — tube and line, at one scale</text>
 <text x="16.00" y="52.00" style="font-size:9.5px;fill:#5b5b5b">Both panels are draughtsman figures of a traced model, placed at 1:1: one mark is one ROI in either column.</text>
-<text x="16.00" y="65.00" style="font-size:9.5px;fill:#5b5b5b">tube takes its mean in the third box, before a kernel has run. line smears and votes per ROI first, so the column</text>
-<text x="16.00" y="78.00" style="font-size:9.5px;fill:#5b5b5b">of marks survives to the fourth. After each mean there is no ROI axis in the tensor, and nothing is drawn for one.</text>
-<svg x="16.00" y="109.00" width="460.00" height="1351.00" viewBox="0 0 460.00 1351.00">
+<text x="16.00" y="65.00" style="font-size:9.5px;fill:#5b5b5b">tube takes its mean in the third box, before a kernel has run, and its column is one mark from there on.</text>
+<text x="16.00" y="78.00" style="font-size:9.5px;fill:#5b5b5b">line smears and bounds each ROI first, so its column is thirty marks through the third. Its mean is the</text>
+<text x="16.00" y="91.00" style="font-size:9.5px;fill:#5b5b5b">fourth box, and it drops the ROI axis rather than keeping it at length one, so nothing is drawn for one.</text>
+<svg x="16.00" y="122.00" width="460.00" height="1351.00" viewBox="0 0 460.00 1351.00">
 <title>tube — the ROI axis collapses first</title>
 <desc>tube — the ROI axis collapses first: 7 stages over 47 traced operations, 1149 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>
@@ -37,7 +38,7 @@
 <text class="ds-caption" x="12" y="1326.5" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;fill:currentColor;opacity:0.62">Left panel of examples/line/beside-the-tube.svg. Glyphs are drawn only where the ROI axis is still in the</text>
 <text class="ds-caption" x="12" y="1339.5" style="font-family:'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:9.5px;fill:currentColor;opacity:0.62">tensor.</text>
 </svg>
-<svg x="510.00" y="109.00" width="460.00" height="1698.50" viewBox="0 0 460.00 1698.50">
+<svg x="510.00" y="122.00" width="460.00" height="1698.50" viewBox="0 0 460.00 1698.50">
 <title>line — the ROI axis survives the vote</title>
 <desc>line — the ROI axis survives the vote: 8 stages over 160 traced operations, 1233 parameters.</desc>
 <defs><marker id="ds-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0.6 L8 4 L0 7.4 Z" style="fill:currentColor"/></marker></defs>

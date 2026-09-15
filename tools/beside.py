@@ -147,10 +147,12 @@ DEFAULT_TITLE = "Where the ROI axis collapses — tube and line, at one scale"
 DEFAULT_SUBTITLE = [
     "Both panels are draughtsman figures of a traced model, placed at 1:1: one "
     "mark is one ROI in either column.",
-    "tube takes its mean in the third box, before a kernel has run. line smears "
-    "and votes per ROI first, so the column",
-    "of marks survives to the fourth. After each mean there is no ROI axis in "
-    "the tensor, and nothing is drawn for one.",
+    "tube takes its mean in the third box, before a kernel has run, and its "
+    "column is one mark from there on.",
+    "line smears and bounds each ROI first, so its column is thirty marks "
+    "through the third. Its mean is the",
+    "fourth box, and it drops the ROI axis rather than keeping it at length one, "
+    "so nothing is drawn for one.",
 ]
 
 
