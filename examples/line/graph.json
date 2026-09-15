@@ -1,0 +1,6674 @@
+{
+  "draughtsman": "0",
+  "model": {
+    "target": "bugarach.learn.nets.line:build_line",
+    "input_shape": [
+      1,
+      30,
+      600
+    ],
+    "input_dtype": "float32",
+    "input_shapes": [
+      [
+        1,
+        30,
+        600
+      ]
+    ],
+    "input_dtypes": [
+      "float32"
+    ],
+    "params": 1233,
+    "parameters": {
+      "gain": 4,
+      "head.0.bias": 8,
+      "head.0.weight": 192,
+      "head.10.bias": 8,
+      "head.10.weight": 192,
+      "head.12.bias": 1,
+      "head.12.weight": 8,
+      "head.2.bias": 8,
+      "head.2.weight": 192,
+      "head.4.bias": 8,
+      "head.4.weight": 192,
+      "head.6.bias": 8,
+      "head.6.weight": 192,
+      "head.8.bias": 8,
+      "head.8.weight": 192,
+      "log_center": 4,
+      "log_ratio": 4,
+      "log_smear": 4,
+      "vote_bias": 4,
+      "vote_gain": 4
+    },
+    "parameter_shapes": {
+      "gain": [
+        4
+      ],
+      "head.0.bias": [
+        8
+      ],
+      "head.0.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.10.bias": [
+        8
+      ],
+      "head.10.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.12.bias": [
+        1
+      ],
+      "head.12.weight": [
+        1,
+        8,
+        1
+      ],
+      "head.2.bias": [
+        8
+      ],
+      "head.2.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.4.bias": [
+        8
+      ],
+      "head.4.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.6.bias": [
+        8
+      ],
+      "head.6.weight": [
+        8,
+        8,
+        3
+      ],
+      "head.8.bias": [
+        8
+      ],
+      "head.8.weight": [
+        8,
+        8,
+        3
+      ],
+      "log_center": [
+        4
+      ],
+      "log_ratio": [
+        4
+      ],
+      "log_smear": [
+        4
+      ],
+      "vote_bias": [
+        4
+      ],
+      "vote_gain": [
+        4
+      ]
+    }
+  },
+  "tracer": {
+    "backend": "torch.jit.trace",
+    "torch": "2.14.0+cu130"
+  },
+  "hazards": [],
+  "classification": {
+    "rule": "A node is structural if its kind is in structural_kinds: literals, list and tuple plumbing, attribute lookup, int/tensor crossings, shape queries, and no-op tensor moves. Everything that changes a tensor's values is substantive and must be covered by the spec (SPEC.md §5).",
+    "structural_kinds": [
+      "prim::Constant",
+      "prim::ListConstruct",
+      "prim::TupleConstruct",
+      "prim::ListUnpack",
+      "prim::TupleUnpack",
+      "prim::GetAttr",
+      "prim::NumToTensor",
+      "aten::Int",
+      "aten::ScalarImplicit",
+      "aten::size",
+      "aten::detach",
+      "aten::contiguous"
+    ],
+    "nodes_total": 576,
+    "nodes_substantive": 160,
+    "nodes_structural": 416
+  },
+  "params_attributed": 1233,
+  "params_fully_attributed": true,
+  "inputs": [
+    {
+      "id": "in1",
+      "value": "x",
+      "shape": [
+        1,
+        30,
+        600
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "producer": "n0575",
+      "value": "500",
+      "shape": [
+        1,
+        600
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n0020",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 125,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0009",
+        "n0013"
+      ],
+      "tensor_inputs": [
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "22",
+          "shape": []
+        }
+      ],
+      "out_shape": [],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0024",
+      "kind": "aten::reshape",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 125,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "in1",
+        "n0023"
+      ],
+      "tensor_inputs": [
+        "in1",
+        "n0020"
+      ],
+      "outputs": [
+        {
+          "value": "26",
+          "shape": [
+            30,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0025",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 104,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0006"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "27",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 4,
+      "param_names": [
+        "log_smear"
+      ],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0028",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 104,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0025",
+        "n0026",
+        "n0027"
+      ],
+      "tensor_inputs": [
+        "n0025"
+      ],
+      "outputs": [
+        {
+          "value": "30",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0032",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 104,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0028",
+        "n0031"
+      ],
+      "tensor_inputs": [
+        "n0028"
+      ],
+      "outputs": [
+        {
+          "value": "s.1",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0039",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 105,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0033",
+        "n0034",
+        "n0035",
+        "n0036",
+        "n0037",
+        "n0038"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "41",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0043",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 106,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0039",
+        "n0042"
+      ],
+      "tensor_inputs": [
+        "n0039"
+      ],
+      "outputs": [
+        {
+          "value": "t.3",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0044",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 107,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0043",
+        "n0032"
+      ],
+      "tensor_inputs": [
+        "n0043",
+        "n0032"
+      ],
+      "outputs": [
+        {
+          "value": "46",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0046",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0044",
+        "n0045"
+      ],
+      "tensor_inputs": [
+        "n0044"
+      ],
+      "outputs": [
+        {
+          "value": "48",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0048",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 107,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0046",
+        "n0047"
+      ],
+      "tensor_inputs": [
+        "n0046"
+      ],
+      "outputs": [
+        {
+          "value": "50",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0049",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 107,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0048"
+      ],
+      "tensor_inputs": [
+        "n0048"
+      ],
+      "outputs": [
+        {
+          "value": "51",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0051",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 107,
+        "function": "_smear",
+        "internal": false
+      },
+      "inputs": [
+        "n0049",
+        "n0050"
+      ],
+      "tensor_inputs": [
+        "n0049"
+      ],
+      "outputs": [
+        {
+          "value": "53",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0067",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 124,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0024",
+        "n0051",
+        "n0052",
+        "n0054",
+        "n0056",
+        "n0058",
+        "n0059",
+        "n0061",
+        "n0062",
+        "n0063",
+        "n0064",
+        "n0065",
+        "n0066"
+      ],
+      "tensor_inputs": [
+        "n0024",
+        "n0051"
+      ],
+      "outputs": [
+        {
+          "value": "smeared",
+          "shape": [
+            30,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0072",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 128,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0005",
+        "n0071"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "74",
+          "shape": [
+            1,
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        1
+      ],
+      "params": 4,
+      "param_names": [
+        "vote_gain"
+      ],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0077",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 128,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0004",
+        "n0076"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "79",
+          "shape": [
+            1,
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        1
+      ],
+      "params": 4,
+      "param_names": [
+        "vote_bias"
+      ],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0079",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 128,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0067",
+        "n0077",
+        "n0078"
+      ],
+      "tensor_inputs": [
+        "n0067",
+        "n0077"
+      ],
+      "outputs": [
+        {
+          "value": "81",
+          "shape": [
+            30,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0080",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 128,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0072",
+        "n0079"
+      ],
+      "tensor_inputs": [
+        "n0072",
+        "n0079"
+      ],
+      "outputs": [
+        {
+          "value": "82",
+          "shape": [
+            30,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0081",
+      "kind": "aten::sigmoid",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 127,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0080"
+      ],
+      "tensor_inputs": [
+        "n0080"
+      ],
+      "outputs": [
+        {
+          "value": "vote",
+          "shape": [
+            30,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        30,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0084",
+      "kind": "aten::reshape",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 130,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0081",
+        "n0083"
+      ],
+      "tensor_inputs": [
+        "n0081",
+        "in1"
+      ],
+      "outputs": [
+        {
+          "value": "86",
+          "shape": [
+            1,
+            30,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        30,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0089",
+      "kind": "aten::mean",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 130,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0084",
+        "n0086",
+        "n0087",
+        "n0088"
+      ],
+      "tensor_inputs": [
+        "n0084"
+      ],
+      "outputs": [
+        {
+          "value": "count",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": false
+      }
+    },
+    {
+      "id": "n0094",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0089",
+        "n0090",
+        "n0091",
+        "n0092",
+        "n0093"
+      ],
+      "tensor_inputs": [
+        "n0089"
+      ],
+      "outputs": [
+        {
+          "value": "96",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0099",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0094",
+        "n0095",
+        "n0096",
+        "n0097",
+        "n0098"
+      ],
+      "tensor_inputs": [
+        "n0094"
+      ],
+      "outputs": [
+        {
+          "value": "101",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0,
+        "arg3": 1,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0100",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0003"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "102",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 4,
+      "param_names": [
+        "log_center"
+      ],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0103",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0100",
+        "n0101",
+        "n0102"
+      ],
+      "tensor_inputs": [
+        "n0100"
+      ],
+      "outputs": [
+        {
+          "value": "105",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0107",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0103",
+        "n0106"
+      ],
+      "tensor_inputs": [
+        "n0103"
+      ],
+      "outputs": [
+        {
+          "value": "c.1",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0108",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0002"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "110",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 4,
+      "param_names": [
+        "log_ratio"
+      ],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0111",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0108",
+        "n0109",
+        "n0110"
+      ],
+      "tensor_inputs": [
+        "n0108"
+      ],
+      "outputs": [
+        {
+          "value": "113",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 1.5,
+        "max": 40.0
+      }
+    },
+    {
+      "id": "n0115",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0111",
+        "n0114"
+      ],
+      "tensor_inputs": [
+        "n0111"
+      ],
+      "outputs": [
+        {
+          "value": "117",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0116",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0107",
+        "n0115"
+      ],
+      "tensor_inputs": [
+        "n0107",
+        "n0115"
+      ],
+      "outputs": [
+        {
+          "value": "s.3",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0123",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 113,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0117",
+        "n0118",
+        "n0119",
+        "n0120",
+        "n0121",
+        "n0122"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "125",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0127",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 114,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0123",
+        "n0126"
+      ],
+      "tensor_inputs": [
+        "n0123"
+      ],
+      "outputs": [
+        {
+          "value": "t.5",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0128",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0127",
+        "n0107"
+      ],
+      "tensor_inputs": [
+        "n0127",
+        "n0107"
+      ],
+      "outputs": [
+        {
+          "value": "130",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0130",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0128",
+        "n0129"
+      ],
+      "tensor_inputs": [
+        "n0128"
+      ],
+      "outputs": [
+        {
+          "value": "132",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0132",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0130",
+        "n0131"
+      ],
+      "tensor_inputs": [
+        "n0130"
+      ],
+      "outputs": [
+        {
+          "value": "134",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0133",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0132"
+      ],
+      "tensor_inputs": [
+        "n0132"
+      ],
+      "outputs": [
+        {
+          "value": "centre.1",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0134",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0127",
+        "n0116"
+      ],
+      "tensor_inputs": [
+        "n0127",
+        "n0116"
+      ],
+      "outputs": [
+        {
+          "value": "136",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0136",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0134",
+        "n0135"
+      ],
+      "tensor_inputs": [
+        "n0134"
+      ],
+      "outputs": [
+        {
+          "value": "138",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0138",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0136",
+        "n0137"
+      ],
+      "tensor_inputs": [
+        "n0136"
+      ],
+      "outputs": [
+        {
+          "value": "140",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0139",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0138"
+      ],
+      "tensor_inputs": [
+        "n0138"
+      ],
+      "outputs": [
+        {
+          "value": "surround.1",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0144",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0133",
+        "n0141",
+        "n0142",
+        "n0143"
+      ],
+      "tensor_inputs": [
+        "n0133"
+      ],
+      "outputs": [
+        {
+          "value": "146",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0145",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0133",
+        "n0144"
+      ],
+      "tensor_inputs": [
+        "n0133",
+        "n0144"
+      ],
+      "outputs": [
+        {
+          "value": "centre.3",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0150",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0139",
+        "n0147",
+        "n0148",
+        "n0149"
+      ],
+      "tensor_inputs": [
+        "n0139"
+      ],
+      "outputs": [
+        {
+          "value": "152",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0151",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0139",
+        "n0150"
+      ],
+      "tensor_inputs": [
+        "n0139",
+        "n0150"
+      ],
+      "outputs": [
+        {
+          "value": "surround.3",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0153",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0145",
+        "n0151",
+        "n0152"
+      ],
+      "tensor_inputs": [
+        "n0145",
+        "n0151"
+      ],
+      "outputs": [
+        {
+          "value": "155",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0157",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0001",
+        "n0156"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "159",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 4,
+      "param_names": [
+        "gain"
+      ],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0158",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0153",
+        "n0157"
+      ],
+      "tensor_inputs": [
+        "n0153",
+        "n0157"
+      ],
+      "outputs": [
+        {
+          "value": "160",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0160",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0158",
+        "n0159"
+      ],
+      "tensor_inputs": [
+        "n0158"
+      ],
+      "outputs": [
+        {
+          "value": "162",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0165",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0160",
+        "n0161",
+        "n0162",
+        "n0163",
+        "n0164"
+      ],
+      "tensor_inputs": [
+        "n0160"
+      ],
+      "outputs": [
+        {
+          "value": "167",
+          "shape": [
+            1,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 1,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0181",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0099",
+        "n0165",
+        "n0166",
+        "n0168",
+        "n0170",
+        "n0172",
+        "n0173",
+        "n0175",
+        "n0176",
+        "n0177",
+        "n0178",
+        "n0179",
+        "n0180"
+      ],
+      "tensor_inputs": [
+        "n0099",
+        "n0165"
+      ],
+      "outputs": [
+        {
+          "value": "183",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0186",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0181",
+        "n0182",
+        "n0183",
+        "n0184",
+        "n0185"
+      ],
+      "tensor_inputs": [
+        "n0181"
+      ],
+      "outputs": [
+        {
+          "value": "188",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0189",
+      "kind": "aten::select",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0186",
+        "n0187",
+        "n0188"
+      ],
+      "tensor_inputs": [
+        "n0186"
+      ],
+      "outputs": [
+        {
+          "value": "191",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0
+      }
+    },
+    {
+      "id": "n0194",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0089",
+        "n0190",
+        "n0191",
+        "n0192",
+        "n0193"
+      ],
+      "tensor_inputs": [
+        "n0089"
+      ],
+      "outputs": [
+        {
+          "value": "196",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0199",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0194",
+        "n0195",
+        "n0196",
+        "n0197",
+        "n0198"
+      ],
+      "tensor_inputs": [
+        "n0194"
+      ],
+      "outputs": [
+        {
+          "value": "201",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 1,
+        "arg3": 2,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0200",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0003"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "202",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0203",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0200",
+        "n0201",
+        "n0202"
+      ],
+      "tensor_inputs": [
+        "n0200"
+      ],
+      "outputs": [
+        {
+          "value": "205",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0207",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0203",
+        "n0206"
+      ],
+      "tensor_inputs": [
+        "n0203"
+      ],
+      "outputs": [
+        {
+          "value": "c.3",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0208",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0002"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "210",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0211",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0208",
+        "n0209",
+        "n0210"
+      ],
+      "tensor_inputs": [
+        "n0208"
+      ],
+      "outputs": [
+        {
+          "value": "213",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 1.5,
+        "max": 40.0
+      }
+    },
+    {
+      "id": "n0215",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0211",
+        "n0214"
+      ],
+      "tensor_inputs": [
+        "n0211"
+      ],
+      "outputs": [
+        {
+          "value": "217",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0216",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0207",
+        "n0215"
+      ],
+      "tensor_inputs": [
+        "n0207",
+        "n0215"
+      ],
+      "outputs": [
+        {
+          "value": "s.5",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0223",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 113,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0217",
+        "n0218",
+        "n0219",
+        "n0220",
+        "n0221",
+        "n0222"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "225",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0227",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 114,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0223",
+        "n0226"
+      ],
+      "tensor_inputs": [
+        "n0223"
+      ],
+      "outputs": [
+        {
+          "value": "t.7",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0228",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0227",
+        "n0207"
+      ],
+      "tensor_inputs": [
+        "n0227",
+        "n0207"
+      ],
+      "outputs": [
+        {
+          "value": "230",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0230",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0228",
+        "n0229"
+      ],
+      "tensor_inputs": [
+        "n0228"
+      ],
+      "outputs": [
+        {
+          "value": "232",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0232",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0230",
+        "n0231"
+      ],
+      "tensor_inputs": [
+        "n0230"
+      ],
+      "outputs": [
+        {
+          "value": "234",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0233",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0232"
+      ],
+      "tensor_inputs": [
+        "n0232"
+      ],
+      "outputs": [
+        {
+          "value": "centre.5",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0234",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0227",
+        "n0216"
+      ],
+      "tensor_inputs": [
+        "n0227",
+        "n0216"
+      ],
+      "outputs": [
+        {
+          "value": "236",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0236",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0234",
+        "n0235"
+      ],
+      "tensor_inputs": [
+        "n0234"
+      ],
+      "outputs": [
+        {
+          "value": "238",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0238",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0236",
+        "n0237"
+      ],
+      "tensor_inputs": [
+        "n0236"
+      ],
+      "outputs": [
+        {
+          "value": "240",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0239",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0238"
+      ],
+      "tensor_inputs": [
+        "n0238"
+      ],
+      "outputs": [
+        {
+          "value": "surround.5",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0244",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0233",
+        "n0241",
+        "n0242",
+        "n0243"
+      ],
+      "tensor_inputs": [
+        "n0233"
+      ],
+      "outputs": [
+        {
+          "value": "246",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0245",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0233",
+        "n0244"
+      ],
+      "tensor_inputs": [
+        "n0233",
+        "n0244"
+      ],
+      "outputs": [
+        {
+          "value": "centre.7",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0250",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0239",
+        "n0247",
+        "n0248",
+        "n0249"
+      ],
+      "tensor_inputs": [
+        "n0239"
+      ],
+      "outputs": [
+        {
+          "value": "252",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0251",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0239",
+        "n0250"
+      ],
+      "tensor_inputs": [
+        "n0239",
+        "n0250"
+      ],
+      "outputs": [
+        {
+          "value": "surround.7",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0253",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0245",
+        "n0251",
+        "n0252"
+      ],
+      "tensor_inputs": [
+        "n0245",
+        "n0251"
+      ],
+      "outputs": [
+        {
+          "value": "255",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0257",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0001",
+        "n0256"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "259",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0258",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0253",
+        "n0257"
+      ],
+      "tensor_inputs": [
+        "n0253",
+        "n0257"
+      ],
+      "outputs": [
+        {
+          "value": "260",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0260",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0258",
+        "n0259"
+      ],
+      "tensor_inputs": [
+        "n0258"
+      ],
+      "outputs": [
+        {
+          "value": "262",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0265",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0260",
+        "n0261",
+        "n0262",
+        "n0263",
+        "n0264"
+      ],
+      "tensor_inputs": [
+        "n0260"
+      ],
+      "outputs": [
+        {
+          "value": "267",
+          "shape": [
+            1,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 1,
+        "arg3": 2,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0281",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0199",
+        "n0265",
+        "n0266",
+        "n0268",
+        "n0270",
+        "n0272",
+        "n0273",
+        "n0275",
+        "n0276",
+        "n0277",
+        "n0278",
+        "n0279",
+        "n0280"
+      ],
+      "tensor_inputs": [
+        "n0199",
+        "n0265"
+      ],
+      "outputs": [
+        {
+          "value": "283",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0286",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0281",
+        "n0282",
+        "n0283",
+        "n0284",
+        "n0285"
+      ],
+      "tensor_inputs": [
+        "n0281"
+      ],
+      "outputs": [
+        {
+          "value": "288",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0289",
+      "kind": "aten::select",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0286",
+        "n0287",
+        "n0288"
+      ],
+      "tensor_inputs": [
+        "n0286"
+      ],
+      "outputs": [
+        {
+          "value": "291",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0
+      }
+    },
+    {
+      "id": "n0294",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0089",
+        "n0290",
+        "n0291",
+        "n0292",
+        "n0293"
+      ],
+      "tensor_inputs": [
+        "n0089"
+      ],
+      "outputs": [
+        {
+          "value": "296",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0299",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0294",
+        "n0295",
+        "n0296",
+        "n0297",
+        "n0298"
+      ],
+      "tensor_inputs": [
+        "n0294"
+      ],
+      "outputs": [
+        {
+          "value": "301",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 2,
+        "arg3": 3,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0300",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0003"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "302",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0303",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0300",
+        "n0301",
+        "n0302"
+      ],
+      "tensor_inputs": [
+        "n0300"
+      ],
+      "outputs": [
+        {
+          "value": "305",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0307",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0303",
+        "n0306"
+      ],
+      "tensor_inputs": [
+        "n0303"
+      ],
+      "outputs": [
+        {
+          "value": "c.5",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0308",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0002"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "310",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0311",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0308",
+        "n0309",
+        "n0310"
+      ],
+      "tensor_inputs": [
+        "n0308"
+      ],
+      "outputs": [
+        {
+          "value": "313",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 1.5,
+        "max": 40.0
+      }
+    },
+    {
+      "id": "n0315",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0311",
+        "n0314"
+      ],
+      "tensor_inputs": [
+        "n0311"
+      ],
+      "outputs": [
+        {
+          "value": "317",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0316",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0307",
+        "n0315"
+      ],
+      "tensor_inputs": [
+        "n0307",
+        "n0315"
+      ],
+      "outputs": [
+        {
+          "value": "s.7",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0323",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 113,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0317",
+        "n0318",
+        "n0319",
+        "n0320",
+        "n0321",
+        "n0322"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "325",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0327",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 114,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0323",
+        "n0326"
+      ],
+      "tensor_inputs": [
+        "n0323"
+      ],
+      "outputs": [
+        {
+          "value": "t.9",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0328",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0327",
+        "n0307"
+      ],
+      "tensor_inputs": [
+        "n0327",
+        "n0307"
+      ],
+      "outputs": [
+        {
+          "value": "330",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0330",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0328",
+        "n0329"
+      ],
+      "tensor_inputs": [
+        "n0328"
+      ],
+      "outputs": [
+        {
+          "value": "332",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0332",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0330",
+        "n0331"
+      ],
+      "tensor_inputs": [
+        "n0330"
+      ],
+      "outputs": [
+        {
+          "value": "334",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0333",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0332"
+      ],
+      "tensor_inputs": [
+        "n0332"
+      ],
+      "outputs": [
+        {
+          "value": "centre.9",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0334",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0327",
+        "n0316"
+      ],
+      "tensor_inputs": [
+        "n0327",
+        "n0316"
+      ],
+      "outputs": [
+        {
+          "value": "336",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0336",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0334",
+        "n0335"
+      ],
+      "tensor_inputs": [
+        "n0334"
+      ],
+      "outputs": [
+        {
+          "value": "338",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0338",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0336",
+        "n0337"
+      ],
+      "tensor_inputs": [
+        "n0336"
+      ],
+      "outputs": [
+        {
+          "value": "340",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0339",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0338"
+      ],
+      "tensor_inputs": [
+        "n0338"
+      ],
+      "outputs": [
+        {
+          "value": "surround.9",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0344",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0333",
+        "n0341",
+        "n0342",
+        "n0343"
+      ],
+      "tensor_inputs": [
+        "n0333"
+      ],
+      "outputs": [
+        {
+          "value": "346",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0345",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0333",
+        "n0344"
+      ],
+      "tensor_inputs": [
+        "n0333",
+        "n0344"
+      ],
+      "outputs": [
+        {
+          "value": "centre.11",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0350",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0339",
+        "n0347",
+        "n0348",
+        "n0349"
+      ],
+      "tensor_inputs": [
+        "n0339"
+      ],
+      "outputs": [
+        {
+          "value": "352",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0351",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0339",
+        "n0350"
+      ],
+      "tensor_inputs": [
+        "n0339",
+        "n0350"
+      ],
+      "outputs": [
+        {
+          "value": "surround.11",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0353",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0345",
+        "n0351",
+        "n0352"
+      ],
+      "tensor_inputs": [
+        "n0345",
+        "n0351"
+      ],
+      "outputs": [
+        {
+          "value": "355",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0357",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0001",
+        "n0356"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "359",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0358",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0353",
+        "n0357"
+      ],
+      "tensor_inputs": [
+        "n0353",
+        "n0357"
+      ],
+      "outputs": [
+        {
+          "value": "360",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0360",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0358",
+        "n0359"
+      ],
+      "tensor_inputs": [
+        "n0358"
+      ],
+      "outputs": [
+        {
+          "value": "362",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0365",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0360",
+        "n0361",
+        "n0362",
+        "n0363",
+        "n0364"
+      ],
+      "tensor_inputs": [
+        "n0360"
+      ],
+      "outputs": [
+        {
+          "value": "367",
+          "shape": [
+            1,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 2,
+        "arg3": 3,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0381",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0299",
+        "n0365",
+        "n0366",
+        "n0368",
+        "n0370",
+        "n0372",
+        "n0373",
+        "n0375",
+        "n0376",
+        "n0377",
+        "n0378",
+        "n0379",
+        "n0380"
+      ],
+      "tensor_inputs": [
+        "n0299",
+        "n0365"
+      ],
+      "outputs": [
+        {
+          "value": "383",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0386",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0381",
+        "n0382",
+        "n0383",
+        "n0384",
+        "n0385"
+      ],
+      "tensor_inputs": [
+        "n0381"
+      ],
+      "outputs": [
+        {
+          "value": "388",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0389",
+      "kind": "aten::select",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0386",
+        "n0387",
+        "n0388"
+      ],
+      "tensor_inputs": [
+        "n0386"
+      ],
+      "outputs": [
+        {
+          "value": "391",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0
+      }
+    },
+    {
+      "id": "n0394",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0089",
+        "n0390",
+        "n0391",
+        "n0392",
+        "n0393"
+      ],
+      "tensor_inputs": [
+        "n0089"
+      ],
+      "outputs": [
+        {
+          "value": "396",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0399",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0394",
+        "n0395",
+        "n0396",
+        "n0397",
+        "n0398"
+      ],
+      "tensor_inputs": [
+        "n0394"
+      ],
+      "outputs": [
+        {
+          "value": "401",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 3,
+        "arg3": 4,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0400",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0003"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "402",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0403",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0400",
+        "n0401",
+        "n0402"
+      ],
+      "tensor_inputs": [
+        "n0400"
+      ],
+      "outputs": [
+        {
+          "value": "405",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 0.5,
+        "max": 64.0
+      }
+    },
+    {
+      "id": "n0407",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 111,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0403",
+        "n0406"
+      ],
+      "tensor_inputs": [
+        "n0403"
+      ],
+      "outputs": [
+        {
+          "value": "c",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0408",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0002"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "410",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0411",
+      "kind": "aten::clamp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0408",
+        "n0409",
+        "n0410"
+      ],
+      "tensor_inputs": [
+        "n0408"
+      ],
+      "outputs": [
+        {
+          "value": "413",
+          "shape": [
+            4
+          ]
+        }
+      ],
+      "out_shape": [
+        4
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "min": 1.5,
+        "max": 40.0
+      }
+    },
+    {
+      "id": "n0415",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0411",
+        "n0414"
+      ],
+      "tensor_inputs": [
+        "n0411"
+      ],
+      "outputs": [
+        {
+          "value": "417",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0416",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 112,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0407",
+        "n0415"
+      ],
+      "tensor_inputs": [
+        "n0407",
+        "n0415"
+      ],
+      "outputs": [
+        {
+          "value": "s",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0423",
+      "kind": "aten::arange",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 113,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0417",
+        "n0418",
+        "n0419",
+        "n0420",
+        "n0421",
+        "n0422"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "425",
+          "shape": [
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "start": -128,
+        "end": 129,
+        "arg2": 6,
+        "device": false
+      }
+    },
+    {
+      "id": "n0427",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 114,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0423",
+        "n0426"
+      ],
+      "tensor_inputs": [
+        "n0423"
+      ],
+      "outputs": [
+        {
+          "value": "t",
+          "shape": [
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          1,
+          -1
+        ]
+      }
+    },
+    {
+      "id": "n0428",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0427",
+        "n0407"
+      ],
+      "tensor_inputs": [
+        "n0427",
+        "n0407"
+      ],
+      "outputs": [
+        {
+          "value": "430",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0430",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0428",
+        "n0429"
+      ],
+      "tensor_inputs": [
+        "n0428"
+      ],
+      "outputs": [
+        {
+          "value": "432",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0432",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0430",
+        "n0431"
+      ],
+      "tensor_inputs": [
+        "n0430"
+      ],
+      "outputs": [
+        {
+          "value": "434",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0433",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 115,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0432"
+      ],
+      "tensor_inputs": [
+        "n0432"
+      ],
+      "outputs": [
+        {
+          "value": "centre.13",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0434",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0427",
+        "n0416"
+      ],
+      "tensor_inputs": [
+        "n0427",
+        "n0416"
+      ],
+      "outputs": [
+        {
+          "value": "436",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0436",
+      "kind": "aten::pow",
+      "module": null,
+      "source": {
+        "file": "_tensor.py",
+        "line": 39,
+        "function": "wrapped",
+        "internal": true
+      },
+      "inputs": [
+        "n0434",
+        "n0435"
+      ],
+      "tensor_inputs": [
+        "n0434"
+      ],
+      "outputs": [
+        {
+          "value": "438",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "exponent": 2
+      }
+    },
+    {
+      "id": "n0438",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0436",
+        "n0437"
+      ],
+      "tensor_inputs": [
+        "n0436"
+      ],
+      "outputs": [
+        {
+          "value": "440",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0439",
+      "kind": "aten::exp",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 116,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0438"
+      ],
+      "tensor_inputs": [
+        "n0438"
+      ],
+      "outputs": [
+        {
+          "value": "surround.13",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0444",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0433",
+        "n0441",
+        "n0442",
+        "n0443"
+      ],
+      "tensor_inputs": [
+        "n0433"
+      ],
+      "outputs": [
+        {
+          "value": "446",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0445",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 117,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0433",
+        "n0444"
+      ],
+      "tensor_inputs": [
+        "n0433",
+        "n0444"
+      ],
+      "outputs": [
+        {
+          "value": "centre",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0450",
+      "kind": "aten::sum",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0439",
+        "n0447",
+        "n0448",
+        "n0449"
+      ],
+      "tensor_inputs": [
+        "n0439"
+      ],
+      "outputs": [
+        {
+          "value": "452",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": [
+          1
+        ],
+        "keepdim": true
+      }
+    },
+    {
+      "id": "n0451",
+      "kind": "aten::div",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 118,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0439",
+        "n0450"
+      ],
+      "tensor_inputs": [
+        "n0439",
+        "n0450"
+      ],
+      "outputs": [
+        {
+          "value": "surround",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0453",
+      "kind": "aten::sub",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0445",
+        "n0451",
+        "n0452"
+      ],
+      "tensor_inputs": [
+        "n0445",
+        "n0451"
+      ],
+      "outputs": [
+        {
+          "value": "455",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg2": 1
+      }
+    },
+    {
+      "id": "n0457",
+      "kind": "aten::view",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0001",
+        "n0456"
+      ],
+      "tensor_inputs": [],
+      "outputs": [
+        {
+          "value": "459",
+          "shape": [
+            4,
+            1
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": [
+          -1,
+          1
+        ]
+      }
+    },
+    {
+      "id": "n0458",
+      "kind": "aten::mul",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0453",
+        "n0457"
+      ],
+      "tensor_inputs": [
+        "n0453",
+        "n0457"
+      ],
+      "outputs": [
+        {
+          "value": "460",
+          "shape": [
+            4,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {}
+    },
+    {
+      "id": "n0460",
+      "kind": "aten::unsqueeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 119,
+        "function": "_dog",
+        "internal": false
+      },
+      "inputs": [
+        "n0458",
+        "n0459"
+      ],
+      "tensor_inputs": [
+        "n0458"
+      ],
+      "outputs": [
+        {
+          "value": "462",
+          "shape": [
+            4,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        4,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    },
+    {
+      "id": "n0465",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0460",
+        "n0461",
+        "n0462",
+        "n0463",
+        "n0464"
+      ],
+      "tensor_inputs": [
+        "n0460"
+      ],
+      "outputs": [
+        {
+          "value": "467",
+          "shape": [
+            1,
+            1,
+            257
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        257
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 3,
+        "arg3": 4,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0481",
+      "kind": "aten::_convolution",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0399",
+        "n0465",
+        "n0466",
+        "n0468",
+        "n0470",
+        "n0472",
+        "n0473",
+        "n0475",
+        "n0476",
+        "n0477",
+        "n0478",
+        "n0479",
+        "n0480"
+      ],
+      "tensor_inputs": [
+        "n0399",
+        "n0465"
+      ],
+      "outputs": [
+        {
+          "value": "483",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          128
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0486",
+      "kind": "aten::slice",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0481",
+        "n0482",
+        "n0483",
+        "n0484",
+        "n0485"
+      ],
+      "tensor_inputs": [
+        "n0481"
+      ],
+      "outputs": [
+        {
+          "value": "488",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 0,
+        "arg2": 0,
+        "arg3": 9223372036854775807,
+        "arg4": 1
+      }
+    },
+    {
+      "id": "n0489",
+      "kind": "aten::select",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 133,
+        "function": "<listcomp>",
+        "internal": false
+      },
+      "inputs": [
+        "n0486",
+        "n0487",
+        "n0488"
+      ],
+      "tensor_inputs": [
+        "n0486"
+      ],
+      "outputs": [
+        {
+          "value": "491",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1,
+        "arg2": 0
+      }
+    },
+    {
+      "id": "n0492",
+      "kind": "aten::stack",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 132,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0490",
+        "n0491"
+      ],
+      "tensor_inputs": [
+        "n0189",
+        "n0289",
+        "n0389",
+        "n0489"
+      ],
+      "outputs": [
+        {
+          "value": "resp",
+          "shape": [
+            1,
+            4,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        4,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": 1
+      }
+    },
+    {
+      "id": "n0495",
+      "kind": "aten::cat",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 136,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0493",
+        "n0494"
+      ],
+      "tensor_inputs": [
+        "n0089",
+        "n0492"
+      ],
+      "outputs": [
+        {
+          "value": "input.1",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "dim": 1
+      }
+    },
+    {
+      "id": "n0525",
+      "kind": "aten::_convolution",
+      "module": "head.0",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0495",
+        "n0520",
+        "n0519",
+        "n0521",
+        "n0522",
+        "n0523",
+        "n0503",
+        "n0524",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0495"
+      ],
+      "outputs": [
+        {
+          "value": "input.3",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.0.bias",
+        "head.0.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          1
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0526",
+      "kind": "aten::gelu",
+      "module": "head.1",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0525",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0525"
+      ],
+      "outputs": [
+        {
+          "value": "input.5",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0533",
+      "kind": "aten::_convolution",
+      "module": "head.2",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0526",
+        "n0528",
+        "n0527",
+        "n0529",
+        "n0530",
+        "n0531",
+        "n0503",
+        "n0532",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0526"
+      ],
+      "outputs": [
+        {
+          "value": "input.7",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.2.bias",
+        "head.2.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          2
+        ],
+        "dilation": [
+          2
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0534",
+      "kind": "aten::gelu",
+      "module": "head.3",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0533",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0533"
+      ],
+      "outputs": [
+        {
+          "value": "input.9",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0541",
+      "kind": "aten::_convolution",
+      "module": "head.4",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0534",
+        "n0536",
+        "n0535",
+        "n0537",
+        "n0538",
+        "n0539",
+        "n0503",
+        "n0540",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0534"
+      ],
+      "outputs": [
+        {
+          "value": "input.11",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.4.bias",
+        "head.4.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          4
+        ],
+        "dilation": [
+          4
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0542",
+      "kind": "aten::gelu",
+      "module": "head.5",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0541",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0541"
+      ],
+      "outputs": [
+        {
+          "value": "input.13",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0549",
+      "kind": "aten::_convolution",
+      "module": "head.6",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0542",
+        "n0544",
+        "n0543",
+        "n0545",
+        "n0546",
+        "n0547",
+        "n0503",
+        "n0548",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0542"
+      ],
+      "outputs": [
+        {
+          "value": "input.15",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.6.bias",
+        "head.6.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          8
+        ],
+        "dilation": [
+          8
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0550",
+      "kind": "aten::gelu",
+      "module": "head.7",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0549",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0549"
+      ],
+      "outputs": [
+        {
+          "value": "input.17",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0557",
+      "kind": "aten::_convolution",
+      "module": "head.8",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0550",
+        "n0552",
+        "n0551",
+        "n0553",
+        "n0554",
+        "n0555",
+        "n0503",
+        "n0556",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0550"
+      ],
+      "outputs": [
+        {
+          "value": "input.19",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.8.bias",
+        "head.8.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          16
+        ],
+        "dilation": [
+          16
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0558",
+      "kind": "aten::gelu",
+      "module": "head.9",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0557",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0557"
+      ],
+      "outputs": [
+        {
+          "value": "input.21",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0565",
+      "kind": "aten::_convolution",
+      "module": "head.10",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0558",
+        "n0560",
+        "n0559",
+        "n0561",
+        "n0562",
+        "n0563",
+        "n0503",
+        "n0564",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0558"
+      ],
+      "outputs": [
+        {
+          "value": "input.23",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 200,
+      "param_names": [
+        "head.10.bias",
+        "head.10.weight"
+      ],
+      "weight_shape": [
+        8,
+        8,
+        3
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          32
+        ],
+        "dilation": [
+          32
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0566",
+      "kind": "aten::gelu",
+      "module": "head.11",
+      "source": {
+        "file": "activation.py",
+        "line": 817,
+        "function": "forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0565",
+        "n0501"
+      ],
+      "tensor_inputs": [
+        "n0565"
+      ],
+      "outputs": [
+        {
+          "value": "input",
+          "shape": [
+            1,
+            8,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        8,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": "none"
+      }
+    },
+    {
+      "id": "n0573",
+      "kind": "aten::_convolution",
+      "module": "head.12",
+      "source": {
+        "file": "conv.py",
+        "line": 380,
+        "function": "_conv_forward",
+        "internal": true
+      },
+      "inputs": [
+        "n0566",
+        "n0568",
+        "n0567",
+        "n0569",
+        "n0570",
+        "n0571",
+        "n0503",
+        "n0572",
+        "n0502",
+        "n0503",
+        "n0503",
+        "n0505",
+        "n0505"
+      ],
+      "tensor_inputs": [
+        "n0566"
+      ],
+      "outputs": [
+        {
+          "value": "578",
+          "shape": [
+            1,
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        1,
+        600
+      ],
+      "params": 9,
+      "param_names": [
+        "head.12.bias",
+        "head.12.weight"
+      ],
+      "weight_shape": [
+        1,
+        8,
+        1
+      ],
+      "constants": {
+        "stride": [
+          1
+        ],
+        "padding": [
+          0
+        ],
+        "dilation": [
+          1
+        ],
+        "transposed": false,
+        "output_padding": [
+          0
+        ],
+        "groups": 1,
+        "benchmark": false,
+        "deterministic": false,
+        "cudnn_enabled": true,
+        "allow_tf32": true
+      }
+    },
+    {
+      "id": "n0575",
+      "kind": "aten::squeeze",
+      "module": null,
+      "source": {
+        "file": "line.py",
+        "line": 136,
+        "function": "forward",
+        "internal": false
+      },
+      "inputs": [
+        "n0573",
+        "n0574"
+      ],
+      "tensor_inputs": [
+        "n0573"
+      ],
+      "outputs": [
+        {
+          "value": "500",
+          "shape": [
+            1,
+            600
+          ]
+        }
+      ],
+      "out_shape": [
+        1,
+        600
+      ],
+      "params": 0,
+      "param_names": [],
+      "weight_shape": null,
+      "constants": {
+        "arg1": 1
+      }
+    }
+  ]
+}

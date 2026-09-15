@@ -28,8 +28,9 @@ random. These draw architectures, not trained models.
 | [`lstm`](lstm/) | fused recurrent op | gap: nothing to abstract |
 | [`whisper`](whisper/) | encoder–decoder, cross-attention | **broke two things** |
 | [`../tube/`](../tube/) | filter bank, bypass, dilated stack | the control |
+| [`../line/`](../line/) | per-ROI bank, bounded vote, bypass | added 2026-09-15 — a filter bank that really is N convolutions |
 
-Totals: 2,078 traced nodes, 506 substantive, one spec and one green coverage
+Totals: 2,654 traced nodes, 666 substantive, one spec and one green coverage
 check each, zero trace failures. These are computed from the committed graphs by
 `tests/test_counts.py`, not typed here — they were typed here once, and adding a
 model made every count in three READMEs wrong for a day.
@@ -171,6 +172,13 @@ The count resolved from a real fact and `check` passed, because nothing verifies
 that a lane count is attached to a single sublayer. The committed spec carries
 lanes only on the decoder's two real attention stages.
 
+*2026-09-15:* [`../line/`](../line/) is the second instance and it is the harder
+one. Its four lanes ARE four separate `conv1d` calls, recorded one after another,
+and they are independent — each reads one channel of the count and none reads
+another's output — but nothing here can tell that from the four-blocks-in-sequence
+case above. Two sessions have agreed this stays open and honest rather than
+getting a heuristic, and drawing `line` did not change that.
+
 ## The one thing this run actually taught
 
 Five findings here look unrelated — a parameter counted twice, an arrow nobody
@@ -213,6 +221,19 @@ quirk of it. It is not:
 Three architectures, three different answers for the same idea, and `lanes` spans
 all of them unmodified. The two transformer plates bracket that range on purpose:
 `nn.MultiheadAttention` fuses, and Whisper's hand-written attention does not.
+
+**A fourth answer arrived on 2026-09-15**, after this run, and it is the one the
+table above could not have predicted: [`../line/`](../line/) builds its
+difference-of-Gaussian bank in a **Python loop over four widths**, so the tracer
+hands you four separate `conv1d` calls — with the kernel construction four times
+over beside them, 125 substantive operations for what the figure draws as one box.
+`lanes` spans that too, unmodified, with the count read off the channel axis of the
+`stack` that gathers the four. **It does not close the gap under
+[Gaps still open](#gaps-still-open)**: four channels of one convolution cannot be
+sequential, and four convolutions the trace records one after another might be, so
+`line` is a second instance of that gap rather than an answer to it. The
+reasoning, and why `repeat` is the wrong shape for it, is in
+[`../line/README.md`](../line/README.md).
 
 **The trace layer did not flinch.** Every model in the table above traced on the
 first attempt, with every parameter attributed — the totals are stated once, at

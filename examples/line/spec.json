@@ -1,0 +1,373 @@
+{
+  "draughtsman": "0",
+  "graph": "graph.json",
+  "title": "line — how much of the field is lit at once",
+  "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0575.out_shape} out",
+  "stages": [
+    {
+      "id": "raster",
+      "name": "onset raster",
+      "kind": "input",
+      "nodes": [
+        "in1"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "ROIs × frames, binary"
+      ],
+      "note": "Rows arrive sorted busiest-first, so row order is a coordinate and not a label. What survives the sort is how many rows are lit at once, and that is what this model counts.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -2,
+          -1
+        ],
+        "labels": [
+          "ROIs",
+          "frames"
+        ],
+        "style": "marks"
+      }
+    },
+    {
+      "id": "smear",
+      "name": "smear each ROI on its own",
+      "kind": "kernel",
+      "nodes": [
+        "n0020",
+        "n0024",
+        "n0025",
+        "n0028",
+        "n0032",
+        "n0039",
+        "n0043",
+        "n0044",
+        "n0046",
+        "n0048",
+        "n0049",
+        "n0051",
+        "n0067"
+      ],
+      "detail": [
+        "{stage.nodes} ops, {stage.params} learned params",
+        "kernel {node:n0051.out_shape[2]}, peak-normalised",
+        "{stage.out_shape}",
+        "ROIs × scales × frames"
+      ],
+      "lanes": {
+        "count_from": "{node:n0067.out_shape[1]}",
+        "labels": [
+          "σ₁",
+          "σ₂",
+          "σ₃",
+          "σ₄"
+        ]
+      },
+      "note": "One Gaussian per scale, shared across ROIs and applied to each ROI separately — the ROI axis is folded into the batch for the convolution and comes back out at the mean. Peak-normalised rather than area-normalised, so one onset reaches 1 at any fitted width. The widths are fitted parameters; the lane labels are indices, not measurements.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -1
+        ],
+        "labels": [
+          "ROIs",
+          "frames"
+        ],
+        "style": "marks"
+      }
+    },
+    {
+      "id": "vote",
+      "name": "one ROI, one vote",
+      "kind": "op",
+      "nodes": [
+        "n0072",
+        "n0077",
+        "n0079",
+        "n0080",
+        "n0081"
+      ],
+      "detail": [
+        "{stage.params} learned params",
+        "{stage.out_shape}",
+        "bounded before anything pools"
+      ],
+      "note": "A sigmoid with a fitted gain and bias, so a cell that fires eight times contributes at most one. This is the bound `tube` has nowhere: its max-pool on an already-binary raster widens onsets instead of capping them. The vote is SOFT — probe it behaviourally rather than asserting it.",
+      "glyph": {
+        "of": "{stage.out_shape}",
+        "axes": [
+          -3,
+          -1
+        ],
+        "labels": [
+          "ROIs",
+          "frames"
+        ],
+        "style": "marks"
+      }
+    },
+    {
+      "id": "count",
+      "name": "mean over ROIs",
+      "kind": "reduce",
+      "nodes": [
+        "n0084",
+        "n0089"
+      ],
+      "detail": [
+        "{stage.out_shape}",
+        "scales × frames — the share of the field that is lit"
+      ],
+      "note": "THE COLLAPSE, AND IT IS THE WHOLE ARCHITECTURE. Everything above this box holds one row per ROI; nothing below it does. `tube` takes the same mean in its third operation, before its kernel bank ever runs. No glyph is drawn from here on because the ROI axis is not in the tensor to draw: the mean drops it rather than keeping it at length one."
+    },
+    {
+      "id": "dog",
+      "name": "difference-of-Gaussian bank",
+      "kind": "kernel",
+      "nodes": [
+        "n0094",
+        "n0099",
+        "n0100",
+        "n0103",
+        "n0107",
+        "n0108",
+        "n0111",
+        "n0115",
+        "n0116",
+        "n0123",
+        "n0127",
+        "n0128",
+        "n0130",
+        "n0132",
+        "n0133",
+        "n0134",
+        "n0136",
+        "n0138",
+        "n0139",
+        "n0144",
+        "n0145",
+        "n0150",
+        "n0151",
+        "n0153",
+        "n0157",
+        "n0158",
+        "n0160",
+        "n0165",
+        "n0181",
+        "n0186",
+        "n0189",
+        "n0194",
+        "n0199",
+        "n0200",
+        "n0203",
+        "n0207",
+        "n0208",
+        "n0211",
+        "n0215",
+        "n0216",
+        "n0223",
+        "n0227",
+        "n0228",
+        "n0230",
+        "n0232",
+        "n0233",
+        "n0234",
+        "n0236",
+        "n0238",
+        "n0239",
+        "n0244",
+        "n0245",
+        "n0250",
+        "n0251",
+        "n0253",
+        "n0257",
+        "n0258",
+        "n0260",
+        "n0265",
+        "n0281",
+        "n0286",
+        "n0289",
+        "n0294",
+        "n0299",
+        "n0300",
+        "n0303",
+        "n0307",
+        "n0308",
+        "n0311",
+        "n0315",
+        "n0316",
+        "n0323",
+        "n0327",
+        "n0328",
+        "n0330",
+        "n0332",
+        "n0333",
+        "n0334",
+        "n0336",
+        "n0338",
+        "n0339",
+        "n0344",
+        "n0345",
+        "n0350",
+        "n0351",
+        "n0353",
+        "n0357",
+        "n0358",
+        "n0360",
+        "n0365",
+        "n0381",
+        "n0386",
+        "n0389",
+        "n0394",
+        "n0399",
+        "n0400",
+        "n0403",
+        "n0407",
+        "n0408",
+        "n0411",
+        "n0415",
+        "n0416",
+        "n0423",
+        "n0427",
+        "n0428",
+        "n0430",
+        "n0432",
+        "n0433",
+        "n0434",
+        "n0436",
+        "n0438",
+        "n0439",
+        "n0444",
+        "n0445",
+        "n0450",
+        "n0451",
+        "n0453",
+        "n0457",
+        "n0458",
+        "n0460",
+        "n0465",
+        "n0481",
+        "n0486",
+        "n0489",
+        "n0492"
+      ],
+      "detail": [
+        "{stage.nodes} ops, {stage.params} learned params",
+        "kernel {node:n0160.out_shape[2]}, area-normalised",
+        "{stage.out_shape}",
+        "scales × frames"
+      ],
+      "lanes": {
+        "count_from": "{node:n0492.out_shape[1]}",
+        "labels": [
+          "σ₁",
+          "σ₂",
+          "σ₃",
+          "σ₄"
+        ]
+      },
+      "note": "Centre minus surround, integrating to zero, so a rising background cancels and a line stands above its own surround. THE FOUR LANES ARE FOUR TRACED CONVOLUTIONS here, not four channels of one: the model loops over scales in Python, so the kernel construction appears four times over and the stage collapses all four copies. The lane count is still read off the stacked output rather than typed, but nothing in `check` proves the four are independent of one another — see CLAIMS.md queue item 2, which this model is the second instance of."
+    },
+    {
+      "id": "join",
+      "name": "concatenate",
+      "kind": "concat",
+      "nodes": [
+        "n0495"
+      ],
+      "detail": [
+        "{stage.out_shape[1]} channels",
+        "{stage.out_shape}"
+      ],
+      "note": "The count itself and its centre-surround response, side by side: the head sees both the raw share of the field and the share judged against its own background."
+    },
+    {
+      "id": "head",
+      "name": "dilated conv stack",
+      "kind": "stack",
+      "nodes": [
+        "n0525",
+        "n0526",
+        "n0533",
+        "n0534",
+        "n0541",
+        "n0542",
+        "n0549",
+        "n0550",
+        "n0557",
+        "n0558",
+        "n0565",
+        "n0566"
+      ],
+      "detail": [
+        "kernel {node:n0525.weight_shape[2]}, dilation {node:n0525.constants.dilation} → {node:n0565.constants.dilation}",
+        "{stage.params} params",
+        "{stage.out_shape}"
+      ]
+    },
+    {
+      "id": "score",
+      "name": "per-frame score",
+      "kind": "output",
+      "nodes": [
+        "n0573",
+        "n0575"
+      ],
+      "detail": [
+        "kernel {node:n0573.weight_shape[2]}",
+        "{stage.params} params",
+        "{stage.out_shape} — one score per frame"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "raster",
+      "to": "smear"
+    },
+    {
+      "from": "smear",
+      "to": "vote"
+    },
+    {
+      "from": "vote",
+      "to": "count"
+    },
+    {
+      "from": "count",
+      "to": "join",
+      "label": "bypass"
+    },
+    {
+      "from": "count",
+      "to": "dog"
+    },
+    {
+      "from": "dog",
+      "to": "join"
+    },
+    {
+      "from": "join",
+      "to": "head"
+    },
+    {
+      "from": "head",
+      "to": "score"
+    }
+  ],
+  "layout": {
+    "orientation": "lr",
+    "legend": true,
+    "wrap": 600
+  },
+  "constants": {
+    "n0525.constants.dilation": "Architectural. _dilated_stack sets d = 2 ** i from the layer index, so the schedule is fixed by `depth` and no gradient reaches it.",
+    "n0565.constants.dilation": "Architectural, as above — the last dilated layer, i = depth - 1."
+  },
+  "caption": "Drawn by draughtsman from a torch.jit.trace of the built model; every quantity is read off the trace by node id, none typed by hand. The kernel bank collapses {stage:dog.nodes} traced operations.",
+  "output": {
+    "width": "10in",
+    "min_type": "6pt"
+  }
+}

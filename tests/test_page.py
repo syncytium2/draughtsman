@@ -226,6 +226,12 @@ def test_the_glyph_and_chrome_blocks_show_what_they_describe():
 BOXED_SHAPE_STAGES = {
     "dual": 6, "lenet": 5, "lstm": 5, "mlp": 5, "resnet": 2,
     "transformer": 10, "tube": 1, "vae": 10, "whisper": 11,
+    # `line`, added 2026-09-15 at 5, and the number is where the model puts it
+    # rather than where the defaults did. Its ROI axis is drawn to scale for the
+    # three stages that still have one; after the mean the tensor has no ROI axis
+    # to draw, so those five stages print their shape in a box because a shape in
+    # words is all that is left to print. See examples/line/README.md.
+    "line": 5,
 }
 
 

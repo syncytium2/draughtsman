@@ -18,6 +18,7 @@ committed SVG so it cannot quietly stop being true.
 | `spec.json` | stage 2 — written from the `draughtsman abstract graph.json` payload in a Claude Code session, 2026-09-01 |
 | `figure.svg` | `draughtsman render spec.json -o figure.svg` |
 | `front-page.json`, `front-page-phone.json` | `spec.json` redrawn for bugarach's front-page slot, 2026-09-11 — see [below](#the-front-page-figures-drawn-for-bugarachs-slot) |
+| `beside-line.json` | `spec.json` redrawn as the left panel of [`../line/beside-the-tube.svg`](../line/beside-the-tube.svg), 2026-09-15 — top to bottom, and glyphed only where the middle axis is still cells |
 | `front-page.svg`, `front-page-phone.svg` | `draughtsman render front-page.json -o front-page.svg`, and the same for the phone |
 
 `graph.json` is committed because regenerating it needs bugarach installed, and

@@ -183,11 +183,16 @@ MARK_SLOT = (192.0, 96.0)
 #: 2026-09-04. This is a record of an observation, not a target: if one of these
 #: fails, the honest response is to LOOK AT THE MARK AGAIN and find out what
 #: moved, not to edit the expectation until it passes.
+#:
+#: `line` was added 2026-09-15 and looked at the same way: 0.1234x, pale boxes
+#: with no structure in them, which is the band `whisper` and `unet` are in. A
+#: verdict arrived at by arithmetic would not be worth the line it is on, so it
+#: was rasterised at 192x96 and read like the other ten.
 MEASURED = {
     "mlp": READS, "lenet": READS, "lstm": READS,
     "dual": MARGINAL, "tube": MARGINAL,
     "resnet": NOISE, "transformer": NOISE, "vae": NOISE,
-    "unet": NOISE, "whisper": NOISE,
+    "unet": NOISE, "whisper": NOISE, "line": NOISE,
 }
 
 

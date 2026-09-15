@@ -28,8 +28,14 @@ from draughtsman.render import render
 from draughtsman.spec import load
 
 ROOT = Path(__file__).resolve().parents[1]
-GRAPHS = sorted(ROOT.glob("examples/gallery/*/graph.json")) + [
-    ROOT / "examples" / "tube" / "graph.json"]
+#: Every committed graph, BY THE GLOB RATHER THAN BY A LIST. This was the gallery
+#: glob plus `examples/tube/graph.json` written out by hand, which held for as long
+#: as `tube` was the only model outside the gallery — and stopped the day
+#: `examples/line/` landed, silently, by sweeping one fewer graph than there were.
+#: That is `tests/test_counts.py`'s subject arriving in a parametrisation: a list
+#: of the things to check, kept beside the things, checked by nothing.
+GRAPHS = sorted(ROOT.glob("examples/*/graph.json")) + \
+    sorted(ROOT.glob("examples/gallery/*/graph.json"))
 
 
 def _graph(path: Path) -> Graph:

@@ -57,6 +57,27 @@ def _split():
 
 REPRODUCIBLE, EXTERNAL = _split()
 
+#: The models this repository knows it cannot rebuild, and the reason is the same
+#: one for both: they are bugarach's, bugarach is public and is NOT a dependency
+#: here, so their graphs are committed and the staleness test runs on the
+#: committed graph rather than on a fresh trace.
+#:
+#: THIS IS A LIST AND NOT A LITERAL BECAUSE IT GREW. It was the string "tube" for
+#: as long as there was one such model; `line` arrived on 2026-09-15 and the
+#: assertion below fired on it, correctly — a model that cannot be re-traced is
+#: exactly what this test exists to make somebody say out loud. Adding a name here
+#: is that saying, and the requirement that comes with it is in the message below:
+#: the model's README must state why it is committed and not reproducible.
+#: `examples/line/README.md` does, and adds what `tube`'s cannot — `line` is not
+#: even on bugarach's `main` yet.
+#:
+#: THE OTHER DIRECTION IS DELIBERATELY NOT CHECKED. Asserting that a name here is
+#: still un-re-traceable would be the environment-dependent claim this test's own
+#: docstring records getting wrong: on a machine that happens to have bugarach
+#: installed both models move into REPRODUCIBLE and are re-traced, which is the
+#: right outcome and would fail such a check.
+UNREBUILDABLE = {"tube", "line"}
+
 
 def _facts(doc: dict):
     """What a figure can quote, in trace order. Everything a spec references."""
@@ -126,8 +147,8 @@ def test_nothing_drops_out_of_this_check_silently():
     # What the floor was really guarding is that the gallery has not quietly
     # stopped being importable — a broken PYTHONPATH would move every model into
     # EXTERNAL and the partition above would still balance. So state that: every
-    # model written out in this repository must re-trace, and `tube` is the only
-    # thing allowed to sit outside, for the one reason checked below.
+    # model written out in this repository must re-trace, and only the models in
+    # UNREBUILDABLE may sit outside, for the one reason checked below.
     gallery = {d.name for d in EXAMPLES if d.parent.name == "gallery"}
     reproduced = {d.name for d, _ in REPRODUCIBLE}
     assert gallery <= reproduced, (
@@ -136,9 +157,10 @@ def test_nothing_drops_out_of_this_check_silently():
         "entry, or examples/gallery is no longer on the path")
     for d, target in EXTERNAL:
         assert not _importable(target)
-        assert d.name == "tube", (
-            f"{d.name} cannot be re-traced here and is not the one model this "
-            f"repo knows it cannot rebuild. Its target is {target!r} — either "
-            "vendor the model as examples/gallery does, or say in its README "
-            "why it is committed and not reproducible"
+        assert d.name in UNREBUILDABLE, (
+            f"{d.name} cannot be re-traced here and is not one of the models "
+            f"this repo knows it cannot rebuild. Its target is {target!r} — "
+            "either vendor the model as examples/gallery does, or say in its "
+            "README why it is committed and not reproducible, and add it to "
+            "UNREBUILDABLE above"
         )

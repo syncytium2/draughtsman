@@ -31,6 +31,19 @@ twenty-six kernel-construction operations that made torchview a strip collapse
 into one named block. The topology is the hand-laid figure's; the coordinates are
 not placed by anyone.
 
+## The model that came after it, and the first figure holding more than one
+
+[`line/`](line/) — bugarach's newer detector, 1,233 parameters, traced the same
+way. What it changes about `tube` is **where the ROI axis collapses**: `tube`
+averages over ROIs before its first kernel, `line` smears and bounds each ROI
+first and averages after. That is a difference between the two rather than a
+fact inside either, so it was asked for as a comparison and drawn as one —
+[`line/beside-the-tube.svg`](line/beside-the-tube.svg) puts both panels in one
+frame at 1:1, one mark to one ROI in either column, by
+[`../tools/beside.py`](../tools/beside.py). Read
+[`line/README.md`](line/README.md) for why the panels are not the committed
+gallery specs.
+
 ## The generalisation run
 
 [`gallery/`](gallery/) — the rest of the models, spanning the architecture
