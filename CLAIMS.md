@@ -727,3 +727,21 @@ interesting part of this item, and it is the same shape as item 8's wrap questio
 **Not blocking.** bugarach has no figure slot waiting on it; the architecture is a week old and
 still being measured. A spec would live beside the tube's in bugarach's
 `docs/learned/architecture.spec.json`. Related to item 11 (the same consumer, the same tracer).
+
+⚠ **The model moved, 2026-09-15, hours after it was traced — bugarach's note, not
+draughtsman's.** The figures on `claude/line-model-tube-variants-bljyyh` trace bugarach `75ccd03`,
+which is the **length-only** `line`. Tony then asked for *"two sensors, orientation and length
+(relative to the number of rois)"*, so `line` now also emits one **orientation** channel per
+adjacent pair of smear widths — the count at a narrow smear over the count at the next wider one,
+which is 1 for a vertical line and well under 1 for members gathered only as the smear widens. The
+head's input went from 8 channels to 11 and the model from 1,233 to **1,305 parameters**; nothing
+else in the shape changed, and `orientation=False` still builds exactly what was traced.
+
+**What that costs the figure:** the counts box gains a sibling, and the caption's
+`1233 parameters` is now the ablation's number. The regeneration command in
+`examples/line/README.md` is unchanged — retrace against bugarach's
+`unsup/rigid-shift-controls` tip. **This is exactly the staleness that README says the tests
+cannot catch**, reported here because the trace cannot notice it and a person had to.
+Sequencing is the holder's call: the architecture is still being measured, so waiting for it to
+settle is a reasonable answer, and so is drawing the ablation and the two-sensor model as one
+pair.
