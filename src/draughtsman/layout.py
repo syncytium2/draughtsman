@@ -149,7 +149,7 @@ def _barycentre(boxes, edges, sweeps: int = 6) -> None:
                 b.order = k
 
 
-def _rows(boxes, edges, rank, wrap, hgap) -> list[list[int]]:
+def _rows(boxes, edges, rank, wrap, hgap, breaks=()) -> list[list[int]]:
     """Group ranks into rows, breaking only where a break is legal.
 
     A BREAK IS ILLEGAL WHERE A LONG EDGE IS IN FLIGHT. U-Net's three skips span
@@ -165,6 +165,9 @@ def _rows(boxes, edges, rank, wrap, hgap) -> list[list[int]]:
     for a, b in edges:
         if rank[b] - rank[a] > 1:
             illegal.update(range(rank[a], rank[b]))
+
+    if breaks:
+        return _named_rows(keys, rank, illegal, breaks)
 
     def pack(budget: float | None) -> list[list[int]]:
         rows: list[list[int]] = []
@@ -191,6 +194,42 @@ def _rows(boxes, edges, rank, wrap, hgap) -> list[list[int]]:
     total = sum(ext[r] for r in keys) + hgap * (len(keys) - 1)
     even = pack(total / len(greedy))
     return even if len(even) == len(greedy) else greedy
+
+
+def _named_rows(keys, rank, illegal, breaks) -> list[list[int]]:
+    """Rows cut exactly where the spec says, and nowhere else.
+
+    WHY A WIDTH IS NOT ENOUGH. `wrap` answers "how wide may a row be", and the
+    packer then chooses the cuts — greedily, then re-packed to an even share. That
+    is the right default and the wrong tool when the cut itself carries meaning.
+    bugarach's four comparison models were each to break where the ROI axis
+    collapses, so that the first row of every figure is the per-ROI stages and its
+    length is the comparison; `line_length`'s even re-pack moved its vote down a
+    row at every wrap value from 480 to 680, and no width could put it back.
+
+    The legality rule is the packer's own: a cut where an edge that skips a rank
+    is in flight would hide where the edge goes, so it is refused by name rather
+    than honoured.
+    """
+    starts: set[int] = set()
+    for sid in breaks:
+        if sid not in rank:
+            raise ValueError(f"layout.breaks names {sid!r}, which is not a stage")
+        r = rank[sid]
+        if r == keys[0]:
+            raise ValueError(f"layout.breaks names {sid!r}, which is already the "
+                             f"first rank; a row cannot start before the figure does")
+        if r - 1 in illegal:
+            raise ValueError(f"layout.breaks cannot start a row at {sid!r}: an edge "
+                             f"that skips a rank is in flight across that cut, and "
+                             f"cutting it would hide where the edge goes")
+        starts.add(r)
+    rows: list[list[int]] = [[]]
+    for r in keys:
+        if r in starts and rows[-1]:
+            rows.append([])
+        rows[-1].append(r)
+    return rows
 
 
 def _place(boxes, edges, *, hgap: float, vgap: float, passes: int = 32,
@@ -285,6 +324,7 @@ def _place(boxes, edges, *, hgap: float, vgap: float, passes: int = 32,
 def build(nodes: list[tuple[str, float, float]],
           edges: list[tuple[str, str, str | None, str]],
           *, orientation: str = "lr", wrap: float | None = None,
+          breaks: tuple[str, ...] | list[str] = (),
           hgap: float = 54.0, vgap: float = 26.0,
           pad: float = 16.0) -> Drawing:
     """*nodes* are ``(id, width, height)``; *edges* ``(src, dst, label, style)``.
@@ -350,7 +390,7 @@ def build(nodes: list[tuple[str, float, float]],
         chains[(a, b)] = chain
 
     _barycentre(boxes, dummy_edges)
-    rows = _rows(boxes, plain, rank, wrap, hgap)
+    rows = _rows(boxes, plain, rank, wrap, hgap, breaks)
     row_gap = vgap + GUTTER
     _place(boxes, dummy_edges, hgap=hgap, vgap=vgap, rows=rows, row_gap=row_gap)
 

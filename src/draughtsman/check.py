@@ -360,6 +360,28 @@ def check(spec: Spec, graph: Graph) -> Result:
             "same question about the rendered file without editing the spec: "
             "tools/measure_type.py --print 6in --floor 6pt <figure.svg>")
 
+    # -- named row breaks: real stages, legal cuts, and not beside a width -------
+    if spec.layout.breaks:
+        if spec.layout.wrap is not None:
+            errors.append(
+                "layout.breaks and layout.wrap are both set. The breaks decide the "
+                "rows, so the wrap would be ignored, and a spec that says two things "
+                "and draws one is not the figure. Keep one.")
+        unknown = [b for b in spec.layout.breaks if b not in stages]
+        for b in unknown:
+            errors.append(f"layout.breaks names {b!r}, which is not a stage")
+        # Only on a stage graph the layout can rank: an edge naming no stage or a
+        # cycle is already an error above, and would fail here for that reason.
+        if not unknown and not any("names no stage" in e or "has a cycle" in e
+                                   for e in errors):
+            from draughtsman.layout import build
+            try:
+                build([(s.id, 1.0, 1.0) for s in spec.stages],
+                      [(e.src, e.dst, None, e.style) for e in spec.edges],
+                      breaks=spec.layout.breaks)
+            except ValueError as exc:
+                errors.append(str(exc))
+
     if spec.layout.chrome not in ("box", "none"):
         errors.append(
             f"layout chrome {spec.layout.chrome!r} is neither 'box' nor 'none'. "

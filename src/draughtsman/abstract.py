@@ -190,7 +190,7 @@ WRITE THIS, AND NOTHING ELSE — one JSON object:
   "constants": {"n0149.constants.dilation": "<why this traced constant is an"
                 " architectural quantity and not an initialisation>"},
   "layout": {"orientation": "lr|tb", "wrap": 760, "legend": false,
-             "chrome": "box|none"},
+             "chrome": "box|none", "breaks": ["<stage id that starts a row>"]},
   "output": {"width": "6in", "min_type": "6pt"},
   "caption": "<optional one line>"
 }
@@ -216,6 +216,11 @@ pictures that do not read, so a figure can be 8:1 with every check green.
                        refused where a long edge is still in flight, so a model
                        webbed with skips will wrap little or not at all — that
                        is the tool declining to cut an edge, not a failure.
+  "breaks": ["mean"]    start a new row AT each named stage, instead of letting
+                       `wrap` choose the cuts. Use it when the cut means
+                       something — every figure in a set breaking where the same
+                       thing happens — and not to tidy one figure. Same legality
+                       rule as wrap, refused by name. Not together with "wrap".
   "orientation": "tb"  run the figure top to bottom instead. Better for a deep
                        stack in a single column, and for a page taller than wide.
   "legend": true       a key naming each colour family, with its share of the
