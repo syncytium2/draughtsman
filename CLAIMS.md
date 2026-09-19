@@ -113,7 +113,7 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-slate-ledger` | `row-breaks` | `src/draughtsman/layout.py`, `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/check.py`, `tests/test_row_breaks.py` | 2026-09-19 | A spec names where a wrapped figure starts a new row, so four bugarach models can break at the same place: where the ROI axis collapses |
+| `draughtsman-slate-ledger` | `row-breaks` | `src/draughtsman/layout.py`, `src/draughtsman/spec.py`, `src/draughtsman/render.py`, `src/draughtsman/check.py`, `src/draughtsman/abstract.py`, `tests/test_row_breaks.py` | 2026-09-19 | A spec names where a wrapped figure starts a new row, so four bugarach models can break at the same place: where the ROI axis collapses |
 | `draughtsman-vermilion-ruler` | `claude/line-model-tube-variants-bljyyh` | `examples/line/graph.json`, `examples/line/spec.json`, `examples/line/figure.svg`, `examples/line/icon.svg`, `examples/line/README.md`, `examples/line/beside-tube.json`, `examples/line/beside-the-tube.svg`, `examples/tube/beside-line.json`, `examples/tube/README.md`, `examples/gallery/README.md`, `examples/README.md`, `tools/beside.py`, `tests/test_beside.py`, `tests/test_icon.py`, `tests/test_page.py`, `tests/test_reproduces.py`, `tests/test_scaffold.py` | 2026-09-15 | Queue 13 — drawing `line` and drawing it beside the tube at one scale |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
