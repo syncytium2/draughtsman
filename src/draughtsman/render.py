@@ -463,7 +463,7 @@ def render(spec: Spec, graph: Graph) -> str:
     nodes_in = [(sid, m.w, m.h) for sid, m in measured.items()]
     edges_in = [(e.src, e.dst, e.label, e.style) for e in spec.edges]
     drawing = build(nodes_in, edges_in, orientation=spec.layout.orientation,
-                    wrap=spec.layout.wrap)
+                    wrap=spec.layout.wrap, breaks=spec.layout.breaks)
 
     # SOLVE FOR THE PAGE, AND WRAP IS THE ONLY LEVER PULLED.
     #
@@ -476,10 +476,11 @@ def render(spec: Spec, graph: Graph) -> str:
     #
     # THE TYPE IS NEVER TOUCHED. A figure that fits by shrinking its labels has
     # solved a different problem, and the whole point of the budget is that the
-    # label size is the fixed quantity. An explicit `layout.wrap` in the spec is
-    # a judgement already made and is left alone.
+    # label size is the fixed quantity. An explicit `layout.wrap` or
+    # `layout.breaks` in the spec is a judgement already made and is left alone.
     budget = width_budget(spec)
-    if budget and spec.layout.wrap is None and drawing.width > budget:
+    if (budget and spec.layout.wrap is None and not spec.layout.breaks
+            and drawing.width > budget):
         for target in (budget, budget * 0.86, budget * 0.72, budget * 0.6):
             trial = build(nodes_in, edges_in,
                           orientation=spec.layout.orientation, wrap=target)

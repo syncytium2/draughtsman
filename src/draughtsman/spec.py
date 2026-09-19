@@ -175,6 +175,10 @@ class Layout:
     """
     orientation: str = "lr"        # "lr" left-to-right, "tb" top-to-bottom
     wrap: float | None = None      # break the spine into rows at this width
+    # Stage ids that each begin a new row: the cuts themselves, where `wrap` gives
+    # only a width and lets the packer choose. Judgement, so it lives here. Setting
+    # both is refused by `check` rather than one silently overriding the other.
+    breaks: list[str] = field(default_factory=list)
     # A key under the figure, one row per colour family present, each carrying its
     # share of the traced ops and parameters. Off by default: a figure that is one
     # colour family does not need one, and turning it on for every committed spec
@@ -320,6 +324,7 @@ def load(doc: dict) -> Spec:
                 caption=doc.get("caption"), graph=doc.get("graph", "graph.json"),
                 layout=Layout(orientation=lay.get("orientation", "lr"),
                               wrap=lay.get("wrap"),
+                              breaks=list(lay.get("breaks") or []),
                               legend=bool(lay.get("legend", False)),
                               chrome=lay.get("chrome", "box")),
                 output=Output(
@@ -381,11 +386,13 @@ def dump(spec: Spec) -> dict:
             out["output"]["width"] = spec.output.width
         if spec.output.min_type != "6pt":
             out["output"]["min_type"] = spec.output.min_type
-    if (spec.layout.orientation != "lr" or spec.layout.wrap
+    if (spec.layout.orientation != "lr" or spec.layout.wrap or spec.layout.breaks
             or spec.layout.legend or spec.layout.chrome != "box"):
         out["layout"] = {"orientation": spec.layout.orientation}
         if spec.layout.wrap:
             out["layout"]["wrap"] = spec.layout.wrap
+        if spec.layout.breaks:
+            out["layout"]["breaks"] = list(spec.layout.breaks)
         if spec.layout.legend:
             out["layout"]["legend"] = True
         if spec.layout.chrome != "box":
