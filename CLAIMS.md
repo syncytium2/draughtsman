@@ -744,3 +744,29 @@ cannot catch**, reported here because the trace cannot notice it and a person ha
 Sequencing is the holder's call: the architecture is still being measured, so waiting for it to
 settle is a reasonable answer, and so is drawing the ablation and the two-sensor model as one
 pair.
+
+⏸ **Paused, 2026-10-16, on Tony's call.** bugarach is reanalyzing its data to revise the bench,
+and the status of every learned model is unknown until that reports. `line`, `line_length`,
+`line_bound` and `line_part` are all on bugarach's `main`, and any of them could be dropped. A
+figure has no scores in it, but which model is worth drawing depends on what survives.
+
+**The claim is closed and the work is not.** `draughtsman-vermilion-ruler`'s row came off the
+board in `a44db67`, when its three example READMEs were taken over for American spelling: a row
+must name every file its branch touched, so it could not keep the rest without them. The branch
+`claude/line-model-tube-variants-bljyyh` is intact on origin (`fd4912a`, `bfd36c0`; CI green on
+2026-09-15). It draws the length-only model, which bugarach now calls `line_length`, beside the
+tube, and it adds `tools/beside.py` with its tests.
+
+**To resume** once the bench revision reports:
+1. Claim, then rebase onto `main`. On 2026-10-16 that gave one conflict, in
+   `examples/README.md`: the branch's new section sits above a heading that `56d6024` renamed
+   to "The generalization run". Run the suite: rendering has changed since September.
+2. Retrace whichever `line` variant survives from bugarach's `main`, not from
+   `unsup/rigid-shift-controls`, and drop the README's warning that the trace is off `main`.
+3. Update the panel spec for that variant (the two-sensor `line` adds an orientation box beside
+   the counts), and re-render `line/figure.svg`, its icon and `beside-the-tube.svg`.
+4. Tell bugarach: its `docs/goals/learned-model-family.md` names this item as the source of the
+   figure.
+
+If no `line` variant survives, close this item. `tools/beside.py` can land on its own for the
+next comparison.
