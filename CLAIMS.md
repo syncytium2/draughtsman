@@ -113,7 +113,6 @@ that nothing checks is decoration until something does.**
 
 | session | branch | paths | since | doing |
 |---|---|---|---|---|
-| `draughtsman-narrow-sextant` | `american-spelling-2` | `examples/README.md`, `examples/tube/README.md`, `examples/gallery/README.md`, `src/draughtsman/ui.html` | 2026-10-16 | American spelling in the example READMEs and the editor's interface, at Tony's rule |
 
 An empty table is the correct state and a legal one — an earlier version of the check required a row
 and would have gone red forever the moment the last session released, which is
