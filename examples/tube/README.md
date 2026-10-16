@@ -78,7 +78,7 @@ What they change from `spec.json`, and why:
 - **The phone figure needed two renderer fixes.** The caption's 460-unit floor now
   yields to a narrower stated width. And an edge label beside a vertical run now
   clears its own line: this is the first committed top-to-bottom figure with a
-  labelled edge, and its `bypass` was drawn across the line it names.
+  labeled edge, and its `bypass` was drawn across the line it names.
 
 [`../../tests/test_front_page.py`](../../tests/test_front_page.py) holds both to
 their slots. bugarach vendors these specs together with the renderer from the same
@@ -92,19 +92,19 @@ Every quantity is resolved from `graph.json` by node id at render time. Nothing 
 | shown | from |
 |---|---|
 | `1149 parameters` | `{model.params}` |
-| `max-pool, width fitted` | nothing — **see below**; the traced width is an initialisation |
+| `max-pool, width fitted` | nothing — **see below**; the traced width is an initialization |
 | `26 ops, 12 learned params` | `{stage.nodes}`, `{stage.params}` |
-| `kernel 257, area-normalised` | `{node:n0100.out_shape[2]}` |
+| `kernel 257, area-normalized` | `{node:n0100.out_shape[2]}` |
 | four lanes | `{node:n0116.out_shape[1]}` — the bank is **one** convolution with four output channels, so the count is a channel dimension, not a fork |
 | `5 channels` | `{stage.out_shape[1]}` |
 | `dilation 1 → 32` | `{node:n0149.constants.dilation}`, `{node:n0189.constants.dilation}` |
 
 The lane labels `σ₁ … σ₄` are the agent's, and are indices rather than
-measurements: the centre widths are fitted parameters, so no width is a fact
+measurements: the center widths are fitted parameters, so no width is a fact
 `graph.json` holds. `check` asserts there are exactly as many labels as the model
 has channels.
 
-## The legend, and what colour can and cannot say
+## The legend, and what color can and cannot say
 
 Tony asked for an Inception-style figure for a stated reason — *"how much of the
 model is convolution, at a glance"* — and the first version of this figure could
@@ -113,10 +113,10 @@ green, so the two convolutional stages of a model that is 99% convolution by
 parameter read as unrelated things.
 
 **Hue is now the family and value is the kind.** Both convolutional stages are
-green and differ in value, which also keeps them apart in a greyscale print.
+green and differ in value, which also keeps them apart in a grayscale print.
 
-**Colour still cannot carry the proportion, and this is the honest limit.** The
-Inception figure colours *layers*, so counting its boxes counts them. draughtsman
+**Color still cannot carry the proportion, and this is the honest limit.** The
+Inception figure colors *layers*, so counting its boxes counts them. draughtsman
 collapses 26 traced operations into one stage, so a box here is not a layer and no
 amount of box area means anything. The legend is what answers the question: one
 row per family present, generated from the stages actually drawn, with the share
@@ -133,7 +133,7 @@ That is the answer to "how much is convolution" as a fact rather than an
 impression, and every op and every parameter lands in exactly one row —
 `tests/test_render.py` asserts the two totals against `graph.json`. Turn it on
 with `"layout": {"legend": true}`; it is off by default, because a figure of one
-colour family does not need a key.
+color family does not need a key.
 
 ## The pool width, and what a trace cannot see
 
@@ -146,12 +146,12 @@ This figure said **`max-pool, width 3`** until 2026-09-01, read straight from
 kmin = int(torch.exp(self.log_center.detach()).min().clamp(1, self.k))
 ```
 
-and `log_center` is a **trained parameter**. At initialisation the centres are
+and `log_center` is a **trained parameter**. At initialization the centers are
 1/2/4/8 samples, so `kmin` is 1 and the pool is 3 wide; the class docstring
 records trained widths of ~4–7, which is a pool of **9–15**. The figure stated an
-initialisation as though it were an architectural constant.
+initialization as though it were an architectural constant.
 
-**Re-running the trace does not catch this.** `build_tube` initialises
+**Re-running the trace does not catch this.** `build_tube` initializes
 `log_center` deterministically, so the baked `3` is perfectly reproducible. A
 determinism check and an architecture check are different claims.
 

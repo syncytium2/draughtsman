@@ -31,11 +31,11 @@ twenty-six kernel-construction operations that made torchview a strip collapse
 into one named block. The topology is the hand-laid figure's; the coordinates are
 not placed by anyone.
 
-## The generalisation run
+## The generalization run
 
 [`gallery/`](gallery/) — the rest of the models, spanning the architecture
 families named in its own table, each
 chosen for a specific way it could break the tool, with the two things that did
 break it and the four gaps still open. Read
-[`gallery/README.md`](gallery/README.md) before trusting the design to generalise
+[`gallery/README.md`](gallery/README.md) before trusting the design to generalize
 from `tube` alone.

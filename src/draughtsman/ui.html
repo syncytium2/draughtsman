@@ -40,7 +40,7 @@ main{display:grid;grid-template-columns:250px minmax(0,1fr) 330px;
   min-height:0;overflow:hidden}
 .col{min-height:0;overflow:auto;background:var(--panel)}
 .col+.col{border-left:1px solid var(--line)}
-#centre{background:var(--bg);display:grid;grid-template-rows:auto auto 1fr;
+#center{background:var(--bg);display:grid;grid-template-rows:auto auto 1fr;
   min-height:0;overflow:hidden}
 
 h2{font:10px/1 var(--sans);letter-spacing:.09em;text-transform:uppercase;
@@ -178,7 +178,7 @@ body.gallery main{display:none}
 
 <main>
   <div class="col" id="left"></div>
-  <div id="centre">
+  <div id="center">
     <div id="figwrap"><div id="fig"></div></div>
     <div id="msgs"></div>
     <div id="nodes"></div>
@@ -208,13 +208,13 @@ const STROKE = {input:"#8a8a86",output:"#8a8a86",pool:"#6f93a8",reduce:"#6f93a8"
   kernel:"#b08e52",conv:"#6f9c85",stack:"#6f9c85",concat:"#8d7ba8",op:"#8a8a86"};
 
 let spec = null, graph = null, sel = null, saved = "", filter = "", freeOnly = false;
-// The exact string the server rendered. EXPORT SHIPS THIS, not a re-serialisation
+// The exact string the server rendered. EXPORT SHIPS THIS, not a re-serialization
 // of the DOM, so what you copy is byte-identical to what Save writes and to what
 // `draughtsman render` produces. One renderer, all the way to the clipboard.
 let lastSvg = null, lastOk = true;
 // One draft per model, so switching to look at another and coming back does not
 // throw away an edit. What the gallery shows is what is on disk; a model with an
-// unsaved draft is labelled, rather than quietly shown as something it is not.
+// unsaved draft is labeled, rather than quietly shown as something it is not.
 let models = [], current = null, drafts = {}, savedText = {};
 const $ = s => document.querySelector(s);
 const el = (t, a = {}, ...kids) => {
@@ -408,7 +408,7 @@ function paintRight() {
   c.innerHTML = "";
   if (!sel) {
     c.append(el("div", {cls: "empty"},
-      "Select a stage to name it, colour it, and choose what it says. " +
+      "Select a stage to name it, color it, and choose what it says. " +
       "Then click nodes in the table to move them into it."));
     return;
   }
@@ -451,7 +451,7 @@ function paintRight() {
     s.name = ev.target.value; touch(false);
   }}));
 
-  c.append(el("label", {}, "kind — picks the colour"));
+  c.append(el("label", {}, "kind — picks the color"));
   const k = el("select", {onchange: ev => {s.kind = ev.target.value; touch();}});
   KINDS.forEach(v => k.append(el("option", {value: v,
     selected: v === (s.kind || "op") || null}, v)));
@@ -508,7 +508,7 @@ function paintRight() {
     "coverage will say so."));
 }
 
-// ---- centre: the node table ----------------------------------------------
+// ---- center: the node table ----------------------------------------------
 // graph.json keeps the model's own inputs apart from the traced nodes: they are
 // addressable but coverage does not range over them. They still have to appear
 // here, or the stage that names the raster is the one stage you cannot edit.
@@ -663,7 +663,7 @@ async function toPng(scale) {
   const src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(lastSvg);
   await new Promise((ok, no) => {
     img.onload = ok;
-    img.onerror = () => no(new Error("the browser could not rasterise the SVG"));
+    img.onerror = () => no(new Error("the browser could not rasterize the SVG"));
     img.src = src;
   });
   const box = lastSvg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
@@ -694,7 +694,7 @@ function openExport() {
       "the model performs — the thing every tool in §2 shipped without saying so.";
   } else {
     why.className = "why";
-    why.textContent = "SVG is what Save writes, byte for byte. PNG is rasterised " +
+    why.textContent = "SVG is what Save writes, byte for byte. PNG is rasterized " +
       "from it here; for print or LaTeX, prefer the SVG.";
   }
 }

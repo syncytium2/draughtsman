@@ -2,7 +2,7 @@
 
 > **Run 2026-09-01.** Everything in [`SPEC.md`](../../SPEC.md) and
 > [`DECISIONS.md`](../../DECISIONS.md) was measured on one model: `tube`, 1,149
-> parameters, one architecture family. This is the generalisation run. Each model
+> parameters, one architecture family. This is the generalization run. Each model
 > below was chosen for a **specific way it could break the tool**, written down
 > before it was traced.
 >
@@ -106,7 +106,7 @@ agent typed, spelled as a word so the bare-number heuristic could not see it.
 `repeat` counts it instead. The agent names a **template**: the ordered stages
 that draw one unit. draughtsman takes that unit's operation sequence and tiles it
 against the collapsed stage's nodes; the count is how many times it tiles, and a
-template that does not tile **exactly** is an error. It is `lanes` generalised —
+template that does not tile **exactly** is an error. It is `lanes` generalized —
 the agent says "this is a repetition of that", the tool says how many — and
 `{stage.repeat}` puts the verified number in the name.
 
@@ -134,7 +134,7 @@ identical are three pairs that differ.
 **Everything is a horizontal strip.** The transformer renders 1937×247, an 8:1
 ribbon; LeNet is 8:1 with nine stages. Layout is rank-by-longest-path with no
 wrapping, so depth converts directly into width — the same defect the README
-criticises torchview for, arrived at more slowly. Whisper escapes it only because
+criticizes torchview for, arrived at more slowly. Whisper escapes it only because
 its two input rails give the figure a second row for free.
 
 **Coverage checked placement, not edges — now closed, and it was backwards.**
@@ -200,7 +200,7 @@ the only one it needed to be.
 
 ## What held
 
-**`lanes` generalised across three families, which is the headline.** The
+**`lanes` generalized across three families, which is the headline.** The
 kernel-bank finding in DECISIONS.md was written about one model and read like a
 quirk of it. It is not:
 
@@ -219,7 +219,7 @@ first attempt, with every parameter attributed — the totals are stated once, a
 the top, where something computes them. Whisper's 835
 nodes and 37M parameters traced in under a second. Given that SPEC.md §3 reached
 `torch.jit.trace` by eliminating two alternatives on a single model, that
-generalisation was not guaranteed.
+generalization was not guaranteed.
 
 ## Two smaller notes, left standing rather than worked around
 
