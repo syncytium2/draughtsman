@@ -142,7 +142,7 @@ tonydefazio.com tile is built, is the first card, and its deploy gate is
 `gh repo view syncytium2/draughtsman --json visibility` returning PUBLIC. So this
 list is what stands between here and that flip, in order:
 
-- [x] **The licence blocker.** CASCADE was GPL-3.0 against this repo's BSD-3.
+- [x] **The license blocker.** CASCADE was GPL-3.0 against this repo's BSD-3.
   Moved to `haruspex` at its `8520125`; gone from here at `3652d81`.
 - [x] **The things a stranger hits first.** The name that installed someone
   else's package, a Cyrillic word in an English comment, a jab at a named
@@ -225,14 +225,14 @@ list is what stands between here and that flip, in order:
   endpoint that answers; the first check said "no attestations" and was wrong.
 
   `README.md`'s install block now leads with `pip install draughtsman-nn`; the
-  editable installs moved below it, labelled as the way to work on the project
+  editable installs moved below it, labeled as the way to work on the project
   rather than the only way in. The sentence "It is not published yet" is gone.
 
 - [ ] **JOSS, if wanted — and it is not an alternative to the above.** Zenodo
   archives and mints a DOI in a day with no review; JOSS is peer review that also
   mints one, takes months, and expects a submission to point at an archived DOI'd
   version. So Zenodo is a prerequisite rather than a substitute. What this repo
-  still lacks for it is `paper.md` and a statement of need; licence, tests, docs
+  still lacks for it is `paper.md` and a statement of need; license, tests, docs
   and `CONTRIBUTING.md` are done. The venue precedent is already cited in
   `SPEC.md` §2 — nn-SVG is LeNail (2019), *JOSS* 4(33):747.
 
@@ -267,7 +267,7 @@ It was three faults wearing one number:
   legible — the pairs were symmetric to the unit (26/26, 27/27, 70/70), which is
   the signature of an arc bowing under a box.
 - **A bypass now has the width of the rank it crosses**, so it runs level beneath
-  the stage rather than dipping to a point at its centre. Cleared eight. Depth was
+  the stage rather than dipping to a point at its center. Cleared eight. Depth was
   the wrong lever and was tried first: `DUMMY_H` 12→44 moved transformer 21%→14%
   and cleared nothing.
 - **A wrap connector returns through the gutter reserved for it.** `GUTTER = 34.0`
@@ -395,10 +395,10 @@ still carries the mislabel, and the renderer question is still open for it.
 
 **3. Icon mode post-processes rather than re-laying out**, so a boxed figure
 carries more empty box than it needs. Nothing checks that an icon is legible *as a
-mark*; that judgement is still a person's. `draughtsman-b2` has been in
+mark*; that judgment is still a person's. `draughtsman-b2` has been in
 `icon-legibility`.
 
-**4. The board cannot be dialled.** A reader cannot message the session holding a
+**4. The board cannot be dialed.** A reader cannot message the session holding a
 row: the board tag and the routable `ListAgents` name are different strings and
 nothing maps them. Adding the routable name to the row shrinks it. (Sometimes they
 coincide — mine did — which makes it worse, not better.)
@@ -414,7 +414,7 @@ optionally ask Kyle Fuller for the PyPI name, the outside-reader pass on
 
 **6. What the night taught, and it is not a task.** Every defect that mattered was
 found by *looking*: edges through stages, from a screenshot; arrows pointing at
-nothing, by rasterising an icon; an icon cropped by exactly its `ds-body`
+nothing, by rasterizing an icon; an icon cropped by exactly its `ds-body`
 transform. This suite has 500-odd assertions and was green through all of it.
 
     rsvg-convert -w 1260 -h 312 -b white FIG.svg -o FIG.png
@@ -471,7 +471,7 @@ Run it before and after. The type size is the fixed quantity — that is
 believing an eye over that arithmetic.
 
 **One loose end.** The SVG declares `width="6in"` for print, and a browser
-honours it at 576px — so a web page must override with its own width or the
+honors it at 576px — so a web page must override with its own width or the
 figure renders at 1.03x and the labels come out at 9.8px. The site does this; any
 other consumer will hit it. Worth a line in the README.
 
@@ -510,7 +510,7 @@ row was released. Anyone may take it.
 - Role 2 ran **single-pass**, which the process says is the one role that may never
   be collapsed for a deliverable claiming novelty — a self-review inherits the
   drafter's search history and stops in the same place. It still surfaced one gap:
-  the claim that the judgement step is "the only missing piece" ships without
+  the claim that the judgment step is "the only missing piece" ships without
   acknowledging that LLM-in-the-loop diagram generation is published work
   (Paper2SysArch, arXiv 2511.18036). CHI/VIS were not searched.
 - **Nobody has asked any of the five tools' authors anything.** The process calls
@@ -546,7 +546,7 @@ width only resnet and lenet do. To clear 6pt in a column a figure must come in a
 **These numbers moved when CASCADE left**, and the direction is the wrong one:
 at 646 units it was the narrowest figure in the repository, so removing it took
 the floor up to `resnet` at 750 and the best 7in result down from 7.4pt to 6.4pt.
-The licence reason for removing it stands on its own; this is the cost. Flagged by
+The license reason for removing it stands on its own; this is the cost. Flagged by
 `draughtsman-d8` reading the gallery, and it is the third time the queue would
 have gone stale about work done in the same day.
 
@@ -588,7 +588,7 @@ import name is not: `factorio-draftsman` installs a top-level `draftsman/` and
 released 2026-06-13. It trades a collision with a package abandoned in 2020 for
 one with a package that ships. Checked by pulling the wheel.
 
-**5. Email Peter Rupprecht about CASCADE.** *Tony's. The licence question is now
+**5. Email Peter Rupprecht about CASCADE.** *Tony's. The license question is now
 moot here; the email is worth sending anyway.*
 
 CASCADE has left this repository — `examples/gallery/cascade*` removed, and the
@@ -709,7 +709,7 @@ whether the tube's weakness is architectural: the tube averages over ROIs **befo
 kernel, so four onsets from one cell and four cells firing once are the same number. Measured on
 plants of equal ink, a 16-ROI line scored 1.3x a 4-ROI burst under the trained tube. `line`
 counts instead — per-ROI smoothing at a fitted width, a sigmoid so a bursting cell votes once,
-the mean over ROIs (the share of the field that is lit), then an area-normalised difference of
+the mean over ROIs (the share of the field that is lit), then an area-normalized difference of
 Gaussians so a rising background cancels. Supervised on bugarach's bake-off it scores F1 0.655
 against the tube's 0.686, with the highest precision of any learned model there.
 

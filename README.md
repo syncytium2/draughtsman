@@ -20,7 +20,7 @@ nothing was silently dropped.
 parameters over 271 traced operations, log-mel spectrogram to vocabulary logits.
 The weights are random: this draws the architecture, not the trained model.*
 
-OpenAI's speech recogniser at its published dimensions, written out in PyTorch in
+OpenAI's speech recognizer at its published dimensions, written out in PyTorch in
 [`examples/gallery/whisper_tiny.py`](https://github.com/syncytium2/draughtsman/blob/main/examples/gallery/whisper_tiny.py) — following
 their reference implementation, which is MIT and whose notice is in
 [`THIRD_PARTY_NOTICES.md`](https://github.com/syncytium2/draughtsman/blob/main/THIRD_PARTY_NOTICES.md) — and traced
@@ -114,10 +114,10 @@ model, and a reader would come away confident and wrong.
 
 Tools either **trace the computation graph** — complete, unreadable — or
 **enumerate registered modules** — readable, and blind to everything a `forward()`
-does. Neither can decide *which operations matter*, because that is a judgement
+does. Neither can decide *which operations matter*, because that is a judgment
 about what a reader needs, not a fact about the graph.
 
-That judgement is the only missing piece, and it is now cheap. Tony, 2026-09-01:
+That judgment is the only missing piece, and it is now cheap. Tony, 2026-09-01:
 
 > *"except now we have very powerful coding agents. i'm fine with putting an agent
 > in there for internal use."*
@@ -249,7 +249,7 @@ where every number in it comes from.
 
 ```
   model ──▶ [1 TRACE] ──▶ graph.json ──▶ [2 ABSTRACT] ──▶ spec.json ──▶ [3 RENDER] ──▶ figure.svg
-             facts          facts          judgement        judgement      deterministic
+             facts          facts          judgment        judgment      deterministic
              (torch)                  (person or agent)     (committed)
 ```
 
@@ -305,7 +305,7 @@ and the sheet.
 That sheet is a visual regression test. A layout defect in one model of many does
 not announce itself in a passing check — coverage is about what was *dropped*, not
 about what the picture looks like — and opening a tab per model to find it is how it stays
-unfound. The half a machine can check is parametrised in `tests/test_render.py`,
+unfound. The half a machine can check is parametrized in `tests/test_render.py`,
 so every committed model has its coverage and its figure's freshness asserted;
 adding a folder adds a test.
 
@@ -319,7 +319,7 @@ and `figure.svg` together, byte-identical to the CLI's, and a test asserts it.
 **Save writes into the repo; Export takes a copy out.** `Export ▾` (⌘E) gives you
 Copy SVG, Download SVG, and PNG at 1×, 2× or 4×. The SVG it hands over is the
 exact string `render()` produced — the same bytes `Save` writes — rather than a
-re-serialisation of what the browser is displaying. The PNG is rasterised from
+re-serialization of what the browser is displaying. The PNG is rasterized from
 that, on a white ground, because the figure ships no background of its own and a
 PNG has no page to inherit one from. For print or LaTeX, prefer the SVG.
 
@@ -327,12 +327,12 @@ If coverage is failing the menu says so before you export. Exporting anyway is
 allowed — you may want it mid-edit — but it is never silent, because shipping a
 figure that omits operations the model performs is the exact failure in §2.
 
-**Arrangement is part of the judgement, so it lives in the spec.** A `layout`
+**Arrangement is part of the judgment, so it lives in the spec.** A `layout`
 field takes `orientation` (`lr` across, `tb` down) and `wrap` (break the spine
 into rows at this width); the header carries a control for each, with the figure's
 size and aspect ratio beside them. Depth otherwise converts directly into width —
 LeNet, ResNet and the transformer all rendered as 8:1 ribbons, which is the defect
-this README criticises torchview for, arrived at more slowly. Wrapped, they are
+this README criticizes torchview for, arrived at more slowly. Wrapped, they are
 2.7:1, 1.6:1 and 3.4:1.
 
 A row break is refused where a long edge is still in flight, so U-Net — three
@@ -418,6 +418,6 @@ Several Claude Code sessions have worked this repository at once.
 decoration, which is [`DECISIONS.md`](https://github.com/syncytium2/draughtsman/blob/main/DECISIONS.md) correction 5 applied to the
 sessions themselves.
 
-## Licence
+## License
 
 BSD-3-Clause.

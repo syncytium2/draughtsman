@@ -2,7 +2,7 @@
   "draughtsman": "0",
   "graph": "graph.json",
   "batch_axis": 0,
-  "title": "Dual-branch 1-D net — tube's shape, generalised",
+  "title": "Dual-branch 1-D net — tube's shape, generalized",
   "subtitle": "{model.params} parameters · {model.input_shape} in, {node:n0097.out_shape} out",
   "stages": [
     {

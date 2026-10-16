@@ -87,7 +87,7 @@ model would pin the torch version too.
 - `test_render.py::test_committed_figure_is_current` renders the committed
   `spec.json` + `graph.json` and asserts byte equality. Pure Python, no torch, no
   graphviz. It fires whenever the abstraction or the renderer moves — it fired
-  during this build, on a layout change, which is the behaviour wanted.
+  during this build, on a layout change, which is the behavior wanted.
 - `test_trace.py` traces a fixture model and asserts the facts *semantically*:
   every parameter attributed, shapes on every node, the concat seeing both
   branches. A torch point release that renames `%202` does not turn CI red.
@@ -101,7 +101,7 @@ agent typed no number, the reference resolved, coverage passed. **The figure was
 still wrong.**
 
 `tube` pools at `2·kmin + 1` where `kmin = int(exp(self.log_center).min().clamp(1, k))`
-and `log_center` is a *trained parameter*. The centres initialise at 1/2/4/8
+and `log_center` is a *trained parameter*. The centers initialize at 1/2/4/8
 samples, so kmin is 1 and the pool is 3; trained they are ~4–7, which is a pool of
 9–15. **The figure was true of an untrained model and of nothing else** — and it
 was about to be vendored into the repository whose own generator carries the
@@ -143,10 +143,10 @@ because the trace names the hazard and the check names the references.
 
 **Note what does not catch this, because it is the near miss.** bugarach's
 freshness test regenerates the figure twice and asserts the two agree, precisely
-to ensure the drawing does not depend on initialised weights. It passes.
-`build_tube` initialises `log_center` deterministically, so the baked 3 is
+to ensure the drawing does not depend on initialized weights. It passes.
+`build_tube` initializes `log_center` deterministically, so the baked 3 is
 perfectly reproducible. **Determinism and architecture are different claims** —
-a reproducible initialisation is still an initialisation — and a gate built for
+a reproducible initialization is still an initialization — and a gate built for
 one does not cover the other.
 
 **One limit, stated.** A hazard is graph-wide, not per-constant, because the data
@@ -388,7 +388,7 @@ guarantee is narrower than it reads, and stating the limit is the only fix
 available:
 
 > **A reference cannot be wrong about the graph. It can be wrong about the
-> sentence.** The first is mechanised; the second is read, or it is not caught.
+> sentence.** The first is mechanized; the second is read, or it is not caught.
 
 It was caught by rendering the figure and reading the text, an hour after writing
 a correction about exactly this kind of confidence. The right reference was
@@ -437,7 +437,7 @@ The first half is configuration and will not travel with the file. The second is
 the part that makes the instrument honest wherever it lands, and if the board is
 ever vendored into another repository it is the half that must go with it.
 
-**The rule, stated so it generalises: a portable check must assert its
+**The rule, stated so it generalizes: a portable check must assert its
 preconditions rather than assume them.** Ask what the check needs in order to see,
 and make the absence of it a failure with its own message. Otherwise the check
 does not go quiet — which would at least be visible — it goes confidently wrong
@@ -535,7 +535,7 @@ The cause was one line. The SVG root said:
 
 Unitless, which means pixels. So the figure asserted it was 1594 pixels wide and
 every consumer — LaTeX, Word, a browser — scaled it to whatever fitted, taking
-the type down with it. **Nothing in the source mentioned an inch, a millimetre or
+the type down with it. **Nothing in the source mentioned an inch, a millimeter or
 a point.** `layout.wrap` looked like a size and was a count of the same arbitrary
 units.
 
@@ -606,7 +606,7 @@ text is wrong for these four.** It says *"wrap the spine into more rows, drop a
 detail line, or collapse a stage"*; the first does not apply to a figure whose
 width is not a spine, and the second is worth about 80 units where 200 to 640 are
 needed. Only the third can work, and collapsing a stage changes what the figure
-claims about the model — which is stage 2's judgement and not a layout fix.
+claims about the model — which is stage 2's judgment and not a layout fix.
 
 `CLAIMS.md` queue item 3 says the remaining work is "narrower figures, not a
 knob". For the linear figures that is exactly right. For the branched ones there
@@ -678,7 +678,7 @@ decision, and incidental is a defect. `test_the_detector_can_fail` was incidenta
 and is now controlled. The briefing selftest was incidental, is now declared, and
 **a fixture board it writes itself is still the right end state and is not done.**
 
-**The remedy that generalises: assert the property the number is for, not the
+**The remedy that generalizes: assert the property the number is for, not the
 number.** This is the sentence worth carrying out of all five.
 
     READS_AT is 0.25                     pins a value nobody can check, and is
@@ -686,12 +686,12 @@ number.** This is the sentence worth carrying out of all five.
 
     READS_AT has measured room on both   fails on the mistake actually available
     sides                                to make — drawing a boundary against a
-                                         neighbour — and survives the right value
+                                         neighbor — and survives the right value
                                          changing
 
 `tests/test_icon.py::test_each_threshold_sits_in_a_gap_and_not_against_a_neighbour`
 requires `0.01` of measured room on both sides of each boundary and names the
-neighbours when it fails. The shipped bands are `0.25` and `0.19`, sitting in gaps
+neighbors when it fails. The shipped bands are `0.25` and `0.19`, sitting in gaps
 `0.086` and `0.031` wide, with the measured table and the reasoning in the comment
 above them in `src/draughtsman/icon.py`.
 
@@ -764,7 +764,7 @@ Rejected, and more firmly than §8 anticipated. Three reasons, in order of weigh
 2. **It is the whole of §8.2's tension.** `dot` is a system binary whose output
    moves between versions. Dropping it makes the staleness test unconditional.
 3. **The layout is not hard for these figures.** `layout.py` is rank by longest
-   path, a dummy per rank a long edge crosses, barycentre ordering, then
+   path, a dummy per rank a long edge crosses, barycenter ordering, then
    placement — about 200 lines for any DAG, not just this one.
 
 **This is not a return to hand placement.** The objection that started this repo
@@ -772,7 +772,7 @@ is coordinates *typed per figure*. These are derived from topology, once.
 
 One deliberate inversion of the textbook: Sugiyama straightens the dummy chains
 first, so long edges run level and real nodes bend around them. A reader follows
-the main path, so here a real stage is positioned by its real neighbours only, and
+the main path, so here a real stage is positioned by its real neighbors only, and
 the skipping edge bows out of the way. That is what makes `tube`'s spine straight
 and its bypass an arc. Down-weighting the dummies is not enough — any weight at
 all leaves the chain a few pixels crooked, which `test_layout.py` pins.
@@ -820,7 +820,7 @@ is now the highest-value open item**, and it is a layout change, not a spec one.
 
 Built after the gallery measured it, and the gallery README reached the same
 conclusion independently: *"Layout is rank-by-longest-path with no wrapping, so
-depth converts directly into width — the same defect the README criticises
+depth converts directly into width — the same defect the README criticizes
 torchview for, arrived at more slowly."*
 
 Two fields, both on the spec rather than on the renderer:
@@ -829,7 +829,7 @@ Two fields, both on the spec rather than on the renderer:
 "layout": {"orientation": "lr" | "tb", "wrap": 760}
 ```
 
-**They belong in the spec because arrangement is judgement.** A flag on `render`
+**They belong in the spec because arrangement is judgment.** A flag on `render`
 would mean the committed figure came out the shape of whoever last ran the
 command, and §6's staleness test would be asserting that accident. Both default
 to off and are omitted from `dump()` when defaulted, so adding them changed no
@@ -879,7 +879,7 @@ other seven are unchanged.
 SPEC.md does not mention a UI. It should, because §5 ends by naming a job it
 cannot do — *"the names are good, the grouping is natural, the figure is
 legible… those need a human"* — and leaves that human a JSON file and a
-rasteriser.
+rasterizer.
 
 `draughtsman ui` is a stdlib HTTP server on localhost and one page of vanilla
 JavaScript. No dependencies, no build step, no network: a CDN font that failed to
@@ -911,7 +911,7 @@ here, and the objection to it was not:
 
 Correct, and the shallow fix was insufficient. Counting distinct owned ids gives
 the right total *and* would have reported `47/47` with a node sitting in two
-stages — a §5 violation reading as success, with only the badge's colour
+stages — a §5 violation reading as success, with only the badge's color
 dissenting. So `check.Counts` is now the single implementation: it distinguishes
 *placed in exactly one place* from *placed*, reports duplicates and unplaced nodes
 separately, names the untraced model inputs rather than folding them in, and
@@ -1037,7 +1037,7 @@ nearest proxy — a boxed stage that prints a shape must carry a reason — fire
 of the stages in this repository, including every stage of `whisper`, most of which
 are correctly boxed. A check that fires on 55 correct figures is one somebody turns
 off, which is the reasoning `check` already applies to its own warnings, and the
-reasoning the mark bands run on. The undecidable residue stays judgement, and stays
+reasoning the mark bands run on. The undecidable residue stays judgment, and stays
 in `ui`.
 
 What is checked instead is in two parts. The decidable half of the rule: a glyph may

@@ -39,7 +39,7 @@ figure{margin:0}
 
    THE BLEED FIGURES NOW GO THE OTHER WAY, AND A PHONE IS WHY. At 390px
    `whisper`'s 1647 units land at 2.2px, which is not a smaller reading of the
-   figure but no reading of it -- and an SVG inside an <img> is rasterised at its
+   figure but no reading of it -- and an SVG inside an <img> is rasterized at its
    layout size, so pinch-zoom enlarges that 2.2px instead of redrawing it. Below
    1000px they keep their own width inside the plate and scroll sideways, which
    puts detail type back at the 9.5px it was authored at and makes panning how
@@ -159,7 +159,7 @@ a{color:var(--conv)}
   <p class="label">draughtsman</p>
   <h1>Architecture figures for PyTorch models.</h1>
   <p style="margin-top:18px">The tracer supplies the facts. A person or an agent supplies the
-  judgement — which operations to collapse into a stage and what to call it. It never
+  judgment — which operations to collapse into a stage and what to call it. It never
   supplies a number: every quantity in the figure is looked up from a trace of your
   model at render time.</p>
   <p>A coverage check then proves no traced operation was silently dropped.</p>
@@ -172,7 +172,7 @@ a{color:var(--conv)}
 
 <section>
   <h2>The model above is Whisper tiny, and it broke two things.</h2>
-  <p>OpenAI's speech recogniser at its published dimensions, written out in PyTorch
+  <p>OpenAI's speech recognizer at its published dimensions, written out in PyTorch
   following their <a href="https://github.com/openai/whisper">reference implementation</a>
   — MIT, and the notice travels with the file — then traced from that source: 80 mel bins,
   four encoder blocks against
@@ -271,7 +271,7 @@ a{color:var(--conv)}
     </figure>
     <p style="margin-top:22px">Asked for the depth draughtsman covers, torchview gives
     234 boxes at 2,088 × 14,688 pixels. Neither number is a criticism of it — tracing is
-    the half that can be mechanised, and it is the half this project takes from a tracer
+    the half that can be mechanized, and it is the half this project takes from a tracer
     too. What it adds is the other half: a person or an agent decides the grouping and
     the names, and a coverage check then proves no traced operation went missing.</p>
   </div>
@@ -288,7 +288,7 @@ a{color:var(--conv)}
 
 <section id="fields">
   <h2>What you can ask a figure to do.</h2>
-  <p>Everything below is a field in <code>spec.json</code> — judgement, committed, and
+  <p>Everything below is a field in <code>spec.json</code> — judgment, committed, and
   the same on any machine. None of it is a render-time flag, because a figure that
   comes out differently depending on who ran it cannot be checked against the model.</p>
 
@@ -297,7 +297,7 @@ a{color:var(--conv)}
       <h3>The tensor, drawn to scale — <code>glyph</code></h3>
       <p>One axis tall, another wide, both from the same shape, so the area the eye
       reads is a real product. <code>block</code> is one rectangle;
-      <code>marks</code> draws the axes as countable objects and turns to a labelled
+      <code>marks</code> draws the axes as countable objects and turns to a labeled
       bar past about thirty, where counting stops; <code>sheets</code> takes a third
       axis and stacks it, and is the only style that may. <code>scale</code> chooses
       <code>sqrt</code> or the faithful <code>linear</code>, and the key names which.</p>
@@ -310,7 +310,7 @@ a{color:var(--conv)}
       <p>A box is right when a stage's content is words. It is wrong when the content
       is a drawing of the tensor: you get a rectangle around a rectangle competing
       for the same reading, and the eye settles on the larger. <code>chrome</code>
-      set to <code>none</code> lets the tensor be the stage, and the colour family
+      set to <code>none</code> lets the tensor be the stage, and the color family
       moves onto the glyph.</p>
       <p class="cap">The box off, <a href="#to-scale">above</a>; the box on,
       <a href="#in-a-box">below</a>. <code>chrome</code> is a field of a stage as well
@@ -338,7 +338,7 @@ a{color:var(--conv)}
     <div>
       <h3>Arrangement — <code>orientation</code>, <code>wrap</code></h3>
       <p>Depth otherwise converts straight into width, which is the ribbon this page
-      criticises other tools for. <code>wrap</code> breaks the spine into rows at a
+      criticizes other tools for. <code>wrap</code> breaks the spine into rows at a
       stated width, and a break is refused where a long edge is still in flight — so
       a net whose skips span its whole depth barely wraps, which is the honest answer
       rather than a row break drawn through a skip.</p>
@@ -353,9 +353,9 @@ a{color:var(--conv)}
     </div>
     <div>
       <h3>A key under the drawing — <code>legend</code></h3>
-      <p>One row per colour family actually drawn, each carrying its share of the
+      <p>One row per color family actually drawn, each carrying its share of the
       traced operations and parameters — counted off the graph, not off the picture.
-      Colour cannot carry proportion when a box is a collapsed stage rather than a
+      Color cannot carry proportion when a box is a collapsed stage rather than a
       layer, so the legend answers <em>how much of this model is convolution</em> as
       a fact instead of an impression. Off by default.</p>
     </div>
@@ -392,7 +392,7 @@ a{color:var(--conv)}
   <div class="inner">
     <figure>
       <div class="plate"><a href="examples/tube/figure.svg"><img src="examples/tube/figure.svg"
-        alt="tube, a coordinated-event detector, drawn as seven named stages wrapped across two rows: an onset raster, a max-pool, a mean over cells, a four-lane difference-of-Gaussian bank, a concatenate the bypass rejoins at, a dilated conv stack and a per-frame score, with a legend counting operations and parameters by colour family."></a></div>
+        alt="tube, a coordinated-event detector, drawn as seven named stages wrapped across two rows: an onset raster, a max-pool, a mean over cells, a four-lane difference-of-Gaussian bank, a concatenate the bypass rejoins at, a dilated conv stack and a per-frame score, with a legend counting operations and parameters by color family."></a></div>
       <p class="cap"><b>Most of that at once, on the model this tool was built
       for.</b> 1,149 parameters over 47 traced operations. Every quantity —
       the parameter counts, <code>kernel 257</code>, <code>dilation 1 → 32</code>, the
@@ -533,7 +533,7 @@ a{color:var(--conv)}
   <div class="inner">
     <figure>
       <div class="plate"><a href="examples/gallery/transformer/figure.svg"><img src="examples/gallery/transformer/figure.svg" width="1384"
-        alt="A transformer drawn as a long horizontal ribbon of named stages, with a labelled dashed skip and a block marked as a repeated unit."></a></div>
+        alt="A transformer drawn as a long horizontal ribbon of named stages, with a labeled dashed skip and a block marked as a repeated unit."></a></div>
       <p class="cap"><code>lanes</code> and <code>repeat</code>, and the reason
       <code>wrap</code> exists. The agent named the unit; draughtsman tiled it against
       the traced nodes and counted. Its 1,277 units put detail type at about 10px
@@ -559,7 +559,7 @@ a{color:var(--conv)}
     other tools of, in its own examples. Coverage was green, the type cleared its floor,
     and the committed SVG was exactly what the spec produced. Nothing had ever asked
     where an edge's own path goes. <code>tools/edge_collisions.py</code> is that look,
-    mechanised.</p>
+    mechanized.</p>
   </div>
 </section>
 

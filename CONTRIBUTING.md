@@ -77,6 +77,6 @@ Never ship a figure with overlapping text. That rule is borrowed from a sibling
 project and it is absolute; the assertion that enforces it here is
 `test_no_stage_name_is_painted_over_its_own_glyph`.
 
-## Licence
+## License
 
 BSD-3-Clause. By contributing you agree your work is licensed the same way.

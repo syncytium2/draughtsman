@@ -1,7 +1,7 @@
 # Third-party notices
 
 This repository is BSD-3-Clause. One file in it is derived from software under a
-different licence, and this is where that is said.
+different license, and this is where that is said.
 
 ## OpenAI Whisper — `examples/gallery/whisper_tiny.py`
 
@@ -19,7 +19,7 @@ logic, no KV cache, no decoding loop and no weights -- the weights are random,
 because the file exists to be *traced* rather than run. `sinusoids()` uses `math`
 where the original uses numpy, because nothing else in this gallery imports numpy.
 
-Upstream: <https://github.com/openai/whisper>. Its licence, in full and unaltered:
+Upstream: <https://github.com/openai/whisper>. Its license, in full and unaltered:
 
 ```
 MIT License
@@ -45,7 +45,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-The MIT licence asks that the notice above accompany copies and substantial
+The MIT license asks that the notice above accompany copies and substantial
 portions. Whether a reduced reimplementation for tracing is a substantial portion
 is arguable, and this repository does not want the argument: the notice is here
 either way, which costs nothing and settles it.

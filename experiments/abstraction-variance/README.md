@@ -44,7 +44,7 @@ Excluding the one run that cut materially coarser: **mean 0.885, min 0.823.**
 
 The index asks whether two runs put the same *operations* together. It is
 invariant to how many stages there are and to what they are called, which is the
-invariance this question needs — `stem` and `stem conv` are the same judgement in
+invariance this question needs — `stem` and `stem conv` are the same judgment in
 different words, and a name comparison would score that as total disagreement.
 Chance is 0.0, identical is 1.0. See the tool's docstring for why an *unadjusted*
 index would have scored two partitions that share nothing at about 0.85 and
@@ -62,7 +62,7 @@ operations — four distinct groupings across five runs — are the 32- and
 64-channel blocks, which is exactly where the model stops introducing anything
 new and a reader's needs genuinely differ.
 
-**The load-bearing judgement was unanimous, and arrived at independently.** All
+**The load-bearing judgment was unanimous, and arrived at independently.** All
 five runs opened the *first* residual block into a branch and an add, and left
 the rest closed. All five gave the same reason unprompted: a ResNet whose skip
 connection is invisible has reproduced the failure this tool exists to prevent,

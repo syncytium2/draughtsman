@@ -38,7 +38,7 @@ of tool cannot give them that:
   functional ops — which for many interesting architectures is the architecture.
 
 The missing step is choosing **which operations matter to a reader**. That is a
-judgement, not a derivation, which is why no tracer supplies it and why
+judgment, not a derivation, which is why no tracer supplies it and why
 publication figures are still drawn by hand.
 
 **draughtsman puts an agent in that step and nowhere else.**
@@ -88,7 +88,7 @@ Three stages. **The split is the point and must not be blurred.**
 
 ```
   model ──▶ [1 TRACE] ──▶ graph.json ──▶ [2 ABSTRACT] ──▶ spec.json ──▶ [3 RENDER] ──▶ figure.svg
-             facts          facts          judgement        judgement      deterministic
+             facts          facts          judgment        judgment      deterministic
              (torch)                       (agent)          (committed)
 ```
 
@@ -101,10 +101,10 @@ parameter count attributable to it.
 **Every number that ever appears in the final figure originates here.** Parameter
 counts, tensor shapes, kernel widths, dilations, receptive fields.
 
-### Stage 2 — abstract. Judgement only.
+### Stage 2 — abstract. Judgment only.
 
 Give the agent `graph.json` and ask for a **layout spec**: which node ids collapse
-into one stage, what that stage is called, its kind (for colour), and the edges —
+into one stage, what that stage is called, its kind (for color), and the edges —
 including where the graph forks and rejoins.
 
 **The agent never supplies a fact.** It does not write a parameter count, a shape,
@@ -134,7 +134,7 @@ edges, invisible in the source and obvious in the render.
 Ship no styling in the SVG; inherit from the embedding page. **Fills must be
 inline `style=`, not `fill=`** — a presentation attribute loses to a host
 stylesheet rule, and a `.arch rect { fill: … }` in the embedding page repainted
-every glyph one flat colour the first time this was tried.
+every glyph one flat color the first time this was tried.
 
 ## 5. The check that can fail
 
@@ -160,7 +160,7 @@ green check is never read as a good figure.
 | file | produced by | committed? | why |
 |---|---|---|---|
 | `graph.json` | stage 1 | yes | reproducibility; render reads facts from it |
-| `spec.json` | stage 2 | **yes** | rendering needs no API call, and the agent's judgement is reviewable in a diff |
+| `spec.json` | stage 2 | **yes** | rendering needs no API call, and the agent's judgment is reviewable in a diff |
 | `figure.svg` | stage 3 | yes | generate-commit-verify, as bugarach does for its viewer |
 
 **A staleness test regenerates and asserts byte equality**, so a model change that
@@ -220,7 +220,7 @@ code to port: its content is derived from the model, and its
 
 ## 10. What this is not
 
-Not a debugger, not a viewer, not an activation visualiser. Model Explorer and
+Not a debugger, not a viewer, not an activation visualizer. Model Explorer and
 Netron do the interactive-exploration job and do it well. This produces **one
 static figure a person can read**, and it is finished when a stranger looks at it
 and describes the architecture correctly.
